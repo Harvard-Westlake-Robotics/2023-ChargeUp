@@ -1,4 +1,4 @@
-package frc.robot.Drive;
+package frc.robot.subsystems;
 
 import com.revrobotics.*;
 
@@ -27,7 +27,7 @@ public class DriveSide {
     public double get_position() {
         double pos_one = encoder_one.getPosition();
         double pos_two = encoder_two.getPosition();
-        double pos_three = -encoder_three.getPosition();
+        double pos_three = encoder_three.getPosition();
 
         double avg = (pos_one + pos_two + pos_three) / 3;
 
@@ -47,9 +47,9 @@ public class DriveSide {
 
     public void set_power(double power) {
 
-        power = power * (12.0/100.0);
+        power = power * (12.0 / 100.0);
         one.setVoltage(power);
         two.setVoltage(power);
-        three.setVoltage(-power);
+        three.setVoltage(power);
     }
 }
