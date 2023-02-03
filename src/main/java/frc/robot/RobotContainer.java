@@ -1,5 +1,6 @@
 package frc.robot;
 
+import frc.robot.Commands.AutonPP;
 import frc.robot.Constants.OperatorConstants;
 // import frc.robot.commands.Autos;
 // import frc.robot.commands.ExampleCommand;
@@ -73,6 +74,6 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     //return Autos.exampleAuto(m_exampleSubsystem);
-    return null;
+    return AutonPP.exampleAuto(drivetrain);
   }
 }
