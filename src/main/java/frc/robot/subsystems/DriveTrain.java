@@ -97,10 +97,6 @@ public class DriveTrain extends SubsystemBase {
         rightDrive.stopMotor();
     }
 
-    public Pair<Double, Double> getPositions() {
-        return new Pair<Double>(leftDrive.)
-    }
-
     // method is called once every 20 ms
     @Override
     public void periodic() {
