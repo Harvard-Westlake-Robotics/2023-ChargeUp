@@ -19,9 +19,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final DriveTrain drivetrain = new DriveTrain(3, 1, 2, 7, 5, 6);
-  private final GearShifter gearShifter = new GearShifter();
-
+  private final DriveTrain drivetrain = new DriveTrain(3, 1, 2, 7, 6, 4);
+  
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandPS4Controller con = new CommandPS4Controller(0);
 
@@ -34,9 +33,7 @@ public class RobotContainer {
         () -> drivetrain.driveRobot(con.getLeftY(), con.getRightY()),
         drivetrain));
 
-    // define gearshifter
-    gearShifter.setDefaultCommand(new RunCommand(gearShifter::setLowGear, gearShifter));
-
+    
     // Configure the trigger bindings
     configureBindings();
   }
@@ -57,9 +54,7 @@ public class RobotContainer {
    */
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    con.R1().onTrue(new RunCommand(gearShifter::setHighGear, gearShifter));
-    con.L1().onTrue(new RunCommand(gearShifter::setLowGear, gearShifter));
-
+    
     // Schedule `exampleMethodCommand` when the con controller's B button is
     // pressed,
     // cancelling on release.

@@ -42,11 +42,7 @@ public class DriveTrain extends SubsystemBase {
         encoderLeftFront = leftFront.getEncoder();
         encoderLeftBack = leftBack.getEncoder();
         encoderLeftTop = leftTop.getEncoder();
-        encoderRightFront = rightFront.getEncoder();
-        encoderRightBack = rightBack.getEncoder();
-        encoderRightTop = rightTop.getEncoder();
-
-
+        
         // invert motor - must be done before creating motorgroup
         leftFront.setInverted(true);
         leftBack.setInverted(false);
@@ -60,9 +56,12 @@ public class DriveTrain extends SubsystemBase {
         rightBack = new CANSparkMax(rb, MotorType.kBrushless);
         rightTop = new CANSparkMax(rt, MotorType.kBrushless);
 
+        encoderRightFront = rightFront.getEncoder();
+        encoderRightBack = rightBack.getEncoder();
+        encoderRightTop = rightTop.getEncoder();
+
         // invert motor - must be done before creating motorgroup
-        rightFront.setInverted(true);
-        rightBack.setInverted(true);
+        rightTop.setInverted(true);
 
         // create motor group
         rightDrive = new MotorControllerGroup(rightFront, rightBack, rightTop);
