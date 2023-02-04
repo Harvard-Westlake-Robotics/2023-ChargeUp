@@ -24,7 +24,8 @@ public class DriveTrain extends SubsystemBase {
         var leftTop = new CANSparkMax(lt, MotorType.kBrushless);
 
         // invert motor - must be done before creating motorgroup
-        leftTop.setInverted(true);
+        leftFront.setInverted(true);
+        leftBack.setInverted(false);
 
         // create motor group
         leftDrive = new MotorControllerGroup(leftFront, leftBack, leftTop);
@@ -36,7 +37,8 @@ public class DriveTrain extends SubsystemBase {
         var rightTop = new CANSparkMax(rt, MotorType.kBrushless);
 
         // invert motor - must be done before creating motorgroup
-        rightTop.setInverted(true);
+        rightFront.setInverted(true);
+        rightBack.setInverted(true);
 
         // create motor group
         rightDrive = new MotorControllerGroup(rightFront, rightBack, rightTop);
