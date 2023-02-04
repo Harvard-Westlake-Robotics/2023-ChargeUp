@@ -1,4 +1,5 @@
 package frc.robot.Util;
+import org.javatuples.Pair;
 
 public class CurveInput {
     /**
@@ -20,12 +21,12 @@ public class CurveInput {
      * @param pwrCurveIntensity 5 reccomended [0, 20]
      * @return Pair([-100, 100], [-100, 100])
      */
-    public static Pair<Double> scale(double leftpwr, double rightpwr, double deadzone, double turnCurveIntensity, double pwrCurveIntensity) {
+    public static Pair<Double, Double> scale(double leftpwr, double rightpwr, double deadzone, double turnCurveIntensity, double pwrCurveIntensity) {
         if (Math.abs(leftpwr) < deadzone && Math.abs(rightpwr) < deadzone) {
-            return new Pair<Double>(0.0, 0.0);
+            return new Pair<Double, Double>(0.0, 0.0);
         }
         double pwr = curve(((leftpwr + rightpwr) / 2) * 100, pwrCurveIntensity); // range -100 to 100
         double turn = curve((leftpwr - rightpwr) * 100, turnCurveIntensity); // range -100 to 100
-        return new Pair<Double> (-(pwr + turn), pwr - turn);
+        return new Pair<Double, Double> (-(pwr + turn), pwr - turn);
     }
 }

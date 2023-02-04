@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.Drive.Drive;
 import frc.robot.Drive.DriveSide;
 import frc.robot.Util.CurveInput;
-import frc.robot.Util.Pair;
+import org.javatuples.Pair;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -76,13 +76,13 @@ public class Robot extends TimedRobot {
     final double deadzone = 0.03;
     final double turnCurveIntensity = 7;
     final double pwrCurveIntensity = 5;
-    final Pair<Double> powers = CurveInput.scale(
+    final Pair<Double, Double> powers = CurveInput.scale(
         con.getLeftY(),
         con.getRightY(),
         deadzone,
         turnCurveIntensity,
         pwrCurveIntensity);
-    drive.setPower(powers.left, powers.right);
+    drive.setPower(powers.getValue0(), powers.getValue1());
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
