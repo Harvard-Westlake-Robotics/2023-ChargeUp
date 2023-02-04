@@ -2,34 +2,26 @@ package frc.robot.Drive;
 
 import com.revrobotics.*;
 
+import frc.robot.Motor.SparkMax;
+
 /**
  * Holds the three motors and shifter on either side of the drive. Shifter can be null
  */
 public class DriveSide {
     private GearShifter shifter;
-    private CANSparkMax one;
-    private CANSparkMax two;
-    private CANSparkMax three;
-    private RelativeEncoder encoder_one;
-    private RelativeEncoder encoder_two;
-    private RelativeEncoder encoder_three;
+    private SparkMax one;
+    private SparkMax two;
+    private SparkMax three;
 
-    public DriveSide(CANSparkMax one, CANSparkMax two, CANSparkMax three, GearShifter shifter) {
+    public DriveSide(SparkMax one, SparkMax two, SparkMax three, GearShifter shifter) {
         this.one = one;
         this.two = two;
         this.three = three;
-        this.one.restoreFactoryDefaults();
-        this.two.restoreFactoryDefaults();
-        this.three.restoreFactoryDefaults();
-
-        this.encoder_one = this.one.getEncoder();
-        this.encoder_two = this.two.getEncoder();
-        this.encoder_three = this.three.getEncoder();
 
         this.shifter = shifter;
     }
 
-    public DriveSide(CANSparkMax one, CANSparkMax two, CANSparkMax three) {
+    public DriveSide(SparkMax one, SparkMax two, SparkMax three) {
         this(one, two, three, null);
     }
 
@@ -46,9 +38,9 @@ public class DriveSide {
     }
 
     public double getPosition() {
-        double pos_one = encoder_one.getPosition();
-        double pos_two = encoder_two.getPosition();
-        double pos_three = encoder_three.getPosition();
+        double pos_one = one.getPosition();
+        double pos_two = two.getPosition();
+        double pos_three = three.getPosition();
 
         double avg = (pos_one + pos_two + pos_three) / 3;
 
@@ -67,14 +59,14 @@ public class DriveSide {
     }
 
     public void stop() {
-        for (CANSparkMax motor : new CANSparkMax[] { one, two, three }) {
-            motor.stopMotor();
+        for (SparkMax motor : new SparkMax[] { one, two, three }) {
+            motor.stop();
         }
     }
 
     public void setPower(double power) {
         power = power * (12.0 / 100.0);
-        for (CANSparkMax motor : new CANSparkMax[] { one, two, three }) {
+        for (SparkMax motor : new SparkMax[] { one, two, three }) {
             motor.setVoltage(power);
         }
     }

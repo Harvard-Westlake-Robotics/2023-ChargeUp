@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.Drive.Drive;
 import frc.robot.Drive.DriveSide;
+import frc.robot.Motor.SparkMax;
 import frc.robot.Util.CurveInput;
 import org.javatuples.Pair;
 
@@ -35,14 +36,12 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     { // Drive initalization
-      var leftFront = new CANSparkMax(3, MotorType.kBrushless);
-      var leftBack = new CANSparkMax(1, MotorType.kBrushless);
-      var leftTop = new CANSparkMax(2, MotorType.kBrushless);
-      leftTop.setInverted(true);
-      var rightFront = new CANSparkMax(7, MotorType.kBrushless);
-      var rightBack = new CANSparkMax(6, MotorType.kBrushless);
-      var rightTop = new CANSparkMax(4, MotorType.kBrushless);
-      rightTop.setInverted(true);
+      var leftFront = new SparkMax(3, true);
+      var leftBack = new SparkMax(1, true);
+      var leftTop = new SparkMax(2, false);
+      var rightFront = new SparkMax(7, false);
+      var rightBack = new SparkMax(6, false);
+      var rightTop = new SparkMax(4, true);
 
       DriveSide left = new DriveSide(leftFront, leftBack, leftTop);
       DriveSide right = new DriveSide(rightFront, rightBack, rightTop);
