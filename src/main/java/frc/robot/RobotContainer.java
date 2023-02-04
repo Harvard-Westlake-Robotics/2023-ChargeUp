@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final DriveTrain drivetrain = new DriveTrain(3, 1, 2, 4, 5,+ 6);
+  private final DriveTrain drivetrain = new DriveTrain(3, 1, 2, 7, 6, 4);
   private final GearShifter gearShifter = new GearShifter();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
