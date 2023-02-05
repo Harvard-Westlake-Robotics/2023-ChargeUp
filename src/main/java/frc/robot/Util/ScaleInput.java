@@ -2,7 +2,7 @@ package frc.robot.Util;
 
 import org.javatuples.Pair;
 
-public class CurveInput {
+public class ScaleInput {
     /**
      * curve.
      * 
@@ -37,5 +37,32 @@ public class CurveInput {
                 (pwr + turn), // left
                 (pwr - turn) // right
         );
+    }
+
+    /**
+     * Takes a pair of two doubles and scales them down so they are both below 100
+     * e.g.
+     * (150.0, 100.0) -> (100.0, 66.6)
+     * 
+     * @param inp pair to be scaled
+     * @return
+     */
+    public static Pair<Double, Double> normalize(Pair<Double, Double> inp) {
+        if (Math.abs(inp.getValue0()) < 100.0 && Math.abs(inp.getValue1()) < 100.0) {
+            return new Pair<Double, Double>(inp.getValue0(), inp.getValue1());
+        }
+        double scale_one = 100.0 / Math.abs(inp.getValue0());
+        double scale_two = 100.0 / Math.abs(inp.getValue1());
+        double scale_value = (scale_one < scale_two) ? scale_one : scale_two;
+        double left_pwr = inp.getValue0() * scale_value;
+        double right_pwr = inp.getValue1() * scale_value;
+        // account for loss of precision
+        if (Math.abs(right_pwr) > 100) {
+            right_pwr = (right_pwr > 0) ? 100 : -100;
+        }
+        if (Math.abs(left_pwr) > 100) {
+            left_pwr = (left_pwr > 0) ? 100 : -100;
+        }
+        return new Pair<Double, Double>(left_pwr, right_pwr);
     }
 }
