@@ -85,7 +85,7 @@ public class Scheduler {
         }
         var newItems = Arrays.stream(items).filter((e) -> {
             System.out.println("tick");
-            return currentTime >= e.executeTime;
+            return currentTime < e.executeTime;
         }).toList();
         items = new ScheduleItem[newItems.size()];
         if (items.length != 0) {
