@@ -44,9 +44,7 @@ public class Scheduler {
         Recursive<Lambda> interval = new Recursive<>();
         interval.func = () -> {
             callBack.run();
-            System.out.println("setting timeout");
             setTimeout(() -> {
-                System.out.println("timeout executed");
                 interval.func.run();
             }, delay);
         };
@@ -65,11 +63,9 @@ public class Scheduler {
      * @return a function to cancel the calling of the function
      */
     public Lambda setTimeout(Lambda callBack, double delay) {
-        System.out.println("timeout added to queue");
         items = Arrays.copyOf(items, items.length + 1);
         var item = new ScheduleItem(callBack, delay + Timer.getFPGATimestamp());
         items[items.length - 1] = item;
-        System.out.println(items);
         return () -> {
             item.executable = () -> {
             };
@@ -84,14 +80,9 @@ public class Scheduler {
             }
         }
         var newItems = Arrays.stream(items).filter((e) -> {
-            System.out.println("tick");
-            return currentTime >= e.executeTime;
+            return currentTime < e.executeTime;
         }).toList();
         items = new ScheduleItem[newItems.size()];
-        if (items.length != 0) {
-            System.out.print(items);
-            System.out.println(newItems);
-        }
         int index = 0;
         for (var item : newItems) {
             items[index] = item;
