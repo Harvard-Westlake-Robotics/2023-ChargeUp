@@ -6,11 +6,10 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.TimedRobot;
+// import frc.robot.Core.Scheduler;
 import frc.robot.Drive.*;
 import frc.robot.Util.*;
 import frc.robot.Motor.SparkMax;
-
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 import org.javatuples.Pair;
 
@@ -64,44 +63,47 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
+    // Scheduler.getInstance().clear();
     drive.shiftLowGear();
     left.reset();
     right.reset();
-    
-    CommandScheduler.getInstance().schedule();
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
+    // Scheduler.getInstance().tick();
     // left.incrementTarget(0.003);
     left.tick(null);
-    CommandScheduler.getInstance().run();
   }
 
   @Override
   public void teleopInit() {
+    // Scheduler.getInstance().clear();
     drive.shiftLowGear();
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    // Scheduler.getInstance().tick();
+
     final double deadzone = 0.03;
     final double turnCurveIntensity = 7;
     final double pwrCurveIntensity = 5;
-    final Pair<Double, Double> powers = CurveInput.scale(
+    final Pair<Double, Double> powers = ScaleInput.normalize(ScaleInput.scale(
         con.getLeftY(),
         con.getRightY(),
         deadzone,
         turnCurveIntensity,
-        pwrCurveIntensity);
+        pwrCurveIntensity));
     drive.setPower(powers.getValue0(), powers.getValue1());
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
+    // Scheduler.getInstance().clear();
     drive.stop();
   }
 
