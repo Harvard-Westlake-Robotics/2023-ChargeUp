@@ -6,10 +6,12 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.TimedRobot;
-import frc.robot.Drive.Drive;
-import frc.robot.Drive.DriveSide;
+import frc.robot.Drive.*;
+import frc.robot.Util.*;
 import frc.robot.Motor.SparkMax;
-import frc.robot.Util.CurveInput;
+
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
 import org.javatuples.Pair;
 
 /**
@@ -24,6 +26,8 @@ import org.javatuples.Pair;
 public class Robot extends TimedRobot {
   Drive drive;
   PS4Controller con;
+  DriveSidePD left;
+  DriveSidePD right;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -43,6 +47,12 @@ public class Robot extends TimedRobot {
       DriveSide left = new DriveSide(leftFront, leftBack, leftTop);
       DriveSide right = new DriveSide(rightFront, rightBack, rightTop);
 
+      final var HIGHGEARCONTROLLER = new PDController(300, 0);
+      final var LOWGEARCONTROLLER = new PDController(300, 0);
+
+      this.left = new DriveSidePD(left, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
+      this.right = new DriveSidePD(left, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
+
       this.drive = new Drive(left, right);
     }
     this.con = new PS4Controller(0);
@@ -54,16 +64,24 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
+    drive.shiftLowGear();
+    left.reset();
+    right.reset();
+    
+    CommandScheduler.getInstance().schedule();
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
+    // left.incrementTarget(0.003);
+    left.tick(null);
+    CommandScheduler.getInstance().run();
   }
 
   @Override
   public void teleopInit() {
-
+    drive.shiftLowGear();
   }
 
   /** This function is called periodically during operator control. */

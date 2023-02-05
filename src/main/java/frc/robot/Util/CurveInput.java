@@ -34,8 +34,8 @@ public class CurveInput {
         double turn = curve((leftpwr - rightpwr) * 100, turnCurveIntensity); // range -100 to 100
 
         return new Pair<Double, Double>(
-                (pwr + turn) * Math.abs(leftpwr), // left
-                (pwr - turn) * Math.abs(rightpwr) // right
+                (pwr + turn), // left
+                (pwr - turn) // right
         );
     }
 }

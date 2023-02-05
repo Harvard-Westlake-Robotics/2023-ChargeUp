@@ -1,7 +1,5 @@
 package frc.robot.Drive;
 
-import org.javatuples.Pair;
-
 /**
  * Holds two `DriveSides` and allows you to call their methods together
  */
@@ -22,10 +20,6 @@ public class Drive {
     public void shiftLowGear() {
         left.shiftLow();
         right.shiftLow();
-    }
-
-    public Pair<Double, Double> getPositions() {
-        return new Pair<Double, Double>(left.getPosition(), right.getPosition());
     }
 
     public void setPower(double leftPercent, double rightPercent) {
