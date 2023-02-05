@@ -31,7 +31,7 @@ public class ScaleInput {
             return new Pair<Double, Double>(0.0, 0.0);
         }
         double pwr = curve(((leftpwr + rightpwr) / 2) * 100, pwrCurveIntensity); // range -100 to 100
-        double turn = curve((leftpwr - rightpwr) * 100, turnCurveIntensity); // range -100 to 100
+        double turn = curve((leftpwr - rightpwr) / 2 * 100, turnCurveIntensity); // range -100 to 100
 
         return new Pair<Double, Double>(
                 (pwr + turn), // left
