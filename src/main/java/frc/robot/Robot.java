@@ -11,8 +11,6 @@ import frc.robot.Drive.*;
 import frc.robot.Util.*;
 import frc.robot.Motor.SparkMax;
 
-import org.javatuples.Pair;
-
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to
@@ -88,16 +86,16 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     // Scheduler.getInstance().tick();
 
-    final double deadzone = 0.03;
+    final double deadzone = 0.05;
     final double turnCurveIntensity = 7;
     final double pwrCurveIntensity = 5;
-    final Pair<Double, Double> powers = ScaleInput.normalize(ScaleInput.scale(
+    final Pair<Double> powers = ScaleInput.scale(
         con.getLeftY(),
         con.getRightY(),
         deadzone,
         turnCurveIntensity,
-        pwrCurveIntensity));
-    drive.setPower(powers.getValue0(), powers.getValue1());
+        pwrCurveIntensity);
+    drive.setPower(powers.left, powers.right);
   }
 
   /** This function is called once each time the robot enters Disabled mode. */

@@ -10,12 +10,14 @@ public class DriveSidePD {
 
     public DriveSidePD(DriveSide driveSide, PDController lowGearController, PDController highGearController) {
         this.driveSide = driveSide;
-        driveSide.resetEncoders();
-        lowGearController.reset();
-        highGearController.reset();
+        this.driveSide.resetEncoders();
+
         this.lowGearController = lowGearController.clone();
         this.highGearController = highGearController.clone();
-        target = driveSide.getTotalDistanceInches();
+        this.lowGearController.reset();
+        this.highGearController.reset();
+
+        this.target = driveSide.getTotalDistanceInches();
     }
 
     /**
