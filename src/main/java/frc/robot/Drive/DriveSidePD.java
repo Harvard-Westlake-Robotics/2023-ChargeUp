@@ -9,13 +9,13 @@ public class DriveSidePD {
     private double target; // inches
 
     public DriveSidePD(DriveSide driveSide, PDController lowGearController, PDController highGearController) {
-        this.driveSide = driveSide;
-        this.driveSide.resetEncoders();
-
         this.lowGearController = lowGearController.clone();
         this.highGearController = highGearController.clone();
         this.lowGearController.reset();
         this.highGearController.reset();
+
+        this.driveSide = driveSide;
+        this.driveSide.resetEncoders();
 
         this.target = driveSide.getTotalDistanceInches();
     }

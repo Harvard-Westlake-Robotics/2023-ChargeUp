@@ -6,7 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.TimedRobot;
-// import frc.robot.Core.Scheduler;
+import frc.robot.Core.Scheduler;
 import frc.robot.Drive.*;
 import frc.robot.Util.*;
 import frc.robot.Motor.SparkMax;
@@ -21,10 +21,8 @@ import frc.robot.Motor.SparkMax;
  * project.
  */
 public class Robot extends TimedRobot {
-  Drive drive;
-  PS4Controller con;
-  DriveSidePD left;
-  DriveSidePD right;
+  DriveSide left;
+  DriveSide right;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -41,68 +39,73 @@ public class Robot extends TimedRobot {
       var rightBack = new SparkMax(6, false);
       var rightTop = new SparkMax(4, true);
 
-      DriveSide left = new DriveSide(leftFront, leftBack, leftTop);
-      DriveSide right = new DriveSide(rightFront, rightBack, rightTop);
-
-      final var HIGHGEARCONTROLLER = new PDController(300, 0);
-      final var LOWGEARCONTROLLER = new PDController(300, 0);
-
-      this.left = new DriveSidePD(left, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
-      this.right = new DriveSidePD(left, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
-
-      this.drive = new Drive(left, right);
+      this.left = new DriveSide(leftFront, leftBack, leftTop);
+      this.right = new DriveSide(rightFront, rightBack, rightTop);
     }
-    this.con = new PS4Controller(0);
   }
 
-  /**
-   * This autonomous runs the autonomous command selected by your
-   * {@link RobotContainer} class.
-   */
   @Override
   public void autonomousInit() {
-    // Scheduler.getInstance().clear();
-    drive.shiftLowGear();
-    left.reset();
-    right.reset();
+    Scheduler.getInstance().clear();
+
+    final var HIGHGEARCONTROLLER = new PDController(300, 0);
+    final var LOWGEARCONTROLLER = new PDController(300, 0);
+
+    DriveSidePD leftPD = new DriveSidePD(left, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
+    DriveSidePD rightPD = new DriveSidePD(left, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
+
+    leftPD.reset();
+    rightPD.reset();
+
+    left.shiftLow();
+    right.shiftLow();
+
+    Scheduler.getInstance().setInterval(() -> {
+      leftPD.incrementTarget(0.003);
+      leftPD.tick(null);
+    }, 0);
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    // Scheduler.getInstance().tick();
-    // left.incrementTarget(0.003);
-    left.tick(null);
+    Scheduler.getInstance().tick();
   }
 
   @Override
   public void teleopInit() {
-    // Scheduler.getInstance().clear();
-    drive.shiftLowGear();
+    Scheduler.getInstance().clear();
+
+    PS4Controller con = new PS4Controller(0);
+    Drive drive = new Drive(left, right);
+    
+    Scheduler.getInstance().setInterval(() -> {
+      final double deadzone = 0.05;
+      final double turnCurveIntensity = 7;
+      final double pwrCurveIntensity = 5;
+      final Pair<Double> powers = ScaleInput.scale(
+          con.getLeftY(),
+          con.getRightY(),
+          deadzone,
+          turnCurveIntensity,
+          pwrCurveIntensity);
+      drive.setPower(powers.left, powers.right);
+
+    }, 0);
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    // Scheduler.getInstance().tick();
-
-    final double deadzone = 0.05;
-    final double turnCurveIntensity = 7;
-    final double pwrCurveIntensity = 5;
-    final Pair<Double> powers = ScaleInput.scale(
-        con.getLeftY(),
-        con.getRightY(),
-        deadzone,
-        turnCurveIntensity,
-        pwrCurveIntensity);
-    drive.setPower(powers.left, powers.right);
+    Scheduler.getInstance().tick();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    // Scheduler.getInstance().clear();
-    drive.stop();
+    Scheduler.getInstance().clear();
+    left.stop();
+    right.stop();
   }
 
   @Override

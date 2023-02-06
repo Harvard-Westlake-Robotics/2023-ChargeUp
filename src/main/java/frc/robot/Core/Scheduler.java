@@ -48,8 +48,10 @@ public class Scheduler {
             item.executeTime = Timer.getFPGATimestamp() + delay;
         };
         interval.func.run();
+
         item.executable = interval.func;
         items = Arrays.copyOf(items, items.length + 1);
+        
         items[items.length - 1] = item;
         return () -> {
             item.executable = () -> {
