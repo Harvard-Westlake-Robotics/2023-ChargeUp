@@ -10,10 +10,13 @@ public class PDController {
         P_CONSTANT = p_CONSTANT;
         D_CONSTANT = d_CONSTANT;
     }
-
+    /**
+     * @param currentError the distance to the target from the current value (target value - current value)
+     * @return A correctional value
+     */
     public double tick(double currentError) {
-        double p_correct = -(P_CONSTANT * currentError);
-        double d_correct = D_CONSTANT * -(lastError - currentError);
+        double p_correct = P_CONSTANT * currentError;
+        double d_correct = D_CONSTANT * (currentError - lastError);
 
         lastError = currentError;
 

@@ -69,7 +69,7 @@ public class DriveSidePD {
     public Double tick(Double fac) {
         if (fac == null)
             fac = 1.0;
-        double error = driveSide.getTotalDistanceInches() - target;
+        double error = target - driveSide.getTotalDistanceInches();
         this.error = error;
         double correction;
         if (driveSide.isLowGear()) {
