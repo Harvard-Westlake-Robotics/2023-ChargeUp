@@ -12,8 +12,8 @@ public class PDController {
     }
 
     public double tick(double currentError) {
-        double p_correct = P_CONSTANT * currentError;
-        double d_correct = D_CONSTANT * (currentError - lastError);
+        double p_correct = -(P_CONSTANT * currentError);
+        double d_correct = D_CONSTANT * -(lastError - currentError);
 
         lastError = currentError;
         
