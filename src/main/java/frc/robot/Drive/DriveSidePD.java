@@ -52,6 +52,10 @@ public class DriveSidePD {
 
     // ! remove these after debugging
     public double error;
+
+    public double getError() {
+        return error;
+    }
     // ! </>
 
     /**
@@ -65,6 +69,7 @@ public class DriveSidePD {
         if (fac == null)
             fac = 1.0;
         double error = driveSide.getTotalDistanceInches() - target;
+        this.error = error;
         double correction;
         if (driveSide.isLowGear()) {
             highGearController.reset();

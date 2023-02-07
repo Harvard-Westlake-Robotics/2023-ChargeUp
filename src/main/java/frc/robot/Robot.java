@@ -49,7 +49,7 @@ public class Robot extends TimedRobot {
     Scheduler.getInstance().clear();
 
     final var HIGHGEARCONTROLLER = new PDController(300, 0);
-    final var LOWGEARCONTROLLER = new PDController(300, 0);
+    final var LOWGEARCONTROLLER = new PDController(300, 1);
 
     DriveSidePD leftPD = new DriveSidePD(left, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
     DriveSidePD rightPD = new DriveSidePD(left, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
@@ -59,10 +59,15 @@ public class Robot extends TimedRobot {
 
     left.shiftLow();
     right.shiftLow();
+    
+    Scheduler.getInstance().setInterval(() -> {
+      System.out.println("error: " + leftPD.getError());
+    }, 0.5);
 
     Scheduler.getInstance().setInterval(() -> {
-      leftPD.incrementTarget(0.003);
+      leftPD.incrementTarget(0.0001);
       leftPD.tick(null);
+      rightPD.tick(null);
     }, 0);
   }
 
