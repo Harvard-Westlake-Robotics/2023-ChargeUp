@@ -1,6 +1,12 @@
 package frc.robot.Drive;
 
-import frc.robot.Motor.SparkMax;
+// import frc.robot.Motor.WPI_TalonSRX;
+
+import frc.robot.Motor.TalonSRX;
+
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+
 
 /**
  * Holds the three motors and shifter on either side of the drive. Shifter can
@@ -8,9 +14,9 @@ import frc.robot.Motor.SparkMax;
  */
 public class DriveSide {
     private GearShifter shifter;
-    private SparkMax one;
-    private SparkMax two;
-    private SparkMax three;
+    private TalonSRX one;
+    private TalonSRX two;
+    private TalonSRX three;
     private boolean isLowGear = false;
 
     public boolean isLowGear() {
@@ -21,7 +27,7 @@ public class DriveSide {
         this.isLowGear = isLowGear;
     }
 
-    public DriveSide(SparkMax one, SparkMax two, SparkMax three, GearShifter shifter) {
+    public DriveSide(TalonSRX one, TalonSRX two, TalonSRX three, GearShifter shifter) {
         this.one = one;
         this.two = two;
         this.three = three;
@@ -31,7 +37,7 @@ public class DriveSide {
         resetEncoders();
     }
 
-    public DriveSide(SparkMax one, SparkMax two, SparkMax three) {
+    public DriveSide(TalonSRX one, TalonSRX two, TalonSRX three) {
         this(one, two, three, null);
     }
 
@@ -104,7 +110,7 @@ public class DriveSide {
     }
 
     public void resetEncoders() {
-        for (SparkMax motor : new SparkMax[] { one, two, three }) {
+        for (TalonSRX motor : new TalonSRX[] { one, two, three }) {
             motor.resetEncoder();
         }
         ticksAtLastShift = getTicks();
@@ -112,7 +118,7 @@ public class DriveSide {
     }
 
     public void stop() {
-        for (SparkMax motor : new SparkMax[] { one, two, three }) {
+        for (TalonSRX motor : new TalonSRX[] { one, two, three }) {
             motor.stop();
         }
     }
@@ -121,7 +127,7 @@ public class DriveSide {
         if (Math.abs(power) > 100.0)
             throw new Error("power too high: " + power);
         power = power * (12.0 / 100.0);
-        for (SparkMax motor : new SparkMax[] { one, two, three }) {
+        for (TalonSRX motor : new TalonSRX[] { one, two, three }) {
             motor.setVoltage(power);
         }
     }

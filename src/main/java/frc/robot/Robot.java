@@ -9,7 +9,9 @@ import edu.wpi.first.wpilibj.TimedRobot;
 // import frc.robot.Core.Scheduler;
 import frc.robot.Drive.*;
 import frc.robot.Util.*;
-import frc.robot.Motor.SparkMax;
+import frc.robot.Motor.TalonSRX;
+
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 import org.javatuples.Pair;
 
@@ -36,12 +38,12 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     { // Drive initalization
-      var leftFront = new SparkMax(3, true);
-      var leftBack = new SparkMax(1, true);
-      var leftTop = new SparkMax(2, false);
-      var rightFront = new SparkMax(7, false);
-      var rightBack = new SparkMax(6, false);
-      var rightTop = new SparkMax(4, true);
+      var leftFront = new TalonSRX(true);
+      var leftBack = new TalonSRX(true);
+      var leftTop = new TalonSRX(false);
+      var rightFront = new TalonSRX(false);
+      var rightBack = new TalonSRX(false);
+      var rightTop = new TalonSRX(true);
 
       DriveSide left = new DriveSide(leftFront, leftBack, leftTop);
       DriveSide right = new DriveSide(rightFront, rightBack, rightTop);
@@ -63,10 +65,11 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    // Scheduler.getInstance().clear();
-    drive.shiftLowGear();
-    left.reset();
-    right.reset();
+    // drive.shiftLowGear();
+    // left.reset();
+    // right.reset();
+    
+    CommandScheduler.getInstance().schedule();
   }
 
   /** This function is called periodically during autonomous. */
@@ -74,13 +77,16 @@ public class Robot extends TimedRobot {
   public void autonomousPeriodic() {
     // Scheduler.getInstance().tick();
     // left.incrementTarget(0.003);
-    left.tick(null);
+    // left.tick(null);
+    CommandScheduler.getInstance().run();
   }
 
   @Override
   public void teleopInit() {
     // Scheduler.getInstance().clear();
-    drive.shiftLowGear();
+    // drive.shiftLowGear();
+
+
   }
 
   /** This function is called periodically during operator control. */

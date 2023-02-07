@@ -4,14 +4,19 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-public class SparkMax {
-    private CANSparkMax maxspark;
-    private RelativeEncoder encoder;
+
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.SensorCollection;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+
+public class TalonSRX {
+    private WPI_TalonSRX maxspark;
+    private SensorCollection encoder;
     private boolean isReversed;
 
-    public SparkMax(int canID, boolean isReversed) {
-        this.maxspark = new CANSparkMax(canID, MotorType.kBrushless);
-        this.encoder = maxspark.getEncoder();
+    public TalonSRX(boolean isReversed) {
+        this.maxspark = new WPI_TalonSRX(0);
+        this.encoder = maxspark.getSensorCollection();
         this.isReversed = isReversed;
     }
 
@@ -32,7 +37,7 @@ public class SparkMax {
     }
 
     public double getPosition() {
-        return (isReversed) ? -encoder.getPosition() : encoder.getPosition();
+        return (isReversed) ? -maxspark.getSelectedSensorPosition() : maxspark.getSelectedSensorPosition();
     }
 
     public void stop() {
@@ -40,6 +45,6 @@ public class SparkMax {
     }
 
     public void resetEncoder() {
-        encoder.setPosition(0);
+        maxspark.setSelectedSensorPosition(0);
     }
 }
