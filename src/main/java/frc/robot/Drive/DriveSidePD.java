@@ -9,13 +9,15 @@ public class DriveSidePD {
     private double target; // inches
 
     public DriveSidePD(DriveSide driveSide, PDController lowGearController, PDController highGearController) {
-        this.driveSide = driveSide;
-        driveSide.resetEncoders();
-        lowGearController.reset();
-        highGearController.reset();
         this.lowGearController = lowGearController.clone();
         this.highGearController = highGearController.clone();
-        target = driveSide.getTotalDistanceInches();
+        this.lowGearController.reset();
+        this.highGearController.reset();
+
+        this.driveSide = driveSide;
+        this.driveSide.resetEncoders();
+
+        this.target = driveSide.getTotalDistanceInches();
     }
 
     /**
@@ -68,6 +70,7 @@ public class DriveSidePD {
         if (fac == null)
             fac = 1.0;
         double error = driveSide.getTotalDistanceInches() - target;
+        this.error = error;
         double correction;
         if (driveSide.isLowGear()) {
             highGearController.reset();

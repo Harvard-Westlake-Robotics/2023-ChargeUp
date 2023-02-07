@@ -1,7 +1,5 @@
 package frc.robot.Util;
 
-import org.javatuples.Pair;
-
 public class ScaleInput {
     /**
      * curve.
@@ -25,15 +23,15 @@ public class ScaleInput {
      * @param pwrCurveIntensity  5 reccomended [0, 20]
      * @return Pair([-100, 100], [-100, 100])
      */
-    public static Pair<Double, Double> scale(double leftpwr, double rightpwr, double deadzone,
+    public static Pair<Double> scale(double leftpwr, double rightpwr, double deadzone,
             double turnCurveIntensity, double pwrCurveIntensity) {
         if (Math.abs(leftpwr) < deadzone && Math.abs(rightpwr) < deadzone) {
-            return new Pair<Double, Double>(0.0, 0.0);
+            return new Pair<Double>(0.0);
         }
         double pwr = curve(((leftpwr + rightpwr) / 2) * 100, pwrCurveIntensity); // range -100 to 100
-        double turn = curve((leftpwr - rightpwr) * 100, turnCurveIntensity); // range -100 to 100
+        double turn = curve((leftpwr - rightpwr) / 2 * 100, turnCurveIntensity); // range -100 to 100
 
-        return new Pair<Double, Double>(
+        return new Pair<Double>(
                 (pwr + turn), // left
                 (pwr - turn) // right
         );
@@ -47,15 +45,15 @@ public class ScaleInput {
      * @param inp pair to be scaled
      * @return
      */
-    public static Pair<Double, Double> normalize(Pair<Double, Double> inp) {
-        if (Math.abs(inp.getValue0()) < 100.0 && Math.abs(inp.getValue1()) < 100.0) {
-            return new Pair<Double, Double>(inp.getValue0(), inp.getValue1());
+    public static Pair<Double> normalize(Pair<Double> inp) {
+        if (Math.abs(inp.left) < 100.0 && Math.abs(inp.right) < 100.0) {
+            return new Pair<Double>(inp.left, inp.right);
         }
-        double scale_one = 100.0 / Math.abs(inp.getValue0());
-        double scale_two = 100.0 / Math.abs(inp.getValue1());
+        double scale_one = 100.0 / Math.abs(inp.left);
+        double scale_two = 100.0 / Math.abs(inp.right);
         double scale_value = (scale_one < scale_two) ? scale_one : scale_two;
-        double left_pwr = inp.getValue0() * scale_value;
-        double right_pwr = inp.getValue1() * scale_value;
+        double left_pwr = inp.left * scale_value;
+        double right_pwr = inp.right * scale_value;
         // account for loss of precision
         if (Math.abs(right_pwr) > 100) {
             right_pwr = (right_pwr > 0) ? 100 : -100;
@@ -63,6 +61,6 @@ public class ScaleInput {
         if (Math.abs(left_pwr) > 100) {
             left_pwr = (left_pwr > 0) ? 100 : -100;
         }
-        return new Pair<Double, Double>(left_pwr, right_pwr);
+        return new Pair<Double>(left_pwr, right_pwr);
     }
 }

@@ -48,8 +48,6 @@ def includeDesktopSupport = false
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 5.
 dependencies {
-    implementation group: 'org.javatuples', name: 'javatuples', version: '1.2'
-
     implementation wpi.java.deps.wpilib()
     implementation wpi.java.vendor.java()
 
