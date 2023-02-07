@@ -52,11 +52,12 @@ public class DriveSidePD {
 
     // ! remove these after debugging
     public double error;
-
-    public double getError() {
-        return error;
-    }
+    public double correct;
     // ! </>
+    
+    public String toString() {
+        return "error: " + error + " current: " + driveSide.getInchesSinceLastShift() + " target: " + target + " correction: " + correct;
+    }
 
     /**
      * Uses the pid controllers to set the motor voltages based on their distance
@@ -82,6 +83,7 @@ public class DriveSidePD {
             driveSide.setPower((correction > 0) ? 100 : -100);
             return correction / 100;
         }
+        this.correct = correction;
         driveSide.setPower(correction * fac);
         return null;
     }
