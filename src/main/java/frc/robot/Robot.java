@@ -78,7 +78,7 @@ public class Robot extends TimedRobot {
 
     PS4Controller con = new PS4Controller(0);
     Drive drive = new Drive(left, right);
-    
+
     Scheduler.getInstance().setInterval(() -> {
       final double deadzone = 0.05;
       final double turnCurveIntensity = 7;
@@ -90,7 +90,6 @@ public class Robot extends TimedRobot {
           turnCurveIntensity,
           pwrCurveIntensity);
       drive.setPower(powers.left, powers.right);
-
     }, 0);
   }
 
