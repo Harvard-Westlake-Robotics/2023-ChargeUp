@@ -55,6 +55,10 @@ public class DriveSidePD {
     public double correct;
     // ! </>
     
+    public double getError(){
+        return error;
+    }
+
     public String toString() {
         return "error: " + error + " current: " + driveSide.getInchesSinceLastShift() + " target: " + target + " correction: " + correct;
     }

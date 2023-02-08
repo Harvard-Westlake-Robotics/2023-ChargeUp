@@ -38,11 +38,13 @@ public class DriveSide {
     double ticksAtLastShift = 0;
     double inchesAtLastShift = 0;
 
-    private double getInchesSinceLastShift() {
+    public double getInchesSinceLastShift() {
         final double deltaTicks = getTicks() - ticksAtLastShift;
         /**
          * 14/60 output rot/input rot high gear
          * 30/42 output rot/input rot low gear
+         * 
+         * 
          */
         // TODO: account for wheel diameter and other gears in the gearbox
         // ! These are not real inches, they are wigglios, imaginary inches from an
@@ -51,7 +53,7 @@ public class DriveSide {
             // move the diff of ticks into inches
             return (30.0 / 42.0) * deltaTicks;
         } else {
-            return (14.0 / 60.0) * deltaTicks;
+            return (14.0 / 60.0) * (14.0 / 42.0) * deltaTicks;
         }
     }
 

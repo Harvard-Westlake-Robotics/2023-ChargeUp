@@ -52,7 +52,7 @@ public class Robot extends TimedRobot {
     final var LOWGEARCONTROLLER = new PDController(300, 1);
 
     DriveSidePD leftPD = new DriveSidePD(left, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
-    DriveSidePD rightPD = new DriveSidePD(left, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
+    DriveSidePD rightPD = new DriveSidePD(right, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
 
     leftPD.reset();
     rightPD.reset();
