@@ -4,19 +4,22 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 
 public class GearShifter {
-    private Solenoid shift;
+    private Solenoid seanIsHot;
 
     public GearShifter(int channel) {
-        shift = new Solenoid(PneumaticsModuleType.REVPH, channel);
+        seanIsHot = new Solenoid(PneumaticsModuleType.REVPH, channel);
     }
 
     public void setLowGear() {
         // actuate
-        shift.set(true);
+        seanIsHot.set(true);
     }
 
     public void setHighGear() {
         // un-actuate
-        shift.set(false);
+        seanIsHot.set(false);
     }
+
+    
+
 }
