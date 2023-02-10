@@ -11,7 +11,10 @@ import frc.robot.Drive.*;
 import frc.robot.Util.*;
 import frc.robot.Motor.TalonSRX;
 
+import frc.robot.Pneumatics.Pneumatics ;
+
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import org.javatuples.Pair;
 
@@ -29,6 +32,8 @@ public class Robot extends TimedRobot {
   PS4Controller con;
   DriveSidePD left;
   DriveSidePD right;
+
+  Pneumatics pneu;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -86,7 +91,6 @@ public class Robot extends TimedRobot {
     // Scheduler.getInstance().clear();
     // drive.shiftLowGear();
 
-
   }
 
   /** This function is called periodically during operator control. */
@@ -104,6 +108,12 @@ public class Robot extends TimedRobot {
         turnCurveIntensity,
         pwrCurveIntensity));
     drive.setPower(powers.getValue0(), powers.getValue1());
+
+
+
+    // pneumatics fun
+    SmartDashboard.putNumber("Pressure: ", pneu.getPressure());
+    pneu.autoRunCompressor();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
