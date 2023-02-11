@@ -39,8 +39,8 @@ public class Robot extends TimedRobot {
       var rightBack = new SparkMax(6, false);
       var rightTop = new SparkMax(4, true);
 
-      this.left = new DriveSide(leftFront, leftBack, leftTop);
-      this.right = new DriveSide(rightFront, rightBack, rightTop);
+      this.left = new DriveSide(leftFront, leftBack, leftTop, null);
+      this.right = new DriveSide(rightFront, rightBack, rightTop, null);
     }
   }
 
@@ -59,10 +59,6 @@ public class Robot extends TimedRobot {
 
     left.shiftLow();
     right.shiftLow();
-    
-    Scheduler.getInstance().setInterval(() -> {
-      System.out.println("error: " + leftPD.getError());
-    }, 0.5);
 
     Scheduler.getInstance().setInterval(() -> {
       leftPD.incrementTarget(0.0001);
@@ -84,6 +80,9 @@ public class Robot extends TimedRobot {
     PS4Controller con = new PS4Controller(0);
     Drive drive = new Drive(left, right);
 
+    drive.resetEncoders();
+    drive.shiftLowGear();
+
     Scheduler.getInstance().setInterval(() -> {
       final double deadzone = 0.05;
       final double turnCurveIntensity = 7;
@@ -95,6 +94,10 @@ public class Robot extends TimedRobot {
           turnCurveIntensity,
           pwrCurveIntensity);
       drive.setPower(powers.left, powers.right);
+
+      // delete me: enco 1der debug info
+      System.out.println("Low gear: " + drive.left.getIsLowGear() + "," + drive.right.getIsLowGear() + "\t\tL: " + drive.left.getEncoderRevsSinceLastShift() + "\t\tR: " + drive.right.getEncoderRevsSinceLastShift());
+
     }, 0);
   }
 

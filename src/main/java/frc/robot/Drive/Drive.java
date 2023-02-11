@@ -4,12 +4,17 @@ package frc.robot.Drive;
  * Holds two `DriveSides` and allows you to call their methods together
  */
 public class Drive {
-    DriveSide left;
-    DriveSide right;
+    public DriveSide left;
+    public DriveSide right;
 
     public Drive(DriveSide left, DriveSide right) {
         this.left = left;
         this.right = right;
+    }
+    
+    public void resetEncoders() {
+        left.resetEncoders();
+        right.resetEncoders();
     }
 
     public void shiftHighGear() {

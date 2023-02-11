@@ -1,6 +1,7 @@
 package frc.robot.Drive;
 
 import frc.robot.Motor.SparkMax;
+import frc.robot.Util.Constants;
 
 /**
  * Holds the three motors and shifter on either side of the drive. Shifter can
@@ -13,13 +14,7 @@ public class DriveSide {
     private SparkMax three;
     private boolean isLowGear = false;
 
-    public boolean isLowGear() {
-        return isLowGear;
-    }
-
-    public void setLowGear(boolean isLowGear) {
-        this.isLowGear = isLowGear;
-    }
+    double ticksAtLastShift = 0;
 
     public DriveSide(SparkMax one, SparkMax two, SparkMax three, GearShifter shifter) {
         this.one = one;
@@ -30,37 +25,22 @@ public class DriveSide {
 
         resetEncoders();
     }
-
-    public DriveSide(SparkMax one, SparkMax two, SparkMax three) {
-        this(one, two, three, null);
+    public boolean getIsLowGear() {
+        return isLowGear;
     }
 
-    double ticksAtLastShift = 0;
-    double inchesAtLastShift = 0;
-
-    private double getInchesSinceLastShift() {
-        final double deltaTicks = getTicks() - ticksAtLastShift;
-        /**
-         * 14/60 output rot/input rot high gear
-         * 30/42 output rot/input rot low gear
-         */
-        // TODO: account for wheel diameter and other gears in the gearbox
-        // ! These are not real inches, they are wigglios, imaginary inches from an
-        // ! alternate universe
-        if (isLowGear) {
-            // move the diff of ticks into inches
-            return (30.0 / 42.0) * deltaTicks;
-        } else {
-            return (14.0 / 60.0) * deltaTicks;
-        }
+    public double getEncoderRevsSinceLastShift() {
+        return getEncoderPositionRevs() - ticksAtLastShift;
+    }
+    public double getInchesSinceLastShift() {
+        return encoderRevsToInches(getEncoderRevsSinceLastShift());
     }
 
-
-    public double getTotalDistanceInches() {
-        return inchesAtLastShift + getInchesSinceLastShift();
+    public double getPositionInInches() {
+        return encoderRevsToInches(getEncoderPositionRevs());
     }
 
-    public double getTicks() {
+    public double getEncoderPositionRevs() {
         double pos_one = one.getPosition();
         double pos_two = two.getPosition();
         double pos_three = three.getPosition();
@@ -75,24 +55,32 @@ public class DriveSide {
             return pos_one;
         } else {
             if (diff_two < diff_three)
-                return diff_two;
+                return pos_two;
             else
-                return diff_three;
+                return pos_three;
         }
     }
 
+    public double encoderRevsToInches(double encoderRevs) {
+        return (
+            encoderRevs * // revolutions of the encoder
+            (isLowGear ? Constants.LOW_GEAR_RATIO : Constants.HIGH_GEAR_RATIO) *
+            Constants.GEARBOX_RATIO * // revolutions of the wheel
+            Constants.WHEEL_CIRCUMFERENCE // distance the wheel has travelled
+        );
+    }
+
     public void shift(boolean setHighGear) {
-        if (!(shifter == null)) {
-            if (setHighGear)
-                shifter.setHighGear();
-            else
-                shifter.setLowGear();
-        } else {
-            System.out.println("YOU DONT HAVE A SHIFTER NO SHIFTING IS HAPPENING");
-        }
-        inchesAtLastShift += getInchesSinceLastShift();
-        ticksAtLastShift = getTicks();
         isLowGear = !setHighGear;
+
+        if(shifter == null) {
+            System.out.println("YOU DONT HAVE A SHIFTER NO SHIFTING IS HAPPENING");
+            return;
+        }
+        if (setHighGear) shifter.setHighGear();
+        else shifter.setLowGear();
+        
+        ticksAtLastShift = getEncoderPositionRevs();
     }
 
     public void shiftLow() {
@@ -107,8 +95,7 @@ public class DriveSide {
         for (SparkMax motor : new SparkMax[] { one, two, three }) {
             motor.resetEncoder();
         }
-        ticksAtLastShift = getTicks();
-        inchesAtLastShift = 0;
+        ticksAtLastShift = getEncoderPositionRevs();
     }
 
     public void stop() {
@@ -117,12 +104,12 @@ public class DriveSide {
         }
     }
 
-    public void setPower(double power) {
-        if (Math.abs(power) > 100.0)
-            throw new Error("power too high: " + power);
-        power = power * (12.0 / 100.0);
+    public void setPower(double percentage) {
+        if (Math.abs(percentage) > 100.0)
+            throw new Error("power too high: " + percentage);
+        double voltage = percentage * (12.0 / 100.0);
         for (SparkMax motor : new SparkMax[] { one, two, three }) {
-            motor.setVoltage(power);
+            motor.setVoltage(voltage);
         }
     }
 }

@@ -17,7 +17,7 @@ public class DriveSidePD {
         this.driveSide = driveSide;
         this.driveSide.resetEncoders();
 
-        this.target = driveSide.getTotalDistanceInches();
+        this.target = driveSide.getPositionInInches();
     }
 
     /**
@@ -43,7 +43,7 @@ public class DriveSidePD {
     public void reset() {
         resetPID(null);
         driveSide.resetEncoders();
-        target = driveSide.getTotalDistanceInches();
+        target = driveSide.getPositionInInches();
     }
 
     public void incrementTarget(double amount) {
@@ -69,10 +69,10 @@ public class DriveSidePD {
     public Double tick(Double fac) {
         if (fac == null)
             fac = 1.0;
-        double error = target - driveSide.getTotalDistanceInches();
+        double error = target - driveSide.getPositionInInches();
         this.error = error;
         double correction;
-        if (driveSide.isLowGear()) {
+        if (driveSide.getIsLowGear()) {
             highGearController.reset();
             correction = lowGearController.tick(error);
         } else {
