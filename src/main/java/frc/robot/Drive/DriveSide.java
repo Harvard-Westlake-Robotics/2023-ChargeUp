@@ -1,6 +1,6 @@
 package frc.robot.Drive;
 
-import frc.robot.Motor.SparkMax;
+import frc.robot.Motor.TalonSRX;
 import frc.robot.Util.Constants;
 
 /**
@@ -9,14 +9,14 @@ import frc.robot.Util.Constants;
  */
 public class DriveSide {
     private GearShifter shifter;
-    private SparkMax one;
-    private SparkMax two;
-    private SparkMax three;
+    private TalonSRX one;
+    private TalonSRX two;
+    private TalonSRX three;
     private boolean isLowGear = false;
 
     double ticksAtLastShift = 0;
 
-    public DriveSide(SparkMax one, SparkMax two, SparkMax three, GearShifter shifter) {
+    public DriveSide(TalonSRX one, TalonSRX two, TalonSRX three, GearShifter shifter) {
         this.one = one;
         this.two = two;
         this.three = three;
@@ -92,14 +92,14 @@ public class DriveSide {
     }
 
     public void resetEncoders() {
-        for (SparkMax motor : new SparkMax[] { one, two, three }) {
+        for (TalonSRX motor : new TalonSRX[] { one, two, three }) {
             motor.resetEncoder();
         }
         ticksAtLastShift = getEncoderPositionRevs();
     }
 
     public void stop() {
-        for (SparkMax motor : new SparkMax[] { one, two, three }) {
+        for (TalonSRX motor : new TalonSRX[] { one, two, three }) {
             motor.stop();
         }
     }
@@ -108,7 +108,7 @@ public class DriveSide {
         if (Math.abs(percentage) > 100.0)
             throw new Error("power too high: " + percentage);
         double voltage = percentage * (12.0 / 100.0);
-        for (SparkMax motor : new SparkMax[] { one, two, three }) {
+        for (TalonSRX motor : new TalonSRX[] { one, two, three }) {
             motor.setVoltage(voltage);
         }
     }

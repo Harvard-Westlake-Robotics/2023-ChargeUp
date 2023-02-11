@@ -14,8 +14,8 @@ public class TalonSRX {
     private SensorCollection encoder;
     private boolean isReversed;
 
-    public TalonSRX(boolean isReversed) {
-        this.maxspark = new WPI_TalonSRX(0);
+    public TalonSRX(int deviceNumber, boolean isReversed) {
+        this.maxspark = new WPI_TalonSRX(deviceNumber);
         this.encoder = maxspark.getSensorCollection();
         this.isReversed = isReversed;
     }
