@@ -9,13 +9,15 @@ public class DriveSidePD {
     private double target; // inches
 
     public DriveSidePD(DriveSide driveSide, PDController lowGearController, PDController highGearController) {
-        this.driveSide = driveSide;
-        driveSide.resetEncoders();
-        lowGearController.reset();
-        highGearController.reset();
         this.lowGearController = lowGearController.clone();
         this.highGearController = highGearController.clone();
-        target = driveSide.getTotalDistanceInches();
+        this.lowGearController.reset();
+        this.highGearController.reset();
+
+        this.driveSide = driveSide;
+        this.driveSide.resetEncoders();
+
+        this.target = driveSide.getPositionInInches();
     }
 
     /**
@@ -41,7 +43,7 @@ public class DriveSidePD {
     public void reset() {
         resetPID(null);
         driveSide.resetEncoders();
-        target = driveSide.getTotalDistanceInches();
+        target = driveSide.getPositionInInches();
     }
 
     public void incrementTarget(double amount) {
@@ -50,7 +52,12 @@ public class DriveSidePD {
 
     // ! remove these after debugging
     public double error;
+    public double correct;
     // ! </>
+    
+    public String toString() {
+        return "error: " + error + " current: " + driveSide.getInchesSinceLastShift() + " target: " + target + " correction: " + correct;
+    }
 
     /**
      * Uses the pid controllers to set the motor voltages based on their distance
@@ -62,9 +69,10 @@ public class DriveSidePD {
     public Double tick(Double fac) {
         if (fac == null)
             fac = 1.0;
-        double error = driveSide.getTotalDistanceInches() - target;
+        double error = target - driveSide.getPositionInInches();
+        this.error = error;
         double correction;
-        if (driveSide.isLowGear()) {
+        if (driveSide.getIsLowGear()) {
             highGearController.reset();
             correction = lowGearController.tick(error);
         } else {
@@ -75,6 +83,7 @@ public class DriveSidePD {
             driveSide.setPower((correction > 0) ? 100 : -100);
             return correction / 100;
         }
+        this.correct = correction;
         driveSide.setPower(correction * fac);
         return null;
     }

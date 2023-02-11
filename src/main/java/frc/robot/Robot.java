@@ -6,17 +6,10 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.TimedRobot;
-// import frc.robot.Core.Scheduler;
+import frc.robot.Core.Scheduler;
 import frc.robot.Drive.*;
 import frc.robot.Util.*;
-import frc.robot.Motor.TalonSRX;
-
-import frc.robot.Pneumatics.Pneumatics ;
-
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import org.javatuples.Pair;
+import frc.robot.Motor.SparkMax;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -28,12 +21,8 @@ import org.javatuples.Pair;
  * project.
  */
 public class Robot extends TimedRobot {
-  Drive drive;
-  PS4Controller con;
-  DriveSidePD left;
-  DriveSidePD right;
-
-  Pneumatics pneu;
+  DriveSide left;
+  DriveSide right;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -43,84 +32,87 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     { // Drive initalization
-      var leftFront = new TalonSRX(true);
-      var leftBack = new TalonSRX(true);
-      var leftTop = new TalonSRX(false);
-      var rightFront = new TalonSRX(false);
-      var rightBack = new TalonSRX(false);
-      var rightTop = new TalonSRX(true);
+      var leftFront = new SparkMax(3, true);
+      var leftBack = new SparkMax(1, true);
+      var leftTop = new SparkMax(2, false);
+      var rightFront = new SparkMax(7, false);
+      var rightBack = new SparkMax(6, false);
+      var rightTop = new SparkMax(4, true);
 
-      DriveSide left = new DriveSide(leftFront, leftBack, leftTop);
-      DriveSide right = new DriveSide(rightFront, rightBack, rightTop);
-
-      final var HIGHGEARCONTROLLER = new PDController(300, 0);
-      final var LOWGEARCONTROLLER = new PDController(300, 0);
-
-      this.left = new DriveSidePD(left, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
-      this.right = new DriveSidePD(left, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
-
-      this.drive = new Drive(left, right);
+      this.left = new DriveSide(leftFront, leftBack, leftTop, null);
+      this.right = new DriveSide(rightFront, rightBack, rightTop, null);
     }
-    this.con = new PS4Controller(0);
   }
 
-  /**
-   * This autonomous runs the autonomous command selected by your
-   * {@link RobotContainer} class.
-   */
   @Override
   public void autonomousInit() {
-    // drive.shiftLowGear();
-    // left.reset();
-    // right.reset();
-    
-    CommandScheduler.getInstance().schedule();
+    Scheduler.getInstance().clear();
+
+    final var HIGHGEARCONTROLLER = new PDController(300, 0);
+    final var LOWGEARCONTROLLER = new PDController(300, 1);
+
+    DriveSidePD leftPD = new DriveSidePD(left, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
+    DriveSidePD rightPD = new DriveSidePD(left, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
+
+    leftPD.reset();
+    rightPD.reset();
+
+    left.shiftLow();
+    right.shiftLow();
+
+    Scheduler.getInstance().setInterval(() -> {
+      leftPD.incrementTarget(0.0001);
+      leftPD.tick(null);
+      rightPD.tick(null);
+    }, 0);
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    // Scheduler.getInstance().tick();
-    // left.incrementTarget(0.003);
-    // left.tick(null);
-    CommandScheduler.getInstance().run();
+    Scheduler.getInstance().tick();
   }
 
   @Override
   public void teleopInit() {
-    // Scheduler.getInstance().clear();
-    // drive.shiftLowGear();
+    Scheduler.getInstance().clear();
 
+    PS4Controller con = new PS4Controller(0);
+    Drive drive = new Drive(left, right);
+
+    drive.resetEncoders();
+    drive.shiftLowGear();
+
+    Scheduler.getInstance().setInterval(() -> {
+      final double deadzone = 0.05;
+      final double turnCurveIntensity = 7;
+      final double pwrCurveIntensity = 5;
+      final Pair<Double> powers = ScaleInput.scale(
+          con.getLeftY(),
+          con.getRightY(),
+          deadzone,
+          turnCurveIntensity,
+          pwrCurveIntensity);
+      drive.setPower(powers.left, powers.right);
+
+      // delete me: enco 1der debug info
+      System.out.println("Low gear: " + drive.left.getIsLowGear() + "," + drive.right.getIsLowGear() + "\t\tL: " + drive.left.getEncoderRevsSinceLastShift() + "\t\tR: " + drive.right.getEncoderRevsSinceLastShift());
+
+    }, 0);
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    // Scheduler.getInstance().tick();
-
-    final double deadzone = 0.03;
-    final double turnCurveIntensity = 7;
-    final double pwrCurveIntensity = 5;
-    final Pair<Double, Double> powers = ScaleInput.normalize(ScaleInput.scale(
-        con.getLeftY(),
-        con.getRightY(),
-        deadzone,
-        turnCurveIntensity,
-        pwrCurveIntensity));
-    drive.setPower(powers.getValue0(), powers.getValue1());
-
-
-
-    // pneumatics fun
-    SmartDashboard.putNumber("Pressure: ", pneu.getPressure());
-    pneu.autoRunCompressor();
+    Scheduler.getInstance().tick();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    // Scheduler.getInstance().clear();
-    drive.stop();
+    Scheduler.getInstance().clear();
+    left.stop();
+    right.stop();
   }
 
   @Override

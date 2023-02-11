@@ -41,16 +41,20 @@ public class Scheduler {
      * @return a function to cancel the interval
      */
     public Lambda setInterval(Lambda callBack, double delay) {
+        var item = new ScheduleItem(null, delay + Timer.getFPGATimestamp());
         Recursive<Lambda> interval = new Recursive<>();
         interval.func = () -> {
             callBack.run();
-            setTimeout(() -> {
-                interval.func.run();
-            }, delay);
+            item.executeTime = Timer.getFPGATimestamp() + delay;
         };
         interval.func.run();
+
+        item.executable = interval.func;
+        items = Arrays.copyOf(items, items.length + 1);
+        
+        items[items.length - 1] = item;
         return () -> {
-            interval.func = () -> {
+            item.executable = () -> {
             };
         };
     }
@@ -73,20 +77,25 @@ public class Scheduler {
     }
 
     public void tick() {
+        boolean runCleanUp = false;
         double currentTime = Timer.getFPGATimestamp();
         for (var e : items.clone()) {
             if (currentTime >= e.executeTime) {
                 e.executable.run();
+                if (currentTime >= e.executeTime)
+                    runCleanUp = true;
             }
         }
-        var newItems = Arrays.stream(items).filter((e) -> {
-            return currentTime < e.executeTime;
-        }).toList();
-        items = new ScheduleItem[newItems.size()];
-        int index = 0;
-        for (var item : newItems) {
-            items[index] = item;
-            index++;
+        if (runCleanUp) {
+            var newItems = Arrays.stream(items).filter((e) -> {
+                return currentTime < e.executeTime;
+            }).toList();
+            items = new ScheduleItem[newItems.size()];
+            int index = 0;
+            for (var item : newItems) {
+                items[index] = item;
+                index++;
+            }
         }
     }
 
