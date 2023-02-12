@@ -14,7 +14,8 @@ public class DriveSide {
     private SparkMax three;
     private boolean isLowGear = false;
 
-    double ticksAtLastShift = 0;
+    double revsAtLastShift = 0;
+    double inchesAtLastShift = 0;
 
     public DriveSide(SparkMax one, SparkMax two, SparkMax three, GearShifter shifter) {
         this.one = one;
@@ -25,19 +26,21 @@ public class DriveSide {
 
         resetEncoders();
     }
+
     public boolean getIsLowGear() {
         return isLowGear;
     }
 
     public double getEncoderRevsSinceLastShift() {
-        return getEncoderPositionRevs() - ticksAtLastShift;
+        return getEncoderPositionRevs() - revsAtLastShift;
     }
+
     public double getInchesSinceLastShift() {
         return encoderRevsToInches(getEncoderRevsSinceLastShift());
     }
 
     public double getPositionInInches() {
-        return encoderRevsToInches(getEncoderPositionRevs());
+        return inchesAtLastShift + getInchesSinceLastShift();
     }
 
     public double getEncoderPositionRevs() {
@@ -62,25 +65,28 @@ public class DriveSide {
     }
 
     public double encoderRevsToInches(double encoderRevs) {
-        return (
-            encoderRevs * // revolutions of the encoder
-            (isLowGear ? Constants.LOW_GEAR_RATIO : Constants.HIGH_GEAR_RATIO) *
-            Constants.GEARBOX_RATIO * // revolutions of the wheel
-            Constants.WHEEL_CIRCUMFERENCE // distance the wheel has travelled
+        return (encoderRevs * // revolutions of the encoder
+                (isLowGear ? Constants.LOW_GEAR_RATIO : Constants.HIGH_GEAR_RATIO) *
+                Constants.GEARBOX_RATIO * // revolutions of the wheel
+                Constants.WHEEL_CIRCUMFERENCE // distance the wheel has travelled
         );
     }
 
     public void shift(boolean setHighGear) {
         isLowGear = !setHighGear;
 
-        if(shifter == null) {
+        if (shifter == null) {
             System.out.println("YOU DONT HAVE A SHIFTER NO SHIFTING IS HAPPENING");
             return;
+        } else {
+            if (setHighGear)
+                shifter.setHighGear();
+            else
+                shifter.setLowGear();
         }
-        if (setHighGear) shifter.setHighGear();
-        else shifter.setLowGear();
-        
-        ticksAtLastShift = getEncoderPositionRevs();
+
+        revsAtLastShift = getEncoderPositionRevs();
+        inchesAtLastShift += getInchesSinceLastShift();
     }
 
     public void shiftLow() {
@@ -95,7 +101,8 @@ public class DriveSide {
         for (SparkMax motor : new SparkMax[] { one, two, three }) {
             motor.resetEncoder();
         }
-        ticksAtLastShift = getEncoderPositionRevs();
+        revsAtLastShift = getEncoderPositionRevs();
+        inchesAtLastShift = 0;
     }
 
     public void stop() {
