@@ -32,12 +32,12 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     { // Drive initalization
-      var leftFront = new TalonSRX(1, true);
+      var leftFront = new TalonSRX(5, true);
       var leftBack = new TalonSRX(3, true);
-      var leftTop = new TalonSRX(2, false);
-      var rightFront = new TalonSRX(4, false);
-      var rightBack = new TalonSRX(6, false);
-      var rightTop = new TalonSRX(5, true);
+      var leftTop = new TalonSRX(4, false);
+      var rightFront = new TalonSRX(2, false);
+      var rightBack = new TalonSRX(0, false);
+      var rightTop = new TalonSRX(1, true);
 
       this.left = new DriveSide(leftFront, leftBack, leftTop, null);
       this.right = new DriveSide(rightFront, rightBack, rightTop, null);
