@@ -1,6 +1,7 @@
 package frc.robot.Drive;
 
 import frc.robot.Util.PDController;
+import frc.robot.Util.Round;
 
 public class DriveSidePD {
     private DriveSide driveSide;
@@ -41,9 +42,9 @@ public class DriveSidePD {
      * resets the PID controllers, their targets, and the drive's motor encoders
      */
     public void reset() {
-        resetPID(null);
         driveSide.resetEncoders();
         target = driveSide.getPositionInInches();
+        resetPID(null);
     }
 
     public void incrementTarget(double amount) {
@@ -51,12 +52,14 @@ public class DriveSidePD {
     }
 
     // ! remove these after debugging
-    public double error;
+    public double errorb;
     public double correct;
     // ! </>
-    
+
     public String toString() {
-        return "error: " + error + " current: " + driveSide.getInchesSinceLastShift() + " target: " + target + " correction: " + correct;
+        return "error: " + Round.rd(errorb) + " correction: " + Round.rd(correct) + " (" + Round.rd(target) + "-"
+                + Round.rd(driveSide.getPositionInInches())
+                + ")";
     }
 
     /**
@@ -70,7 +73,7 @@ public class DriveSidePD {
         if (fac == null)
             fac = 1.0;
         double error = target - driveSide.getPositionInInches();
-        this.error = error;
+        this.errorb = error;
         double correction;
         if (driveSide.getIsLowGear()) {
             highGearController.reset();
@@ -83,8 +86,8 @@ public class DriveSidePD {
             driveSide.setPower((correction > 0) ? 100 : -100);
             return correction / 100;
         }
-        this.correct = correction;
         driveSide.setPower(correction * fac);
+        this.correct = correction;
         return null;
     }
 }

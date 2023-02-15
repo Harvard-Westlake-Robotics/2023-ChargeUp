@@ -48,23 +48,37 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     Scheduler.getInstance().clear();
 
-    final var HIGHGEARCONTROLLER = new PDController(300, 0);
+    final var HIGHGEARCONTROLLER = new PDController(8, 0);
     final var LOWGEARCONTROLLER = new PDController(300, 1);
 
     DriveSidePD leftPD = new DriveSidePD(left, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
-    DriveSidePD rightPD = new DriveSidePD(left, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
+    DriveSidePD rightPD = new DriveSidePD(right, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
+
+    left.shiftHigh();
+    right.shiftHigh();
 
     leftPD.reset();
     rightPD.reset();
 
-    left.shiftLow();
-    right.shiftLow();
+    System.out.println(left.getPositionInInches());
 
     Scheduler.getInstance().setInterval(() -> {
-      leftPD.incrementTarget(0.0001);
+      System.out.println(leftPD);
+    }, 0.05);
+
+    Scheduler.getInstance().setInterval(() -> {
       leftPD.tick(null);
       rightPD.tick(null);
     }, 0);
+
+    Lambda stop = Scheduler.getInstance().setInterval(() -> {
+      leftPD.incrementTarget(0.08);
+      rightPD.incrementTarget(0.08);
+    }, 0);
+
+    Scheduler.getInstance().setTimeout(() -> {
+      stop.run();
+    }, 5);
   }
 
   /** This function is called periodically during autonomous. */
@@ -96,7 +110,10 @@ public class Robot extends TimedRobot {
       drive.setPower(powers.left, powers.right);
 
       // delete me: enco 1der debug info
-      System.out.println("Low gear: " + drive.left.getIsLowGear() + "," + drive.right.getIsLowGear() + "\t\tL: " + drive.left.getEncoderRevsSinceLastShift() + "\t\tR: " + drive.right.getEncoderRevsSinceLastShift());
+      // System.out.println("Low gear: " + drive.left.getIsLowGear() + "," +
+      // drive.right.getIsLowGear() + "\t\tL: " +
+      // drive.left.getEncoderRevsSinceLastShift() + "\t\tR: " +
+      // drive.right.getEncoderRevsSinceLastShift());
 
     }, 0);
   }
