@@ -52,12 +52,12 @@ public class DriveSidePD {
     }
 
     // ! remove these after debugging
-    public double error;
+    public double errorb;
     public double correct;
     // ! </>
 
     public String toString() {
-        return "error: " + Round.rd(error) + " correction: " + Round.rd(correct) + " (" + Round.rd(target) + "-"
+        return "error: " + Round.rd(errorb) + " correction: " + Round.rd(correct) + " (" + Round.rd(target) + "-"
                 + Round.rd(driveSide.getPositionInInches())
                 + ")";
     }
@@ -73,7 +73,7 @@ public class DriveSidePD {
         if (fac == null)
             fac = 1.0;
         double error = target - driveSide.getPositionInInches();
-        this.error = error;
+        this.errorb = error;
         double correction;
         if (driveSide.getIsLowGear()) {
             highGearController.reset();
@@ -86,8 +86,8 @@ public class DriveSidePD {
             driveSide.setPower((correction > 0) ? 100 : -100);
             return correction / 100;
         }
-        this.correct = correction;
         driveSide.setPower(correction * fac);
+        this.correct = correction;
         return null;
     }
 }

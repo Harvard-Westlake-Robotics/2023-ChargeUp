@@ -45,23 +45,24 @@ public class DriveSide {
 
     public double getEncoderPositionRevs() {
         double pos_one = one.getPosition();
-        double pos_two = two.getPosition();
-        double pos_three = three.getPosition();
+        // double pos_two = two.getPosition();
+        // double pos_three = three.getPosition();
 
-        double avg = (pos_one + pos_two + pos_three) / 3;
+        // double avg = (pos_one + pos_two + pos_three) / 3;
 
-        double diff_one = Math.abs(pos_one - avg);
-        double diff_two = Math.abs(pos_two - avg);
-        double diff_three = Math.abs(pos_three - avg);
+        // double diff_one = Math.abs(pos_one - avg);
+        // double diff_two = Math.abs(pos_two - avg);
+        // double diff_three = Math.abs(pos_three - avg);
 
-        if (diff_one < diff_two && diff_one < diff_three) {
-            return pos_one;
-        } else {
-            if (diff_two < diff_three)
-                return pos_two;
-            else
-                return pos_three;
-        }
+        // if (diff_one < diff_two && diff_one < diff_three) {
+        //     return pos_one;
+        // } else {
+        //     if (diff_two < diff_three)
+        //         return pos_two;
+        //     else
+        //         return pos_three;
+        // }
+        return pos_one;
     }
 
     public double encoderRevsToInches(double encoderRevs) {
