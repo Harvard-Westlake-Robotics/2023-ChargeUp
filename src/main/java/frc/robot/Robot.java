@@ -10,6 +10,7 @@ import frc.robot.Core.Scheduler;
 import frc.robot.Drive.*;
 import frc.robot.Util.*;
 import frc.robot.Motor.TalonSRX;
+import frc.robot.Pneumatics.PneumaticsSystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -41,6 +42,9 @@ public class Robot extends TimedRobot {
 
       this.left = new DriveSide(leftFront, leftBack, leftTop, null);
       this.right = new DriveSide(rightFront, rightBack, rightTop, null);
+
+
+      
     }
   }
 
@@ -94,6 +98,8 @@ public class Robot extends TimedRobot {
     PS4Controller con = new PS4Controller(0);
     Drive drive = new Drive(left, right);
 
+    PneumaticsSystem pneumatics = new PneumaticsSystem(80, 120);
+
     drive.resetEncoders();
     drive.shiftLowGear();
 
@@ -114,6 +120,10 @@ public class Robot extends TimedRobot {
       // drive.right.getIsLowGear() + "\t\tL: " +
       // drive.left.getEncoderRevsSinceLastShift() + "\t\tR: " +
       // drive.right.getEncoderRevsSinceLastShift());
+
+      
+      // pneumatics
+      pneumatics.autoRunCompressor();
 
     }, 0);
   }
