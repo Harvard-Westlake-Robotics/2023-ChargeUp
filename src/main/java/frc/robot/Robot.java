@@ -39,6 +39,10 @@ public class Robot extends TimedRobot {
       var rightFront = new TalonSRX(2, false);
       var rightBack = new TalonSRX(0, false);
       var rightTop = new TalonSRX(1, true);
+       //seans addition
+      var armFront = new TalonSRX(6, true);
+      var armBack = new TalonSRX(7, false);
+     
 
       this.left = new DriveSide(leftFront, leftBack, leftTop, null);
       this.right = new DriveSide(rightFront, rightBack, rightTop, null);
