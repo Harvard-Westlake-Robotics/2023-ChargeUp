@@ -1,45 +1,39 @@
 package frc.robot.Arm;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Motor.TalonSRX;
 
 // this is the subsystem
-public class Arm extends SubsystemBase {
-    // chain:
+public class Arm {
+    // Chain:
     // 60t - output
     // 15t - input
 
-    // motor:
+    // Motor:
     // 8t input
     // 64t output
 
-    private WPI_TalonSRX arm1 ;
-    private WPI_TalonSRX arm2 ;
+    private TalonSRX one;
+    private TalonSRX two;
 
-    public Arm (WPI_TalonSRX arm1, WPI_TalonSRX arm2)
-    {
-        this.arm1 = arm1;
-        this.arm2 = arm2;
+    public Arm(TalonSRX one, TalonSRX two) {
+        this.one = one;
+        this.two = two;
     }
 
-    public void moveAngle (double angle)
-    {
-        
+    public void setPower(double percent) {
+        if (Math.abs(percent) > 100.0)
+            throw new Error("The fuck how do you expect me to send over 100% voltage to the motor you dumbass");
+        double voltage = percent * (12.0 / 100.0);
+        one.setVoltage(voltage);
+        two.setVoltage(voltage);
     }
 
-
-    // public void periodic ()
-    // {
-    //     // This method will be called once per scheduler run
-
-
-    // }
-
-    public void stop()
-    {
-        arm1.stopMotor();
-        arm2.stopMotor();
+    //! 
+    public double getEncoderPosition() {
+        return one.getPosition();
     }
 
+    public double getArmPosition() {
+        return getEncoderPosition() / 256;
+    }
 }

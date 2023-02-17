@@ -1,20 +1,16 @@
 package frc.robot.Arm;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Util.PDController;
 
 // actually runs motors
 public class ArmPID {
 
-    private WPI_TalonSRX arm1;
-    private WPI_TalonSRX arm2;
+    Arm arm;
+    PDController controller;
 
-    public ArmPID (WPI_TalonSRX arm1, WPI_TalonSRX arm2)
-    {
-        this.arm1 = arm1;
-        this.arm2 = arm2;
+    public ArmPID(Arm arm, PDController controller) {
+        this.arm = arm;
+        this.controller = controller;
     }
 
-    
 }
