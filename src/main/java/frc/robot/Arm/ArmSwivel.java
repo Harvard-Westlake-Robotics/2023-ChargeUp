@@ -3,7 +3,7 @@ package frc.robot.Arm;
 import frc.robot.Motor.TalonSRX;
 
 // this is the subsystem
-public class Arm {
+public class ArmSwivel {
     // Chain:
     // 60t - output
     // 15t - input
@@ -15,9 +15,10 @@ public class Arm {
     private TalonSRX one;
     private TalonSRX two;
 
-    public Arm(TalonSRX one, TalonSRX two) {
+    public ArmSwivel(TalonSRX one, TalonSRX two) {
         this.one = one;
         this.two = two;
+
     }
 
     public void setPower(double percent) {
@@ -26,6 +27,12 @@ public class Arm {
         double voltage = percent * (12.0 / 100.0);
         one.setVoltage(voltage);
         two.setVoltage(voltage);
+    }
+
+    public void stop() {
+        for (TalonSRX motor : new TalonSRX[] { one, two }) {
+            motor.stop();
+        }
     }
 
     //! 

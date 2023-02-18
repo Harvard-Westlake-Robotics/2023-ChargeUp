@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.Core.Scheduler;
 import frc.robot.Drive.*;
+import frc.robot.Arm.*;
 import frc.robot.Util.*;
 import frc.robot.Motor.TalonSRX;
 import frc.robot.Pneumatics.PneumaticsSystem;
@@ -24,6 +25,7 @@ import frc.robot.Pneumatics.PneumaticsSystem;
 public class Robot extends TimedRobot {
   DriveSide left;
   DriveSide right;
+  ArmSwivel armswiv;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -40,12 +42,13 @@ public class Robot extends TimedRobot {
       var rightBack = new TalonSRX(0, false);
       var rightTop = new TalonSRX(1, true);
        //seans addition
-      var armFront = new TalonSRX(6, true);
+      var armFront = new TalonSRX(6, false);
       var armBack = new TalonSRX(7, false);
      
 
       this.left = new DriveSide(leftFront, leftBack, leftTop, null);
       this.right = new DriveSide(rightFront, rightBack, rightTop, null);
+      this.armswiv = new ArmSwivel(armFront, armBack);
 
 
       
@@ -58,9 +61,13 @@ public class Robot extends TimedRobot {
 
     final var HIGHGEARCONTROLLER = new PDController(8, 0);
     final var LOWGEARCONTROLLER = new PDController(300, 1);
+    //final var JOYSTICK = new 
+    //trying to figure out how to make the joystick
 
     DriveSidePD leftPD = new DriveSidePD(left, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
     DriveSidePD rightPD = new DriveSidePD(right, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
+    //ArmPID armswivPID = new ArmPID(armswiv, JOYSTICK);
+    
 
     left.shiftHigh();
     right.shiftHigh();

@@ -5,10 +5,11 @@ import frc.robot.Util.PDController;
 // actually runs motors
 public class ArmPID {
 
-    Arm arm;
+    ArmSwivel arm;
+
     PDController controller;
 
-    public ArmPID(Arm arm, PDController controller) {
+    public ArmPID(ArmSwivel arm, PDController controller) {
         this.arm = arm;
         this.controller = controller;
     }
