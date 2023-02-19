@@ -25,6 +25,8 @@ public class Robot extends TimedRobot {
   DriveSide left;
   DriveSide right;
 
+  TalonSRX arm ;
+
   /**
    * This function is run when the robot is first started up and should be used
    * for any
@@ -33,17 +35,17 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     { // Drive initalization
-      var leftFront = new TalonSRX(5, true);
-      var leftBack = new TalonSRX(3, true);
-      var leftTop = new TalonSRX(4, false);
-      var rightFront = new TalonSRX(2, false);
-      var rightBack = new TalonSRX(0, false);
-      var rightTop = new TalonSRX(1, true);
+      // var leftFront = new TalonSRX(5, true);
+      // var leftBack = new TalonSRX(3, true);
+      // var leftTop = new TalonSRX(4, false);
+      // var rightFront = new TalonSRX(2, false);
+      // var rightBack = new TalonSRX(0, false);
+      // var rightTop = new TalonSRX(1, true);
 
-      this.left = new DriveSide(leftFront, leftBack, leftTop, null);
-      this.right = new DriveSide(rightFront, rightBack, rightTop, null);
+      // this.left = new DriveSide(leftFront, leftBack, leftTop, null);
+      // this.right = new DriveSide(rightFront, rightBack, rightTop, null);
 
-
+      arm = new TalonSRX (6, false) ;
       
     }
   }
@@ -96,24 +98,26 @@ public class Robot extends TimedRobot {
     Scheduler.getInstance().clear();
 
     PS4Controller con = new PS4Controller(0);
-    Drive drive = new Drive(left, right);
+    // // Drive drive = new Drive(left, right);
+    // PneumaticsSystem pneumatics = new PneumaticsSystem(80, 120);
 
-    PneumaticsSystem pneumatics = new PneumaticsSystem(80, 120);
-
-    drive.resetEncoders();
-    drive.shiftLowGear();
+    // drive.resetEncoders();
+    // drive.shiftLowGear();
 
     Scheduler.getInstance().setInterval(() -> {
-      final double deadzone = 0.05;
-      final double turnCurveIntensity = 7;
-      final double pwrCurveIntensity = 5;
-      final Pair<Double> powers = ScaleInput.scale(
-          con.getLeftY(),
-          con.getRightY(),
-          deadzone,
-          turnCurveIntensity,
-          pwrCurveIntensity);
-      drive.setPower(powers.left, powers.right);
+      // final double deadzone = 0.05;
+      // final double turnCurveIntensity = 7;
+      // final double pwrCurveIntensity = 5;
+      // final Pair<Double> powers = ScaleInput.scale(
+      //     con.getLeftY(),
+      //     con.getRightY(),
+      //     deadzone,
+      //     turnCurveIntensity,
+      //     pwrCurveIntensity);
+
+      arm.setVoltage(con.getLeftY() * 12);
+      
+      // drive.setPower(powers.left, powers.right);
 
       // delete me: enco 1der debug info
       // System.out.println("Low gear: " + drive.left.getIsLowGear() + "," +
@@ -122,8 +126,10 @@ public class Robot extends TimedRobot {
       // drive.right.getEncoderRevsSinceLastShift());
 
       
+
+
       // pneumatics
-      pneumatics.autoRunCompressor();
+      // pneumatics.autoRunCompressor();
 
     }, 0);
   }
@@ -138,8 +144,8 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     Scheduler.getInstance().clear();
-    left.stop();
-    right.stop();
+    // left.stop();
+    // right.stop();
   }
 
   @Override

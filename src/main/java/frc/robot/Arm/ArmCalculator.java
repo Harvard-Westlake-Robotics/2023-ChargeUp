@@ -1,17 +1,17 @@
-package frc.robot.Arm;
+// package frc.robot.Arm;
 
-import java.math.*;
+// import java.math.*;
 
-// store all calculations here
+// // store all calculations here
 
-public class ArmCalculator {
+// public class ArmCalculator {
     
-    // return max rotation given length
+//     // return max rotation given length
 
-    // return max length given rotation
-    public double maxLength (double angle)
-    {
+//     // return max length given rotation
+//     public double maxLength (double angle)
+//     {
         
-    }
+//     }
 
-}
+// }
