@@ -29,4 +29,9 @@ public class ArmControl
         this.armMotor2 = armMotor2 ;
     }
 
+    public void ControlArmAngle (double joystick.get)
+    {
+
+    }
+
 }
