@@ -36,4 +36,5 @@ public class Arm {
     public double getArmPosition() {
         return getEncoderPosition() / 256;
     }
+
 }
