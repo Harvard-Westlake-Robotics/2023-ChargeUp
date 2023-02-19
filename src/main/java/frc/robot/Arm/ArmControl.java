@@ -1,10 +1,12 @@
 package frc.robot.Arm ;
 
 import frc.robot.Motor.SparkMax ;
-
+import frc.robot.Motor.TalonSRX;
 import frc.robot.Arm.ArmConstants ;
+
+import javax.swing.plaf.basic.BasicTabbedPaneUI.TabSelectionHandler;
+
 import frc.robot.Arm.ArmCalculator ;
-import edu.wpi.first.wpilibj.Joystick ;
 
 
 // joystick controls
@@ -12,9 +14,10 @@ import edu.wpi.first.wpilibj.Joystick ;
 
 public class ArmControl
 {
-    private Joystick joystick ;
+
     private SparkMax armMotor1 ;
     private SparkMax armMotor2 ;
+    private TalonSRX extender ;
 
     // arm limits (changing)
     // will be updated based on changes in arm length / pos
@@ -22,16 +25,16 @@ public class ArmControl
     public double currentRotateMax ;
 
 
-    public ArmControl (Joystick joystick, SparkMax armMotor1, SparkMax armMotor2)
+    public ArmControl (SparkMax armMotor1, SparkMax armMotor2, TalonSRX extender)
     {
-        this.joystick = joystick ;
         this.armMotor1 = armMotor1 ;
         this.armMotor2 = armMotor2 ;
+        this.extender = extender ;
     }
 
-    public void ControlArmAngle (double joystick.get)
+    public void ControlArmAngle (double joystickPos)
     {
-
+        extender.setVoltage(joystickPos);
     }
 
 }

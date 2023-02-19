@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.PS4Controller;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.Core.Scheduler;
 import frc.robot.Drive.*;
@@ -97,6 +98,8 @@ public class Robot extends TimedRobot {
 
     PS4Controller con = new PS4Controller(0);
     Drive drive = new Drive(left, right);
+
+    Joystick joystick = new Joystick(1) ;
 
     PneumaticsSystem pneumatics = new PneumaticsSystem(80, 120);
 
