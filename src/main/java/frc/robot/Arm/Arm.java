@@ -12,29 +12,28 @@ public class Arm {
     // 8t input
     // 64t output
 
-    private TalonSRX one;
-    private TalonSRX two;
+    private ArmAngler armAngler;
+    private TalonSRX extender;
 
-    public Arm(TalonSRX one, TalonSRX two) {
-        this.one = one;
-        this.two = two;
+    public Arm(ArmAngler armAngler, TalonSRX extender) {
+        this.armAngler = armAngler;
+        this.extender = extender;
     }
 
     public void setPower(double percent) {
         if (Math.abs(percent) > 100.0)
             throw new Error("The fuck how do you expect me to send over 100% voltage to the motor you dumbass");
         double voltage = percent * (12.0 / 100.0);
-        one.setVoltage(voltage);
-        two.setVoltage(voltage);
+        armAngler.setVoltage(voltage);
     }
 
     //! 
     public double getEncoderPosition() {
-        return one.getPosition();
+        return armAngler.getPosition();
     }
 
-    public double getArmPosition() {
-        return getEncoderPosition() / 256;
-    }
+    // public double getArmPosition() {
+    //     return getEncoderPosition() / 256;
+    // }
 
 }

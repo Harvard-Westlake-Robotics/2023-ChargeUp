@@ -8,9 +8,13 @@ public class ArmPID {
     Arm arm;
     PDController controller;
 
-    public ArmPID(Arm arm, PDController controller) {
+    public ArmPID(Arm arm) {
         this.arm = arm;
-        this.controller = controller;
+    }
+
+    public void reset ()
+    {
+        
     }
 
 }

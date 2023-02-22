@@ -19,5 +19,6 @@ public class ArmConstants
         // absolutely min length in any state (fully retracted)
 
     public static final double ROTATE_ABS_MAX = 120 ; // degrees
+        // = 5.7 rotations
         // absolutely max angle for arm (fully retracted and towards ground)
 }
