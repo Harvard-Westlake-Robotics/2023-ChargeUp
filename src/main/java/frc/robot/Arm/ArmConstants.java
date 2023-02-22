@@ -3,7 +3,7 @@ package frc.robot.Arm ;
 // once complete, combine with Constants.java
 
 
-// all lengths are from Center of Rotation
+// all lengths are from Center of Rotation & have been rounded down
 public class ArmConstants
 {
     // MUST REMEASURE VIA CAD OR ROBOT

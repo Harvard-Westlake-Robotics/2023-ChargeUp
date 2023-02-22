@@ -1,4 +1,4 @@
-package frc.robot.Arm;
+package frc.robot.Arm.Components;
 
 import frc.robot.Motor.SparkMax ;
 

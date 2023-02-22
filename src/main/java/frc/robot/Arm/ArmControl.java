@@ -2,9 +2,8 @@ package frc.robot.Arm ;
 
 import frc.robot.Motor.SparkMax ;
 import frc.robot.Motor.TalonSRX;
-import frc.robot.Arm.ArmAngler;
-
 import frc.robot.Arm.ArmConstants ;
+import frc.robot.Arm.Components.ArmAngler;
 import frc.robot.Arm.ArmCalculator ;
 
 
@@ -22,22 +21,13 @@ public class ArmControl
     public double currentLengthMax ; // based on rotation
     public double currentRotateMax ; // based on length
     // current length / pos
-    public double currentLength ;
-    public double currentAngle ;
+    public double currentLength = 35 ; // starts out at min length
+    public double currentAngle = 0 ; // starts facing ups
 
     public ArmControl (SparkMax armMotor1, SparkMax armMotor2, TalonSRX extender)
     {
         this.armAngler = new ArmAngler (armMotor1, armMotor2) ;
         this.extender = extender ;
-    }
-
-
-    // convert encoder val to length
-    public static double convertPosToLength(double pos) // 4096 ticks per rev
-    {
-        // ??:?? gear ratio ; 18/35 sprocket ratio ; 2" wheel diameter ; 2 inch of
-        // height per 1 inch of string ; min arm length 35"
-        return (pos * 14 / 60 * 18 / 35 * 2 * Math.PI * 2 + 35); // ! assumptions were made here
     }
 
     // convert encoder vals to angle
@@ -59,16 +49,20 @@ public class ArmControl
     // raise/lower arm
     public void controlArmAngle (double joystickPos)
     {
+        // set target for 
+        // setTarget ( joystickPos * getTick() )
+
         // calculate new arm limits
-        currentLengthMax = ArmCalculator.maxLength (currentRotateMax) ;
+        currentLengthMax = ArmCalculator.maxLength(currentAngle) ; // + target
 
         // check if arm is within limits
         if (currentLength > currentLengthMax)
         {
             // move arm to max length
-
+            
         }
 
+        // move arm angle
         armAngler.move(joystickPos);
     }
 

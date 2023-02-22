@@ -1,7 +1,6 @@
 package frc.robot.Drive;
 
 import frc.robot.Motor.TalonSRX;
-import frc.robot.Util.Constants;
 
 /**
  * Holds the three motors and shifter on either side of the drive. Shifter can
@@ -67,9 +66,9 @@ public class DriveSide {
 
     public double encoderRevsToInches(double encoderRevs) {
         return (encoderRevs * // revolutions of the encoder
-                (isLowGear ? Constants.LOW_GEAR_RATIO : Constants.HIGH_GEAR_RATIO) *
-                Constants.GEARBOX_RATIO * // revolutions of the wheel
-                Constants.WHEEL_CIRCUMFERENCE // distance the wheel has travelled
+                (isLowGear ? DriveConstants.LOW_GEAR_RATIO : DriveConstants.HIGH_GEAR_RATIO) *
+                DriveConstants.GEARBOX_RATIO * // revolutions of the wheel
+                DriveConstants.WHEEL_CIRCUMFERENCE // distance the wheel has travelled
         );
     }
 

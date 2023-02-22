@@ -22,8 +22,4 @@ public class ArmCalculator {
         double maxLengthAccordingToLengthLim = Math.abs((ArmConstants.LENGTH_LIMIT / Math.sin(a))); // in
         return Math.min(maxLengthAccordingToHeightLim, maxLengthAccordingToLengthLim);
     }
-
-
-    
-
 }
