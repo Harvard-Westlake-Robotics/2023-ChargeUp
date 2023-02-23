@@ -23,7 +23,7 @@ public class ArmExtender {
             throw new Error("The fuck how do you expect me to send over 100% voltage to the motor you dumbass");
         extender.setPercentVoltage(percent);
     }
-
+    
     // convert encoder val to length
     public double getLength() // 4096 ticks per rev
     {

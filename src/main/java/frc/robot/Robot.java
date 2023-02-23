@@ -10,6 +10,10 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.Core.Scheduler;
 import frc.robot.Drive.*;
 import frc.robot.Util.*;
+import frc.robot.Arm.*;
+import frc.robot.Arm.Components.ArmAngler;
+import frc.robot.Arm.Components.ArmExtender;
+import frc.robot.Motor.SparkMax;
 import frc.robot.Motor.TalonSRX;
 import frc.robot.Pneumatics.PneumaticsSystem;
 
@@ -25,6 +29,9 @@ import frc.robot.Pneumatics.PneumaticsSystem;
 public class Robot extends TimedRobot {
   DriveSide left;
   DriveSide right;
+
+  ArmAngler angler;
+  ArmExtender extender;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -44,8 +51,13 @@ public class Robot extends TimedRobot {
       this.left = new DriveSide(leftFront, leftBack, leftTop, null);
       this.right = new DriveSide(rightFront, rightBack, rightTop, null);
 
+      var arm1 = new SparkMax(0, false);
+      var arm2 = new SparkMax(1, false);
 
-      
+      this.angler = new ArmAngler(arm1, arm2);
+
+      var armExtender = new TalonSRX(6, false);
+      this.extender = new ArmExtender(armExtender);
     }
   }
 
@@ -97,9 +109,9 @@ public class Robot extends TimedRobot {
     Scheduler.getInstance().clear();
 
     PS4Controller con = new PS4Controller(0);
-    Drive drive = new Drive(left, right);
+    Joystick joystick = new Joystick(1);
 
-    Joystick joystick = new Joystick(1) ;
+    Drive drive = new Drive(left, right);
 
     PneumaticsSystem pneumatics = new PneumaticsSystem(80, 120);
 
@@ -118,13 +130,20 @@ public class Robot extends TimedRobot {
           pwrCurveIntensity);
       drive.setPower(powers.left, powers.right);
 
-      // delete me: enco 1der debug info
-      // System.out.println("Low gear: " + drive.left.getIsLowGear() + "," +
-      // drive.right.getIsLowGear() + "\t\tL: " +
-      // drive.left.getEncoderRevsSinceLastShift() + "\t\tR: " +
-      // drive.right.getEncoderRevsSinceLastShift());
+      // arm
+      angler.setVoltage(joystick.getY() * 5);
+      switch (joystick.getPOV()) {
+        case 0:
+          extender.setPower(50);
+          break;
+        case 180:
+          extender.setPower(-50);
+          break;
+        default:
+          extender.setPower(0);
+          break;
+      }
 
-      
       // pneumatics
       pneumatics.autoRunCompressor();
 
