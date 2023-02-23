@@ -63,7 +63,7 @@ public class ArmControl
         }
 
         // move arm angle
-        armAngler.move(joystickPos);
+        // armAngler.move(joystickPos);
     }
 
 }

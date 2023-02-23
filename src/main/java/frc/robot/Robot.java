@@ -51,8 +51,8 @@ public class Robot extends TimedRobot {
       this.left = new DriveSide(leftFront, leftBack, leftTop, null);
       this.right = new DriveSide(rightFront, rightBack, rightTop, null);
 
-      var arm1 = new SparkMax(0, false);
-      var arm2 = new SparkMax(1, false);
+      var arm1 = new SparkMax(8, false);
+      var arm2 = new SparkMax(9, false);
 
       this.angler = new ArmAngler(arm1, arm2);
 
