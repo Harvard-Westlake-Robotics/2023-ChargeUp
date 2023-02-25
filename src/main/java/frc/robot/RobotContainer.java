@@ -11,11 +11,10 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
  * This class is where the bulk of the robot should be declared. Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
- * subsystems, commands, and trigger mappings) should be declared here.
+ * subsystems, commands, and t0rigger mappings) should be declared here.
  */
 public class RobotContainer {
     PS4Controller con = new PS4Controller(0);
-    private final GearShifter shifter = new GearShifter(0);
   
     public RobotContainer ()
     {
@@ -37,13 +36,13 @@ public class RobotContainer {
 
     private void configureBindings() {
       // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-      if (!isHighGear && con.getR2ButtonPressed()) {
-        isHighGear = true;
-        shifter.setHighGear();
-      } else if (isHighGear && con.getR2ButtonPressed()) {
-        isHighGear = false;
-        shifter.setLowGear();
-      }
+      // if (!isHighGear && con.getR2ButtonPressed()) {
+      //   isHighGear = true;
+      //   shifter.setHighGear();
+      // } else if (isHighGear && con.getR2ButtonPressed()) {
+      //   isHighGear = false;
+      //   shifter.setLowGear();
+      // }
   
       // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
       // cancelling on release.

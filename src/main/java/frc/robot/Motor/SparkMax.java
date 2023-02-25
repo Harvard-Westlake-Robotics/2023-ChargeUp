@@ -1,7 +1,10 @@
 package frc.robot.Motor;
 
+import javax.lang.model.util.ElementScanner14;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 public class SparkMax {
@@ -13,6 +16,17 @@ public class SparkMax {
         this.maxspark = new CANSparkMax(canID, MotorType.kBrushless);
         this.encoder = maxspark.getEncoder();
         this.isReversed = isReversed;
+        maxspark.setIdleMode(IdleMode.kCoast);
+    }
+
+    public SparkMax(int canID, boolean isReversed, boolean brakeMode) {
+        this.maxspark = new CANSparkMax(canID, MotorType.kBrushless);
+        this.encoder = maxspark.getEncoder();
+        this.isReversed = isReversed;
+        if (brakeMode)
+            maxspark.setIdleMode(IdleMode.kBrake);
+        else
+            maxspark.setIdleMode(IdleMode.kCoast);
     }
 
     public void setVoltage(double volts) {

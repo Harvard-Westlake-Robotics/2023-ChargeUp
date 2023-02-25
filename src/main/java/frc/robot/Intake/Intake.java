@@ -11,7 +11,7 @@ public class Intake {
         this.right = right;
     }
 
-    public void runIntake (double voltage)
+    public void setVoltage (double voltage)
     {
         left.setVoltage(voltage);
         right.setVoltage(voltage);

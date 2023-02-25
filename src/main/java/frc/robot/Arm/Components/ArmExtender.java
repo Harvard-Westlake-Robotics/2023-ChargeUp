@@ -1,5 +1,6 @@
 package frc.robot.Arm.Components;
 
+import frc.robot.Motor.LimitSwitch;
 import frc.robot.Motor.TalonSRX;
 
 // this is the subsystem
@@ -13,12 +14,29 @@ public class ArmExtender {
     // 64t output
 
     private TalonSRX extender;
+    LimitSwitch overExtending;
+    LimitSwitch reverseExtending;
 
     public ArmExtender(TalonSRX extender) {
         this.extender = extender;
+        // this.overExtending = overExtending;
+        // this.reverseExtending = reverseExtending;
     }
 
     public void setPower(double percent) {
+        // if (percent > 0) {
+        //     if (overExtending.get()) {
+        //         // We are going up and top limit is tripped so stop
+        //         extender.setVoltage(0);
+        //         return;
+        //     }
+        // } else {
+        //     if (reverseExtending.get()) {
+        //         // We are going down and bottom limit is tripped so stop
+        //         extender.setVoltage(0);
+        //         return;
+        //     }
+        // }
         if (Math.abs(percent) > 100.0)
             throw new Error("The fuck how do you expect me to send over 100% voltage to the motor you dumbass");
         extender.setPercentVoltage(percent);

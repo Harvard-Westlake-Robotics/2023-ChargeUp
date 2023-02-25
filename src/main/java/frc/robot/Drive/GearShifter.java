@@ -2,6 +2,9 @@ package frc.robot.Drive;
 
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+
+import javax.lang.model.util.ElementScanner14;
+
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 
 public class GearShifter {
@@ -15,7 +18,12 @@ public class GearShifter {
     public void setState(boolean state)
     {
         this.state = state ;
-
+        if (state == false)
+            setHighGear();
+        else if (state == true)
+            setLowGear();
+        else
+            pneumatic.set(Value.kOff) ;
     }
 
     public boolean getState ()

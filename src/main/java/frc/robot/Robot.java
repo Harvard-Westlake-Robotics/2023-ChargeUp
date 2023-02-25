@@ -5,14 +5,19 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.PS4Controller;
+
+import com.revrobotics.SparkMaxLimitSwitch;
+
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.Core.Scheduler;
 import frc.robot.Drive.*;
 import frc.robot.Util.*;
 import frc.robot.Arm.*;
+import frc.robot.Intake.*;
 import frc.robot.Arm.Components.ArmAngler;
 import frc.robot.Arm.Components.ArmExtender;
+import frc.robot.Motor.LimitSwitch;
 import frc.robot.Motor.SparkMax;
 import frc.robot.Motor.TalonSRX;
 import frc.robot.Pneumatics.PneumaticsSystem;
@@ -34,6 +39,7 @@ public class Robot extends TimedRobot {
 
   ArmAngler angler;
   ArmExtender extender;
+  Intake intake;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -53,15 +59,22 @@ public class Robot extends TimedRobot {
       this.left = new DriveSide(leftFront, leftBack, leftTop, null);
       this.right = new DriveSide(rightFront, rightBack, rightTop, null);
 
-      this.gearShifter = new GearShifter(1,0) ;
+      this.gearShifter = new GearShifter(2,0) ;
 
-      var arm1 = new SparkMax(8, false);
-      var arm2 = new SparkMax(9, false);
-
+      var arm1 = new SparkMax(8, false, true);
+      var arm2 = new SparkMax(9, false, true);
       this.angler = new ArmAngler(arm1, arm2);
 
-      var armExtender = new TalonSRX(6, false);
+      var armExtender = new TalonSRX(6, true);
+      // var armOverExtendingSwitch = new LimitSwitch(8);
+      // var armOverRetractingSwitch = new LimitSwitch(9);
       this.extender = new ArmExtender(armExtender);
+      // new ArmExtender(armExtender, armOverExtendingSwitch, armOverRetractingSwitch);
+
+      var intakeLeft = new SparkMax(7,false);
+      var intakeRight = new SparkMax(10, true);
+      intake = new Intake(intakeLeft, intakeRight) ;
+
     }
   }
 
@@ -151,11 +164,22 @@ public class Robot extends TimedRobot {
           break;
       }
 
+      // intake
+      if (joystick.getTrigger())
+        intake.setVoltage(10);
+      else if (joystick.getRawButtonPressed(2))
+        intake.setVoltage(-5); // outtake
+      else
+        intake.setVoltage(0);
+
+
       // pneumatics
       pneumatics.autoRunCompressor();
 
-      if ()
-      gearShifter.setHighGear();
+      if (con.getR2ButtonPressed()) {
+        boolean state = gearShifter.getState() ;
+        gearShifter.setState(!state);;
+      }
 
     }, 0);
   }
