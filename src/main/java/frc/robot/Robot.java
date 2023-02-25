@@ -30,6 +30,8 @@ public class Robot extends TimedRobot {
   DriveSide left;
   DriveSide right;
 
+  GearShifter gearShifter ;
+
   ArmAngler angler;
   ArmExtender extender;
 
@@ -50,6 +52,8 @@ public class Robot extends TimedRobot {
 
       this.left = new DriveSide(leftFront, leftBack, leftTop, null);
       this.right = new DriveSide(rightFront, rightBack, rightTop, null);
+
+      this.gearShifter = new GearShifter(1,0) ;
 
       var arm1 = new SparkMax(8, false);
       var arm2 = new SparkMax(9, false);
@@ -104,6 +108,9 @@ public class Robot extends TimedRobot {
     Scheduler.getInstance().tick();
   }
 
+
+  boolean pneuState = false ;
+
   @Override
   public void teleopInit() {
     Scheduler.getInstance().clear();
@@ -131,7 +138,7 @@ public class Robot extends TimedRobot {
       drive.setPower(powers.left, powers.right);
 
       // arm
-      angler.setVoltage(joystick.getY() * 5);
+      angler.setVoltage(joystick.getY() * 5); 
       switch (joystick.getPOV()) {
         case 0:
           extender.setPower(50);
@@ -146,6 +153,9 @@ public class Robot extends TimedRobot {
 
       // pneumatics
       pneumatics.autoRunCompressor();
+
+      if ()
+      gearShifter.setHighGear();
 
     }, 0);
   }

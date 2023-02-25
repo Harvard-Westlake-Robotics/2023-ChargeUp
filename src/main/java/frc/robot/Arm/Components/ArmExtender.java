@@ -25,7 +25,7 @@ public class ArmExtender {
     }
     
     // convert encoder val to length
-    public double getLength() // 4096 ticks per rev
+    public double encoderToLength() // 4096 ticks per rev
     {
         // ??:?? gear ratio ; 18/35 sprocket ratio ; 2" wheel diameter ; 2 inch of
         // height per 1 inch of string ; min arm length 35"
