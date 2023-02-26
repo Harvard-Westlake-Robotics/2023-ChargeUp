@@ -36,13 +36,14 @@ public class Scheduler {
     /**
      * Runs a `Tickable` every tick
      * 
-     * @param tickable the `Tickable` instance to run the `tick()` method on every tick in the event loop
+     * @param tickable the `Tickable` instance to run the `tick()` method on every
+     *                 tick in the event loop
      * @return a function to remove the tickable from the event loop
      */
-    public Lambda registerTickable(Tickable tickable) {
-        double[] lastTime = new double[] {Timer.getFPGATimestamp()};
-        return setTimeout(() -> {
-            tickable.tick(0);
+    public Lambda registerTick(Tickable tickable) {
+        double[] lastTime = new double[] { Timer.getFPGATimestamp() };
+        return setInterval(() -> {
+            tickable.tick(Timer.getFPGATimestamp() - lastTime[0]);
             lastTime[0] = Timer.getFPGATimestamp();
         }, 0);
     }
@@ -64,9 +65,11 @@ public class Scheduler {
         interval.func.run();
 
         item.executable = interval.func;
+
+        // appends the new item to the schedule
         items = Arrays.copyOf(items, items.length + 1);
-        
         items[items.length - 1] = item;
+
         return () -> {
             item.executable = () -> {
             };

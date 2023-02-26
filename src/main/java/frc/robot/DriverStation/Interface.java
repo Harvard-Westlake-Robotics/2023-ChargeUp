@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import frc.robot.Arm.*;
 import frc.robot.Arm.Components.*;
 import frc.robot.Drive.*;
+import frc.robot.Drive.Components.GearShifter;
 import frc.robot.Intake.*;
 import frc.robot.Pneumatics.*;
 

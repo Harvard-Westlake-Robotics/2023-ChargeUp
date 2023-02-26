@@ -7,8 +7,6 @@ package frc.robot;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.Joystick;
 
-import com.revrobotics.SparkMaxLimitSwitch;
-
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.Core.Scheduler;
 import frc.robot.Drive.*;
@@ -16,6 +14,7 @@ import frc.robot.Drive.Auto.AutonomousDrive;
 import frc.robot.Drive.Auto.DriveSidePD;
 import frc.robot.Drive.Auto.Movements.DriveForwardMovement;
 import frc.robot.Drive.Components.DriveSide;
+import frc.robot.Drive.Components.GearShifter;
 import frc.robot.Util.*;
 import frc.robot.Arm.*;
 import frc.robot.Intake.*;
@@ -39,13 +38,12 @@ public class Robot extends TimedRobot {
   DriveSide left;
   DriveSide right;
 
-  GearShifter gearShifter ;
+  GearShifter gearShifter;
 
   ArmAngler angler;
   ArmExtender extender;
   Intake intake;
-  PneumaticsSystem pneumatics ;
-
+  PneumaticsSystem pneumatics;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -65,9 +63,9 @@ public class Robot extends TimedRobot {
       this.left = new DriveSide(leftFront, leftBack, leftTop, null);
       this.right = new DriveSide(rightFront, rightBack, rightTop, null);
 
-      this.pneumatics = new PneumaticsSystem(80, 120, 19);
-      this.gearShifter = new GearShifter(2,0, 19) ;
-      
+      this.pneumatics = new PneumaticsSystem(110, 120, 19);
+      this.gearShifter = new GearShifter(2, 0, 19);
+
       var arm1 = new SparkMax(8, false, true);
       var arm2 = new SparkMax(9, false, true);
       this.angler = new ArmAngler(arm1, arm2);
@@ -76,11 +74,12 @@ public class Robot extends TimedRobot {
       // var armOverExtendingSwitch = new LimitSwitch(8);
       // var armOverRetractingSwitch = new LimitSwitch(9);
       this.extender = new ArmExtender(armExtender);
-      // new ArmExtender(armExtender, armOverExtendingSwitch, armOverRetractingSwitch);
+      // new ArmExtender(armExtender, armOverExtendingSwitch,
+      // armOverRetractingSwitch);
 
-      var intakeLeft = new SparkMax(7,false);
+      var intakeLeft = new SparkMax(7, false);
       var intakeRight = new SparkMax(10, true);
-      intake = new Intake(intakeLeft, intakeRight) ;
+      intake = new Intake(intakeLeft, intakeRight);
 
     }
   }
@@ -90,14 +89,14 @@ public class Robot extends TimedRobot {
     Scheduler.getInstance().clear();
     AutonomousDrive drive;
     { // Initializes `drive`
-      final var HIGHGEARCONTROLLER = new PDController(8, 0);
-      final var LOWGEARCONTROLLER = new PDController(300, 1);
+      final var HIGHGEARCONTROLLER = new PDController(2, 0);
+      final var LOWGEARCONTROLLER = new PDController(0.1, 0);
 
       DriveSidePD leftPD = new DriveSidePD(left, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
       DriveSidePD rightPD = new DriveSidePD(right, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
 
-      left.shiftHigh();
-      right.shiftHigh();
+      left.shiftLow();
+      right.shiftLow();
 
       leftPD.reset();
       rightPD.reset();
@@ -105,7 +104,7 @@ public class Robot extends TimedRobot {
       drive = new AutonomousDrive(leftPD, rightPD);
     }
 
-    Scheduler.getInstance().registerTickable(drive);
+    Scheduler.getInstance().registerTick(drive);
 
     drive.setMovement(new DriveForwardMovement(10, 1, 1, 5));
   }
@@ -116,9 +115,6 @@ public class Robot extends TimedRobot {
     Scheduler.getInstance().tick();
   }
 
-
-  boolean pneuState = false ;
-
   @Override
   public void teleopInit() {
     Scheduler.getInstance().clear();
@@ -128,12 +124,9 @@ public class Robot extends TimedRobot {
 
     Drive drive = new Drive(left, right);
 
-    
     drive.resetEncoders();
-    // drive.shiftLowGear();
-    // gearShifter.setLowGear();
 
-    Scheduler.getInstance().setInterval(() -> {
+    Scheduler.getInstance().registerTick((double dTime) -> {
       final double deadzone = 0.05;
       final double turnCurveIntensity = 7;
       final double pwrCurveIntensity = 5;
@@ -146,7 +139,7 @@ public class Robot extends TimedRobot {
       drive.setPower(powers.left, powers.right);
 
       // arm
-      angler.setVoltage(joystick.getY() * 5); 
+      angler.setVoltage(joystick.getY() * 5);
       switch (joystick.getPOV()) {
         case 0:
           extender.setPower(50);
@@ -167,20 +160,13 @@ public class Robot extends TimedRobot {
       else
         intake.setVoltage(0);
 
-
       // pneumatics
       pneumatics.autoRunCompressor();
 
-      if (con.getR2ButtonPressed() && gearShifter.getState() == true) {
-        // gearShifter.setState(!gearShifter.getState());
-        gearShifter.setHighGear();
+      if (con.getR2ButtonPressed()) {
+        gearShifter.toggle();
       }
-      else if (con.getR2ButtonPressed() && gearShifter.getState() == false)
-      {
-        gearShifter.setLowGear();
-      }
-
-    }, 0);
+    });
   }
 
   /** This function is called periodically during operator control. */

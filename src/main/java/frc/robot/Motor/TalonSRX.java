@@ -1,8 +1,5 @@
 package frc.robot.Motor;
 
-
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.SensorCollection;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 public class TalonSRX {
@@ -11,7 +8,7 @@ public class TalonSRX {
 
     public TalonSRX(int deviceNumber, boolean isReversed) {
         this.maxspark = new WPI_TalonSRX(deviceNumber);
-        var encoder = maxspark.getSensorCollection();
+        maxspark.getSensorCollection();
         this.isReversed = isReversed;
     }
 

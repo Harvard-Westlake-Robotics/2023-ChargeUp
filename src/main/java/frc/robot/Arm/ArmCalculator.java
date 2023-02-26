@@ -1,8 +1,5 @@
 package frc.robot.Arm;
 
-import java.math.*;
-import frc.robot.Arm.ArmConstants;
-
 // store all calculations here
 
 public class ArmCalculator {
