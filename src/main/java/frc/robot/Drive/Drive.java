@@ -1,5 +1,7 @@
 package frc.robot.Drive;
 
+import frc.robot.Drive.Components.DriveSide;
+
 /**
  * Holds two `DriveSides` and allows you to call their methods together
  */

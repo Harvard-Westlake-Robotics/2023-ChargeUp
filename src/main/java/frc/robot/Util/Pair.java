@@ -15,4 +15,8 @@ public class Pair<T> {
     public Pair(T val) {
         this(val, val);
     }
+
+    public <To> Pair<To> map(Mapper<T, To> mapper) {
+        return new Pair<To>(mapper.map(left), mapper.map(right));
+    }
 }
