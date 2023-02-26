@@ -1,6 +1,13 @@
 package frc.robot.Drive;
 
 /**
+ * for encoder on drive shaft:
+ * blue wire is a 
+ * yellow wire is b
+ */
+
+
+/**
  * Holds two `DriveSides` and allows you to call their methods together
  */
 public class Drive {

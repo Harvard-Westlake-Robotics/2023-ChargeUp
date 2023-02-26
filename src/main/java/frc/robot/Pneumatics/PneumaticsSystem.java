@@ -5,12 +5,13 @@ import edu.wpi.first.wpilibj.PneumaticHub;
 
 public class PneumaticsSystem {
     
-    private final PneumaticHub hub = new PneumaticHub(19);
+    private final PneumaticHub hub;
     private final double minPressure;
     private final double maxPressure;
 
-    public PneumaticsSystem (int minPressure, int maxPressure)
+    public PneumaticsSystem (int minPressure, int maxPressure, int module)
     {
+        hub = new PneumaticHub(module) ;
         this.minPressure = minPressure;
         this.maxPressure = maxPressure;
     }

@@ -40,6 +40,8 @@ public class Robot extends TimedRobot {
   ArmAngler angler;
   ArmExtender extender;
   Intake intake;
+  PneumaticsSystem pneumatics ;
+
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -59,8 +61,9 @@ public class Robot extends TimedRobot {
       this.left = new DriveSide(leftFront, leftBack, leftTop, null);
       this.right = new DriveSide(rightFront, rightBack, rightTop, null);
 
-      this.gearShifter = new GearShifter(2,0) ;
-
+      this.pneumatics = new PneumaticsSystem(80, 120, 19);
+      this.gearShifter = new GearShifter(2,0, 19) ;
+      
       var arm1 = new SparkMax(8, false, true);
       var arm2 = new SparkMax(9, false, true);
       this.angler = new ArmAngler(arm1, arm2);
@@ -133,11 +136,10 @@ public class Robot extends TimedRobot {
 
     Drive drive = new Drive(left, right);
 
-    PneumaticsSystem pneumatics = new PneumaticsSystem(80, 120);
-
+    
     drive.resetEncoders();
     // drive.shiftLowGear();
-    gearShifter.setLowGear();
+    // gearShifter.setLowGear();
 
     Scheduler.getInstance().setInterval(() -> {
       final double deadzone = 0.05;
@@ -177,9 +179,13 @@ public class Robot extends TimedRobot {
       // pneumatics
       pneumatics.autoRunCompressor();
 
-      if (con.getR2ButtonPressed()) {
-        boolean state = gearShifter.getState() ;
-        gearShifter.setState(!state);;
+      if (con.getR2ButtonPressed() && gearShifter.getState() == true) {
+        // gearShifter.setState(!gearShifter.getState());
+        gearShifter.setHighGear();
+      }
+      else if (con.getR2ButtonPressed() && gearShifter.getState() == false)
+      {
+        gearShifter.setLowGear();
       }
 
     }, 0);
