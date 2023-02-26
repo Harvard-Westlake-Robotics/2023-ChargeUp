@@ -5,10 +5,10 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.PS4Controller;
+import edu.wpi.first.wpilibj.Joystick;
 
 import com.revrobotics.SparkMaxLimitSwitch;
 
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.Core.Scheduler;
 import frc.robot.Drive.*;
@@ -136,7 +136,8 @@ public class Robot extends TimedRobot {
     PneumaticsSystem pneumatics = new PneumaticsSystem(80, 120);
 
     drive.resetEncoders();
-    drive.shiftLowGear();
+    // drive.shiftLowGear();
+    gearShifter.setLowGear();
 
     Scheduler.getInstance().setInterval(() -> {
       final double deadzone = 0.05;

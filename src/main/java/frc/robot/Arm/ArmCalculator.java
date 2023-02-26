@@ -22,4 +22,16 @@ public class ArmCalculator {
         double maxLengthAccordingToLengthLim = Math.abs((ArmConstants.LENGTH_LIMIT / Math.sin(a))); // in
         return Math.min(maxLengthAccordingToHeightLim, maxLengthAccordingToLengthLim);
     }
+
+    // return x-distance given length and rotation
+    public static double xDistance(double length, double angle) {
+        double a = Math.toRadians(angle);
+        return length * Math.sin(a);
+    }
+
+    // return y-distance given length and rotation
+    public static double yDistance(double length, double angle) {
+        double a = Math.toRadians(angle);
+        return length * Math.cos(a);
+    }
 }

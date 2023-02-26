@@ -29,6 +29,10 @@ public class ArmAngler{
     public double getPosition(){
         return arm1.getPosition();
     }
+    public double getAngle ()
+    {
+        return encoderToDegree(getPosition()) ;
+    }
     public double encoderToDegree (double encoder)
     {
         // 14:60 gear ratio ; 15:60 sprocket ratio

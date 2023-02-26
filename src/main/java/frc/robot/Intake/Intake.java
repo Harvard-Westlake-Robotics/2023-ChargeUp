@@ -6,6 +6,8 @@ public class Intake {
     private SparkMax left;
     private SparkMax right;
 
+    double voltage = 0;
+
     public Intake(SparkMax left, SparkMax right) {
         this.left = left;
         this.right = right;
@@ -15,5 +17,11 @@ public class Intake {
     {
         left.setVoltage(voltage);
         right.setVoltage(voltage);
+        this.voltage = voltage;
+    }
+
+    public double getVoltage()
+    {
+        return voltage;
     }
 }

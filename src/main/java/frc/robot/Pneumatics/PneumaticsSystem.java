@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.PneumaticHub;
 
 public class PneumaticsSystem {
     
-    private final PneumaticHub hub = new PneumaticHub(1);
+    private final PneumaticHub hub = new PneumaticHub(19);
     private final double minPressure;
     private final double maxPressure;
 
@@ -25,4 +25,8 @@ public class PneumaticsSystem {
         hub.enableCompressorAnalog(minPressure, maxPressure);
     }
 
+    public boolean isCompressorEnabled()
+    {
+        return hub.getCompressor();
+    }
 }

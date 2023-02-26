@@ -23,6 +23,14 @@ public class ArmExtender {
         // this.reverseExtending = reverseExtending;
     }
 
+    public boolean isOverExtended() {
+        return overExtending.get();
+    }
+    public boolean isReverseExtended() {
+        return reverseExtending.get();
+    }
+
+    
     public void setPower(double percent) {
         // if (percent > 0) {
         //     if (overExtending.get()) {
@@ -42,11 +50,19 @@ public class ArmExtender {
         extender.setPercentVoltage(percent);
     }
     
+
+    public double getPosition(){
+        return extender.getPosition();
+    }
+    public double getLength ()
+    {
+        return encoderToLength(getPosition()) ;
+    }
     // convert encoder val to length
-    public double encoderToLength() // 4096 ticks per rev
+    public double encoderToLength(double position) // 4096 ticks per rev
     {
         // ??:?? gear ratio ; 18/35 sprocket ratio ; 2" wheel diameter ; 2 inch of
         // height per 1 inch of string ; min arm length 35"
-        return (extender.getPosition() * 14 / 60 * 18 / 35 * 2 * Math.PI * 2 + 35); // ! assumptions were made here
+        return (position * 14 / 60 * 18 / 35 * 2 * Math.PI * 2 + 35); // ! assumptions were made here
     }
 }
