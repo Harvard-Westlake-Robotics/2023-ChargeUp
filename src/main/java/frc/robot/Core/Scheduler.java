@@ -34,6 +34,20 @@ public class Scheduler {
     private ScheduleItem[] items = new ScheduleItem[] {};
 
     /**
+     * Runs a `Tickable` every tick
+     * 
+     * @param tickable the `Tickable` instance to run the `tick()` method on every tick in the event loop
+     * @return a function to remove the tickable from the event loop
+     */
+    public Lambda registerTickable(Tickable tickable) {
+        double[] lastTime = new double[] {Timer.getFPGATimestamp()};
+        return setTimeout(() -> {
+            tickable.tick(0);
+            lastTime[0] = Timer.getFPGATimestamp();
+        }, 0);
+    }
+
+    /**
      * calls a callback at a given interval
      * 
      * @param callBack the function to call periodically

@@ -1,5 +1,6 @@
-package frc.robot.Drive;
+package frc.robot.Drive.Auto;
 
+import frc.robot.Drive.Components.DriveSide;
 import frc.robot.Util.PDController;
 import frc.robot.Util.Round;
 
@@ -51,27 +52,18 @@ public class DriveSidePD {
         target += amount;
     }
 
-    // ! remove these after debugging
+    // ! strictly for debugging {
     public double errorb;
     public double correct;
-    // ! </>
 
     public String toString() {
         return "error: " + Round.rd(errorb) + " correction: " + Round.rd(correct) + " (" + Round.rd(target) + "-"
                 + Round.rd(driveSide.getPositionInInches())
                 + ")";
     }
+    // ! }
 
-    /**
-     * Uses the pid controllers to set the motor voltages based on their distance
-     * from their targets
-     * 
-     * @param fac a factor that the motor voltages are multiplied by if they need to
-     * @return If the voltages sent to the motor is
-     */
-    public Double tick(Double fac) {
-        if (fac == null)
-            fac = 1.0;
+    public double getCorrection() {
         double error = target - driveSide.getPositionInInches();
         this.errorb = error;
         double correction;
@@ -82,12 +74,24 @@ public class DriveSidePD {
             lowGearController.reset();
             correction = highGearController.tick(error);
         }
-        if (Math.abs(correction) > 100.0) {
-            driveSide.setPower((correction > 0) ? 100 : -100);
-            return correction / 100;
-        }
-        driveSide.setPower(correction * fac);
-        this.correct = correction;
-        return null;
+        return correction;
+    }
+
+    public void setPercentVoltage(double percent) {
+        driveSide.setPower(percent);
+    }
+
+    // !!! DANGER ZONE !!!
+    public double getTarget() {
+        return target;
+    }
+
+    /**
+     * You might actually kill someone if you use this method.
+     * Be careful :salute:
+     * @param target
+     */
+    public void setTarget(double target) {
+        this.target = target;
     }
 }

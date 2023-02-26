@@ -12,6 +12,10 @@ import com.revrobotics.SparkMaxLimitSwitch;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.Core.Scheduler;
 import frc.robot.Drive.*;
+import frc.robot.Drive.Auto.AutonomousDrive;
+import frc.robot.Drive.Auto.DriveSidePD;
+import frc.robot.Drive.Auto.Movements.DriveForwardMovement;
+import frc.robot.Drive.Components.DriveSide;
 import frc.robot.Util.*;
 import frc.robot.Arm.*;
 import frc.robot.Intake.*;
@@ -84,38 +88,26 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     Scheduler.getInstance().clear();
+    AutonomousDrive drive;
+    { // Initializes `drive`
+      final var HIGHGEARCONTROLLER = new PDController(8, 0);
+      final var LOWGEARCONTROLLER = new PDController(300, 1);
 
-    final var HIGHGEARCONTROLLER = new PDController(8, 0);
-    final var LOWGEARCONTROLLER = new PDController(300, 1);
+      DriveSidePD leftPD = new DriveSidePD(left, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
+      DriveSidePD rightPD = new DriveSidePD(right, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
 
-    DriveSidePD leftPD = new DriveSidePD(left, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
-    DriveSidePD rightPD = new DriveSidePD(right, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
+      left.shiftHigh();
+      right.shiftHigh();
 
-    left.shiftHigh();
-    right.shiftHigh();
+      leftPD.reset();
+      rightPD.reset();
 
-    leftPD.reset();
-    rightPD.reset();
+      drive = new AutonomousDrive(leftPD, rightPD);
+    }
 
-    System.out.println(left.getPositionInInches());
+    Scheduler.getInstance().registerTickable(drive);
 
-    Scheduler.getInstance().setInterval(() -> {
-      System.out.println(leftPD);
-    }, 0.05);
-
-    Scheduler.getInstance().setInterval(() -> {
-      leftPD.tick(null);
-      rightPD.tick(null);
-    }, 0);
-
-    Lambda stop = Scheduler.getInstance().setInterval(() -> {
-      leftPD.incrementTarget(0.08);
-      rightPD.incrementTarget(0.08);
-    }, 0);
-
-    Scheduler.getInstance().setTimeout(() -> {
-      stop.run();
-    }, 5);
+    drive.setMovement(new DriveForwardMovement(10, 1, 1, 5));
   }
 
   /** This function is called periodically during autonomous. */
