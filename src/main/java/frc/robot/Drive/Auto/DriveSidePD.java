@@ -17,9 +17,9 @@ public class DriveSidePD {
         this.highGearController.reset();
 
         this.driveSide = driveSide;
-        this.driveSide.resetEncoders();
+        this.driveSide.resetEncoder();
 
-        this.target = driveSide.getPositionInInches();
+        this.target = driveSide.getPositionInches();
     }
 
     /**
@@ -43,8 +43,8 @@ public class DriveSidePD {
      * resets the PID controllers, their targets, and the drive's motor encoders
      */
     public void reset() {
-        driveSide.resetEncoders();
-        target = driveSide.getPositionInInches();
+        driveSide.resetEncoder();
+        target = driveSide.getPositionInches();
         resetPID(null);
     }
 
@@ -58,16 +58,16 @@ public class DriveSidePD {
 
     public String toString() {
         return "error: " + Round.rd(errorb) + " correction: " + Round.rd(correct) + " (" + Round.rd(target) + "-"
-                + Round.rd(driveSide.getPositionInInches())
+                + Round.rd(driveSide.getPositionInches())
                 + ")";
     }
     // ! }
 
-    public double getCorrection() {
-        double error = target - driveSide.getPositionInInches();
+    public double getCorrection(boolean isLowGear) {
+        double error = target - driveSide.getPositionInches();
         this.errorb = error;
         double correction;
-        if (driveSide.getIsLowGear()) {
+        if (isLowGear) {
             highGearController.reset();
             correction = lowGearController.tick(error);
         } else {

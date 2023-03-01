@@ -22,18 +22,8 @@ public class Drive {
     }
     
     public void resetEncoders() {
-        left.resetEncoders();
-        right.resetEncoders();
-    }
-
-    public void shiftHighGear() {
-        left.shiftHigh();
-        right.shiftHigh();
-    }
-
-    public void shiftLowGear() {
-        left.shiftLow();
-        right.shiftLow();
+        left.resetEncoder();
+        right.resetEncoder();
     }
 
     public void setPower(double leftPercent, double rightPercent) {

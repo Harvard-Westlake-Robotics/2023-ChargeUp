@@ -26,38 +26,34 @@ public class ArmExtender {
     public boolean isOverExtended() {
         return overExtending.get();
     }
+
     public boolean isReverseExtended() {
         return reverseExtending.get();
     }
 
-    
     public void setPower(double percent) {
         // if (percent > 0) {
-        //     if (overExtending.get()) {
-        //         // We are going up and top limit is tripped so stop
-        //         extender.setVoltage(0);
-        //         return;
-        //     }
+        // if (overExtending.get()) {
+        // // We are going up and top limit is tripped so stop
+        // extender.setVoltage(0);
+        // return;
+        // }
         // } else {
-        //     if (reverseExtending.get()) {
-        //         // We are going down and bottom limit is tripped so stop
-        //         extender.setVoltage(0);
-        //         return;
-        //     }
+        // if (reverseExtending.get()) {
+        // // We are going down and bottom limit is tripped so stop
+        // extender.setVoltage(0);
+        // return;
+        // }
         // }
         if (Math.abs(percent) > 100.0)
             throw new Error("The fuck how do you expect me to send over 100% voltage to the motor you dumbass");
         extender.setPercentVoltage(percent);
     }
-    
 
-    public double getPosition(){
-        return extender.getPosition();
+    public double getLength() {
+        return encoderToLength(extender.getPosition());
     }
-    public double getLength ()
-    {
-        return encoderToLength(getPosition()) ;
-    }
+
     // convert encoder val to length
     public double encoderToLength(double position) // 4096 ticks per rev
     {

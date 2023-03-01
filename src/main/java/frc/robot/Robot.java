@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.PS4Controller;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -16,11 +17,9 @@ import frc.robot.Drive.Auto.Movements.DriveForwardMovement;
 import frc.robot.Drive.Components.DriveSide;
 import frc.robot.Drive.Components.GearShifter;
 import frc.robot.Util.*;
-import frc.robot.Arm.*;
 import frc.robot.Intake.*;
 import frc.robot.Arm.Components.ArmAngler;
 import frc.robot.Arm.Components.ArmExtender;
-import frc.robot.Motor.LimitSwitch;
 import frc.robot.Motor.SparkMax;
 import frc.robot.Motor.TalonSRX;
 import frc.robot.Pneumatics.PneumaticsSystem;
@@ -56,19 +55,23 @@ public class Robot extends TimedRobot {
       var leftFront = new TalonSRX(5, true);
       var leftBack = new TalonSRX(3, true);
       var leftTop = new TalonSRX(4, false);
+      var encoderLeft = new Encoder(0, 1, false, Encoder.EncodingType.k1X);
+
       var rightFront = new TalonSRX(2, false);
       var rightBack = new TalonSRX(0, false);
       var rightTop = new TalonSRX(1, true);
+      var encoderRight = new Encoder(2, 3, true, Encoder.EncodingType.k1X);
 
-      this.left = new DriveSide(leftFront, leftBack, leftTop, null);
-      this.right = new DriveSide(rightFront, rightBack, rightTop, null);
+      this.left = new DriveSide(leftFront, leftBack, leftTop, null, encoderLeft);
+      this.right = new DriveSide(rightFront, rightBack, rightTop, null, encoderRight);
 
       this.pneumatics = new PneumaticsSystem(110, 120, 19);
       this.gearShifter = new GearShifter(2, 0, 19);
 
       var arm1 = new SparkMax(8, false, true);
       var arm2 = new SparkMax(9, false, true);
-      this.angler = new ArmAngler(arm1, arm2);
+      var encoder = new Encoder(4, 5, false, Encoder.EncodingType.k2X);
+      this.angler = new ArmAngler(arm1, arm2, encoder);
 
       var armExtender = new TalonSRX(6, true);
       // var armOverExtendingSwitch = new LimitSwitch(8);
@@ -77,8 +80,8 @@ public class Robot extends TimedRobot {
       // new ArmExtender(armExtender, armOverExtendingSwitch,
       // armOverRetractingSwitch);
 
-      var intakeLeft = new SparkMax(7, false);
-      var intakeRight = new SparkMax(10, true);
+      var intakeLeft = new SparkMax(10, false);
+      var intakeRight = new SparkMax(7, true);
       intake = new Intake(intakeLeft, intakeRight);
 
     }
@@ -95,13 +98,10 @@ public class Robot extends TimedRobot {
       DriveSidePD leftPD = new DriveSidePD(left, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
       DriveSidePD rightPD = new DriveSidePD(right, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
 
-      left.shiftLow();
-      right.shiftLow();
-
       leftPD.reset();
       rightPD.reset();
 
-      drive = new AutonomousDrive(leftPD, rightPD);
+      drive = new AutonomousDrive(leftPD, rightPD, gearShifter);
     }
 
     Scheduler.getInstance().registerTick(drive);
@@ -155,7 +155,7 @@ public class Robot extends TimedRobot {
       // intake
       if (joystick.getTrigger())
         intake.setVoltage(10);
-      else if (joystick.getRawButtonPressed(2))
+      else if (joystick.getRawButton(2))
         intake.setVoltage(-5); // outtake
       else
         intake.setVoltage(0);
