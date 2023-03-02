@@ -52,8 +52,7 @@ public class ArmPD implements Tickable {
     public void tick(double dTime) {
         double angleCorrect = angleController.tick(angleTarget - armAngler.getPosition());
         this.volt = angleCorrect;
-        if (Math.abs(angleCorrect) > 10)
-            angleCorrect = (angleCorrect > 0) ? 10 : -10;
+        
         armAngler.setVoltage(angleCorrect);
         // extender.setPower(extensionController.tick(extensionTarget - extender.getLength()));
     }

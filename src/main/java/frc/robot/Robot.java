@@ -45,6 +45,9 @@ public class Robot extends TimedRobot {
   Intake intake;
   PneumaticsSystem pneumatics;
 
+  // ! If you change the pd constant numbers (anywhere in this code) the related
+  // ! subsystem might oscilate or harm somebody
+
   /**
    * This function is run when the robot is first started up and should be used
    * for any
@@ -125,7 +128,9 @@ public class Robot extends TimedRobot {
 
     Drive drive = new Drive(left, right);
 
-    ArmPD arm = new ArmPD(angler, extender, new PDController(0.05, 0.03), new PDController(0.7, 1));
+    // if you want to tweak these numbers, don't change the order of magnitude or
+    // the arm might hurt somebody || have unexpected behavior
+    ArmPD arm = new ArmPD(angler, extender, new PDController(0.05, 0.03), new PDController(4, 0));
 
     drive.resetEncoders();
 
@@ -134,9 +139,7 @@ public class Robot extends TimedRobot {
     Scheduler.getInstance().registerTick(arm);
 
     Scheduler.getInstance().setInterval(() -> {
-      System.out.println("correction: " + arm.volt);
-      System.out.println("position: " + angler.getPosition());
-      System.out.println("target: " + arm.angleTarget);
+      System.out.println("position: " + extender.getLength());
     }, 0.5);
 
     Scheduler.getInstance().registerTick((double dTime) -> {
@@ -152,19 +155,14 @@ public class Robot extends TimedRobot {
       drive.setPower(powers.left, powers.right);
 
       // arm
-      arm.incrementAngleTarget(dTime * (joystick.getY() * 400));
-      // angler.setVoltage(0);
-      extender.setPower(0);
+      arm.incrementAngleTarget(dTime * (joystick.getY() * 800));
 
       switch (joystick.getPOV()) {
         case 0:
-          extender.setPower(50);
+          arm.incrementExtensionTarget(dTime * 3);
           break;
         case 180:
-          extender.setPower(-50);
-          break;
-        default:
-          extender.setPower(0);
+          arm.incrementExtensionTarget(-dTime * 3);
           break;
       }
 
