@@ -14,16 +14,22 @@ public class ArmPD implements Tickable {
     private ArmExtender extender;
     private PDController angleController;
     private PDController extensionController;
-    private double angleTarget = 0;
+    public double angleTarget = 0;
     
     public void setAngleTarget(double angleTarget) {
         this.angleTarget = angleTarget;
+    }
+    public void incrementAngleTarget(double dAngle) {
+        this.angleTarget += dAngle;
     }
 
     private double extensionTarget = 0;
 
     public void setExtensionTarget(double extensionTarget) {
         this.extensionTarget = extensionTarget;
+    }
+    public void incrementExtensionTarget(double dTar) {
+        this.extensionTarget += dTar;
     }
 
     // arm limits (changing)
@@ -40,14 +46,23 @@ public class ArmPD implements Tickable {
         this.angleController = angleController;
         this.extensionController = extensionController;
     }
+
+    public double volt = 0;
    
     public void tick(double dTime) {
-        armAngler.setVoltage(angleController.tick(angleTarget - armAngler.getPosition()));
-        extender.setPower(extensionController.tick(extensionTarget - extender.getLength()));
+        double angleCorrect = angleController.tick(angleTarget - armAngler.getPosition());
+        this.volt = angleCorrect;
+        if (Math.abs(angleCorrect) > 10)
+            angleCorrect = (angleCorrect > 0) ? 10 : -10;
+        armAngler.setVoltage(angleCorrect);
+        // extender.setPower(extensionController.tick(extensionTarget - extender.getLength()));
     }
 
     public void resetController() {
         angleController.reset();
         extensionController.reset();
+
+        extensionTarget = extender.getLength();
+        angleTarget = armAngler.getPosition();
     }
 }

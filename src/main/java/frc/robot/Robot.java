@@ -18,6 +18,7 @@ import frc.robot.Drive.Components.DriveSide;
 import frc.robot.Drive.Components.GearShifter;
 import frc.robot.Util.*;
 import frc.robot.Intake.*;
+import frc.robot.Arm.ArmPD;
 import frc.robot.Arm.Components.ArmAngler;
 import frc.robot.Arm.Components.ArmExtender;
 import frc.robot.Motor.SparkMax;
@@ -124,7 +125,19 @@ public class Robot extends TimedRobot {
 
     Drive drive = new Drive(left, right);
 
+    ArmPD arm = new ArmPD(angler, extender, new PDController(0.05, 0.03), new PDController(0.7, 1));
+
     drive.resetEncoders();
+
+    arm.resetController();
+
+    Scheduler.getInstance().registerTick(arm);
+
+    Scheduler.getInstance().setInterval(() -> {
+      System.out.println("correction: " + arm.volt);
+      System.out.println("position: " + angler.getPosition());
+      System.out.println("target: " + arm.angleTarget);
+    }, 0.5);
 
     Scheduler.getInstance().registerTick((double dTime) -> {
       final double deadzone = 0.05;
@@ -139,7 +152,10 @@ public class Robot extends TimedRobot {
       drive.setPower(powers.left, powers.right);
 
       // arm
-      angler.setVoltage(joystick.getY() * 5);
+      arm.incrementAngleTarget(dTime * (joystick.getY() * 400));
+      // angler.setVoltage(0);
+      extender.setPower(0);
+
       switch (joystick.getPOV()) {
         case 0:
           extender.setPower(50);
