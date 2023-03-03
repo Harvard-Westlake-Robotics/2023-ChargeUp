@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
+import frc.robot.DriverStation.Interface;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.Core.Scheduler;
@@ -18,12 +19,13 @@ import frc.robot.Drive.Components.DriveSide;
 import frc.robot.Drive.Components.GearShifter;
 import frc.robot.Util.*;
 import frc.robot.Intake.*;
-import frc.robot.Arm.ArmPD;
 import frc.robot.Arm.Components.ArmAngler;
 import frc.robot.Arm.Components.ArmExtender;
 import frc.robot.Motor.SparkMax;
 import frc.robot.Motor.TalonSRX;
 import frc.robot.Pneumatics.PneumaticsSystem;
+import frc.robot.Arm.ArmCalculator;
+import frc.robot.Arm.ArmPD;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -138,11 +140,19 @@ public class Robot extends TimedRobot {
 
     Scheduler.getInstance().registerTick(arm);
 
+
+
     Scheduler.getInstance().setInterval(() -> {
       System.out.println("position: " + extender.getLength());
     }, 0.5);
 
+    drive.resetEncoders();
+
     Scheduler.getInstance().registerTick((double dTime) -> {
+
+
+
+
       final double deadzone = 0.05;
       final double turnCurveIntensity = 7;
       final double pwrCurveIntensity = 5;
@@ -155,16 +165,21 @@ public class Robot extends TimedRobot {
       drive.setPower(powers.left, powers.right);
 
       // arm
-      arm.incrementAngleTarget(dTime * (joystick.getY() * 800));
+      // arm.incrementAngleTarget(dTime * (joystick.getY() * 800));
 
-      switch (joystick.getPOV()) {
-        case 0:
-          arm.incrementExtensionTarget(dTime * 3);
-          break;
-        case 180:
-          arm.incrementExtensionTarget(-dTime * 3);
-          break;
-      }
+      // switch (joystick.getPOV()) {
+      //   case 0:
+      //     // arm.incrementExtensionTarget(dTime * 3);
+      //     break;
+      //   case 180:
+      //     // arm.incrementExtensionTarget(-dTime * 3);
+      //     break;
+      // }
+      
+      arm.moveExtender(joystick.getPOV());
+
+      // angler - prototype
+      angler.setVoltage(ArmCalculator.armAngleCurve(angler.getPosition(), joystick.getY()));
 
       // intake
       if (joystick.getTrigger())
