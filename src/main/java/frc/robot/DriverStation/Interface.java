@@ -19,8 +19,10 @@ public class Interface {
         SmartDashboard.putBoolean("Shifter|State", shifter.getState());
 
         // Arm
-        SmartDashboard.putNumber ("Angle", angler.getPosition());
+        SmartDashboard.putNumber ("Angle", angler.getAngle());
         SmartDashboard.putNumber ("Extender:", extender.getLength());
+        SmartDashboard.putNumber ("Angler Voltage", joy.getY()*4.0) ;
+        SmartDashboard.putNumber ("Angler Encoder", angler.getPosition()) ;
 
         // SmartDashboard.putString ("Extender|Status", (extender.isOverExtended()) ? "OVER Extend" : (extender.isReverseExtended()) ? "UNDER Extend": "Normal");
 

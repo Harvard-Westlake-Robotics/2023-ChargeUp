@@ -1,10 +1,19 @@
 package frc.robot.Arm;
 
+import org.opencv.features2d.AgastFeatureDetector;
+
+import edu.wpi.first.wpilibj.Joystick;
+import frc.robot.Arm.Components.*;
+import frc.robot.Arm.ArmConstants;
+
 // store all calculations here
 
 public class ArmCalculator {
 
     private static double LENGTH_LIMIT = ArmConstants.LENGTH_LIMIT;
+
+    private final double HOLD_90DEGREE_FULLYEXTEND_VOLTAGE = 1 ;
+
 
     // return max rotation given length
     public static double maxRotation(double length) {
@@ -39,5 +48,17 @@ public class ArmCalculator {
     public static double yDistance(double length, double angle) {
         double a = Math.toRadians(angle);
         return length * Math.cos(a);
+    }
+
+    public static double holdPosVoltage (double angle, double extenderLength)
+    {
+        // 1.6 is appox constant volt needed to hold arm at horizontal & max extend
+        if (Math.abs(angle) >= 45)
+        {
+            double val = (1.6 * Math.cos(angle) * (extenderLength / ArmConstants.LENGTH_LIMIT)) ;
+            System.out.println (val);
+            return val ;
+        }
+        return 0 ; // motor brake can prob hold it
     }
 }

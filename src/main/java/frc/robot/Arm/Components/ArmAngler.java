@@ -23,7 +23,21 @@ public class ArmAngler {
         arm2.setVoltage(voltage);
     }
 
+    public void resetEncoder ()
+    {
+        encoder.reset();
+    }
+
     public double getPosition() {
         return encoder.get();
+    }
+
+    public double getAngle ()
+    {
+        return posToAngle (getPosition()) ;
+    }
+    public double posToAngle (double encoderPos)
+    {
+        return (-encoderPos / 1024 * 180) ;
     }
 }
