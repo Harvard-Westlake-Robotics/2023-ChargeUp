@@ -1,17 +1,26 @@
 package frc.robot.Motor;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 public class TalonSRX {
-    private WPI_TalonSRX maxspark;
+    private WPI_TalonFX maxspark;
     private boolean isReversed;
     boolean isStallable;
 
     public TalonSRX(int deviceNumber, boolean isReversed, boolean isStallable) {
-        this.maxspark = new WPI_TalonSRX(deviceNumber);
+        this.maxspark = new WPI_TalonFX(deviceNumber);
         maxspark.getSensorCollection();
         this.isReversed = isReversed;
         this.isStallable = isStallable;
+
+        /* newer config API */
+        TalonFXConfiguration configs = new TalonFXConfiguration();
+        /* select integ-sensor for PID0 (it doesn't matter if PID is actually used) */
+        configs.primaryPID.selectedFeedbackSensor = FeedbackDevice.IntegratedSensor;
+        /* config all the settings */
+        maxspark.configAllSettings(configs);
     }
 
     public TalonSRX(int deviceNumber, boolean isReversed) {
@@ -43,13 +52,14 @@ public class TalonSRX {
          * else
          * maxspark.setVoltage(volts);
          * 
-         * If you don't understand and need to make a change, you can uncomment this
+         * If you don't understand and need to make a change, you can
+         * uncomment this
          * code
          */
     }
 
     public double getPosition() {
-        return (isReversed) ? -maxspark.getSelectedSensorPosition() : maxspark.getSelectedSensorPosition();
+        return (isReversed) ? -maxspark.getSelectedSensorPosition(0) : maxspark.getSelectedSensorPosition(0);
     }
 
     public void stop() {

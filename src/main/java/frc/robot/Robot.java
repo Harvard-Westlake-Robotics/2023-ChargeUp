@@ -21,6 +21,7 @@ import frc.robot.Util.*;
 import frc.robot.Intake.*;
 import frc.robot.Arm.Components.ArmAngler;
 import frc.robot.Arm.Components.ArmExtender;
+import frc.robot.Motor.LimitSwitch;
 import frc.robot.Motor.SparkMax;
 import frc.robot.Motor.TalonSRX;
 import frc.robot.Pneumatics.PneumaticsSystem;
@@ -78,12 +79,12 @@ public class Robot extends TimedRobot {
       var encoder = new Encoder(4, 5, false, Encoder.EncodingType.k2X);
       this.angler = new ArmAngler(arm1, arm2, encoder);
 
-      var armExtender = new TalonSRX(6, true);
-      // var armOverExtendingSwitch = new LimitSwitch(8);
-      // var armOverRetractingSwitch = new LimitSwitch(9);
-      this.extender = new ArmExtender(armExtender);
-      // new ArmExtender(armExtender, armOverExtendingSwitch,
-      // armOverRetractingSwitch);
+      var armExtender = new TalonSRX(6, true, true);
+      var armOverExtendingSwitch = new LimitSwitch(9);
+      var armOverRetractingSwitch = new LimitSwitch(10);
+      this.extender = // new ArmExtender(armExtender);
+          new ArmExtender(armExtender, armOverExtendingSwitch,
+              armOverRetractingSwitch);
 
       var intakeLeft = new SparkMax(10, false);
       var intakeRight = new SparkMax(7, true);
@@ -139,7 +140,7 @@ public class Robot extends TimedRobot {
 
     arm.resetController();
 
-    Scheduler.getInstance().registerTick(arm);
+    // Scheduler.getInstance().registerTick(arm);
 
     Interface.updateDashboard(drive, gearShifter, angler, extender, intake, pneumatics, con, joystick);
 
@@ -163,15 +164,29 @@ public class Robot extends TimedRobot {
           pwrCurveIntensity);
       drive.setPower(powers.left, powers.right);
 
+      // switch (joystick.getPOV()) {
+      // case 0:
+      // System.out.println("extending");
+      // arm.incrementExtensionTarget(dTime * 20.0);
+      // break;
+      // case 180:
+      // System.out.println("retracting");
+      // arm.incrementExtensionTarget(-dTime * 20.0);
+      // break;
+      // }
+
       switch (joystick.getPOV()) {
         case 0:
           System.out.println("extending");
-          arm.incrementExtensionTarget(dTime * 20.0);
+          extender.setPower(50);
           break;
         case 180:
           System.out.println("retracting");
-          arm.incrementExtensionTarget(-dTime * 20.0);
+          extender.setPower(-50);
           break;
+        default:
+          extender.setPower(0);
+
       }
 
       // angler - prototype
