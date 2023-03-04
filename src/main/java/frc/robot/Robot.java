@@ -140,49 +140,56 @@ public class Robot extends TimedRobot {
 
     arm.resetController();
 
-    Scheduler.getInstance().registerTick(arm);
+    //Scheduler.getInstance().registerTick(arm);
 
     Interface.updateDashboard(drive, gearShifter, angler, extender, intake, pneumatics, con, joystick);
 
-    Scheduler.getInstance().setInterval(() -> {
-      System.out.println("position: " + Round.rd(extender.getLength()));
-      System.out.println("target: " + arm.extensionTarget);
-      System.out.println("correction: " + arm.extenderCorrect);
-    }, 0.5);
+    // Scheduler.getInstance().setInterval(() -> {
+    //   System.out.println("position: " + Round.rd(extender.getLength()));
+    //   System.out.println("target: " + arm.extensionTarget);
+    //   System.out.println("correction: " + arm.extenderCorrect);
+    // }, 0.5);
 
-    drive.resetEncoders();
+    // drive.resetEncoders();
 
-    Scheduler.getInstance().registerTick((double dTime) -> {
-      final double deadzone = 0.05;
-      final double turnCurveIntensity = 7;
-      final double pwrCurveIntensity = 5;
-      final Pair<Double> powers = ScaleInput.scale(
-          con.getLeftY(),
-          con.getRightY(),
-          deadzone,
-          turnCurveIntensity,
-          pwrCurveIntensity);
-      drive.setPower(powers.left, powers.right);
+     Scheduler.getInstance().registerTick((double dTime) -> {
+    //   final double deadzone = 0.05;
+    //   final double turnCurveIntensity = 7;
+    //   final double pwrCurveIntensity = 5;
+    //   final Pair<Double> powers = ScaleInput.scale(
+    //       con.getLeftY(),
+    //       con.getRightY(),
+    //       deadzone,
+    //       turnCurveIntensity,
+    //       pwrCurveIntensity);
+    //   drive.setPower(powers.left, powers.right);
+
+      // Drive the robot 
+      //System.out.println("arm left: " + (100.0 *  con.getRightY()));
+      drive.setPower(con.getLeftY()*100.0, con.getRightY()*100.0);
 
       // THIS CONTROLS THE ARM EXTENSION
-      switch (joystick.getPOV()) {
+      /*
+      switch (joystick.getPOV()) {   
         case 0:
           System.out.println("extending");
-          arm.incrementExtensionTarget(dTime * 20.0);
+          angler.setVoltage(10);
+          //arm.incrementExtensionTarget(dTime * 20.0);
           break;
         case 180:
           System.out.println("retracting");
-          arm.incrementExtensionTarget(dTime * -20.0);
+          angler.setVoltage(-10);
+          //arm.incrementExtensionTarget(dTime * -20.0);
           break;
         case -1:
           extender.setPower(0);
           break;
       }
-
+*/
       // angler - prototype
-      angler.setVoltage(ScaleInput.curve(joystick.getY() * 100.0, 8) * (12.0 /
-          100.0));
-      // joystick.getY()));
+      // Arm position goes from -3 to 3
+      System.out.println("arm joystick: " + (4.0 *  joystick.getY()));
+      angler.setVoltage(joystick.getY()*4.0);
 
       // intake
       if (joystick.getTrigger())
@@ -190,7 +197,7 @@ public class Robot extends TimedRobot {
       else if (joystick.getRawButton(2))
         intake.setVoltage(-5); // outtake
       else
-        intake.setVoltage(0.1);
+        intake.setVoltage(0.1);  // Slowly intake so we dont drop (thanks Grady)
 
       // pneumatics
       pneumatics.autoRunCompressor();
