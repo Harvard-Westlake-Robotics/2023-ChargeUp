@@ -134,18 +134,18 @@ public class Robot extends TimedRobot {
     // the arm might hurt somebody || have unexpected behavior
     ArmPD arm = new ArmPD(angler, extender,
         new PDController(0.05, 0.03),
-        new PDController(1, 0));
+        new PDController(5, 0));
 
     drive.resetEncoders();
 
     arm.resetController();
 
-    // Scheduler.getInstance().registerTick(arm);
+    Scheduler.getInstance().registerTick(arm);
 
     Interface.updateDashboard(drive, gearShifter, angler, extender, intake, pneumatics, con, joystick);
 
     Scheduler.getInstance().setInterval(() -> {
-      System.out.println("position: " + extender.getLength());
+      System.out.println("position: " + Round.rd(extender.getLength()));
       System.out.println("target: " + arm.extensionTarget);
       System.out.println("correction: " + arm.extenderCorrect);
     }, 0.5);
@@ -164,33 +164,24 @@ public class Robot extends TimedRobot {
           pwrCurveIntensity);
       drive.setPower(powers.left, powers.right);
 
-      // switch (joystick.getPOV()) {
-      // case 0:
-      // System.out.println("extending");
-      // arm.incrementExtensionTarget(dTime * 20.0);
-      // break;
-      // case 180:
-      // System.out.println("retracting");
-      // arm.incrementExtensionTarget(-dTime * 20.0);
-      // break;
-      // }
-
+      // THIS CONTROLS THE ARM EXTENSION
       switch (joystick.getPOV()) {
         case 0:
           System.out.println("extending");
-          extender.setPower(50);
+          arm.incrementExtensionTarget(dTime * 20.0);
           break;
         case 180:
           System.out.println("retracting");
-          extender.setPower(-50);
+          arm.incrementExtensionTarget(dTime * -20.0);
           break;
-        default:
+        case -1:
           extender.setPower(0);
-
+          break;
       }
 
       // angler - prototype
-      angler.setVoltage(ScaleInput.curve(joystick.getY() * 100.0, 8) * (12.0 / 100.0));
+      angler.setVoltage(ScaleInput.curve(joystick.getY() * 100.0, 8) * (12.0 /
+          100.0));
       // joystick.getY()));
 
       // intake

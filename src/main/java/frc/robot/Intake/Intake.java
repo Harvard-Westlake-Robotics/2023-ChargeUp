@@ -12,8 +12,8 @@ public class Intake {
         this.left = left;
         this.right = right;
 
-        left.setBrake(false);
-        right.setBrake(false);
+        left.setBrake(true);
+        right.setBrake(true);
     }
 
     public void setVoltage (double voltage)

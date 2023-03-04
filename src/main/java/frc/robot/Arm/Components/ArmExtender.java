@@ -54,12 +54,13 @@ public class ArmExtender {
         return encoderToLength(extender.getPosition());
     }
 
-    // convert encoder val to length
-    public double encoderToLength(double position) // 4096 ticks per rev
+    // convert encoder val to length 
+    // encoder val is 0 to 50
+    public double encoderToLength(double encoderPosition) // 4096 ticks per rev
     {
         // ??:?? gear ratio ; 18/35 sprocket ratio ; 2" wheel diameter ; 2 inch of
         // height per 1 inch of string ; min arm length 35"
-        return (position * (14 / 60) * (18 / 35) * 2 * Math.PI * 2 /** + 35 */
+        return (encoderPosition * (14.0 / 60.0) * (18.0 / 35.0) * 2.0 * Math.PI * 2.0 /** + 35 */
         ); // ! assumptions were made here
     }
 }
