@@ -21,6 +21,8 @@ public class Interface {
         // Arm
         SmartDashboard.putNumber ("Angle", angler.getAngle());
         SmartDashboard.putNumber ("Extender:", extender.getLength());
+        SmartDashboard.putBoolean("Max Extension?", extender.isOverExtended());
+        SmartDashboard.putBoolean("Min Extention?", extender.isReverseExtended()) ;
         SmartDashboard.putNumber ("Angler Voltage", joy.getY()*4.0) ;
         SmartDashboard.putNumber ("Angler Encoder", angler.getPosition()) ;
 
