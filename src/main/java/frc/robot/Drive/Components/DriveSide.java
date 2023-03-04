@@ -1,7 +1,7 @@
 package frc.robot.Drive.Components;
 
-import frc.robot.Motor.TalonSRX;
-import edu.wpi.first.wpilibj.Encoder;
+import frc.robot.Devices.Encoder;
+import frc.robot.Devices.TalonSRX;
 
 public class DriveSide {
     private TalonSRX one;
@@ -23,7 +23,7 @@ public class DriveSide {
     }
 
     public double getPositionInches() {
-        return encoder.getDistance() * (6 * Math.PI);
+        return encoder.getRevs() * (6 * Math.PI);
     }
 
     public void resetEncoder() {

@@ -1,7 +1,7 @@
 package frc.robot.Arm.Components;
 
-import frc.robot.Motor.LimitSwitch;
-import frc.robot.Motor.TalonSRX;
+import frc.robot.Devices.LimitSwitch;
+import frc.robot.Devices.TalonSRX;
 
 // this is the subsystem
 public class ArmExtender {

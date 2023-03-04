@@ -1,4 +1,4 @@
-package frc.robot.Motor;
+package frc.robot.Devices;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 

@@ -5,12 +5,15 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.PS4Controller;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import frc.robot.DriverStation.Interface;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.Core.Scheduler;
+import frc.robot.Devices.Encoder;
+import frc.robot.Devices.LimitSwitch;
+import frc.robot.Devices.SparkMax;
+import frc.robot.Devices.TalonSRX;
 import frc.robot.Drive.*;
 import frc.robot.Drive.Auto.AutonomousDrive;
 import frc.robot.Drive.Auto.DriveSidePD;
@@ -21,10 +24,8 @@ import frc.robot.Util.*;
 import frc.robot.Intake.*;
 import frc.robot.Arm.Components.ArmAngler;
 import frc.robot.Arm.Components.ArmExtender;
-import frc.robot.Motor.LimitSwitch;
-import frc.robot.Motor.SparkMax;
-import frc.robot.Motor.TalonSRX;
 import frc.robot.Pneumatics.PneumaticsSystem;
+import frc.robot.Arm.ArmCalculator;
 import frc.robot.Arm.ArmPD;
 
 /**
@@ -47,7 +48,6 @@ public class Robot extends TimedRobot {
   Intake intake;
   PneumaticsSystem pneumatics;
 
-  
   PS4Controller con;
   Joystick joystick;
 
@@ -67,12 +67,12 @@ public class Robot extends TimedRobot {
       var leftFront = new TalonSRX(5, true);
       var leftBack = new TalonSRX(3, true);
       var leftTop = new TalonSRX(4, false);
-      var encoderLeft = new Encoder(0, 1, false, Encoder.EncodingType.k1X);
+      var encoderLeft = new Encoder(0, 1, false);
 
       var rightFront = new TalonSRX(2, false);
       var rightBack = new TalonSRX(0, false);
       var rightTop = new TalonSRX(1, true);
-      var encoderRight = new Encoder(2, 3, true, Encoder.EncodingType.k1X);
+      var encoderRight = new Encoder(2, 3, true);
 
       this.left = new DriveSide(leftFront, leftBack, leftTop, null, encoderLeft);
       this.right = new DriveSide(rightFront, rightBack, rightTop, null, encoderRight);
@@ -82,7 +82,7 @@ public class Robot extends TimedRobot {
 
       var arm1 = new SparkMax(8, false, true);
       var arm2 = new SparkMax(9, false, true);
-      var encoder = new Encoder(4, 5, false, Encoder.EncodingType.k2X);
+      var encoder = new Encoder(4, 5, true);
       this.angler = new ArmAngler(arm1, arm2, encoder);
 
       var armExtender = new TalonSRX(6, true, true);
@@ -96,14 +96,12 @@ public class Robot extends TimedRobot {
       var intakeRight = new SparkMax(7, true);
       intake = new Intake(intakeLeft, intakeRight);
 
-
       this.con = new PS4Controller(0);
       this.joystick = new Joystick(1);
-  
+
       this.drive = new Drive(left, right);
 
       Interface.updateDashboard(drive, gearShifter, angler, extender, intake, pneumatics, con, joystick);
-
 
     }
   }
@@ -148,67 +146,77 @@ public class Robot extends TimedRobot {
 
     drive.resetEncoders();
 
+    angler.zero();
+
     arm.resetController();
 
     Scheduler.getInstance().registerTick(arm);
 
     Interface.updateDashboard(drive, gearShifter, angler, extender, intake, pneumatics, con, joystick);
 
+    // angler.setVoltage(ArmCalculator.getAntiGravTorque(angler.getPosition()));
+
     Scheduler.getInstance().setInterval(() -> {
-      System.out.println("position: " + Round.rd(extender.getLength()));
-      System.out.println("target: " + arm.extensionTarget);
-      System.out.println("correction: " + arm.extenderCorrect);
+      System.out.println(angler.getPosition());
+
+      // System.out.println("position: " + Round.rd(extender.getLength()));
+      // System.out.println("target: " + arm.extensionTarget);
+      // System.out.println("correction: " + arm.extenderCorrect);
     }, 0.5);
 
-    drive.resetEncoders();
-
-    Scheduler.getInstance().registerTick((double dTime) -> {
-      final double deadzone = 0.05;
-      final double turnCurveIntensity = 7;
-      final double pwrCurveIntensity = 5;
-      final Pair<Double> powers = ScaleInput.scale(
-          con.getLeftY(),
-          con.getRightY(),
-          deadzone,
-          turnCurveIntensity,
-          pwrCurveIntensity);
-      drive.setPower(powers.left, powers.right);
-
-      // THIS CONTROLS THE ARM EXTENSION
-      switch (joystick.getPOV()) {
-        case 0:
-          System.out.println("extending");
-          arm.incrementExtensionTarget(dTime * 20.0);
-          break;
-        case 180:
-          System.out.println("retracting");
-          arm.incrementExtensionTarget(dTime * -20.0);
-          break;
-        case -1:
-          extender.setPower(0);
-          break;
-      }
-
-      // angler - prototype
-      angler.setVoltage(ScaleInput.curve(joystick.getY() * 100.0, 8) * (12.0 /
-          100.0));
-      // joystick.getY()));
-
-      // intake
-      if (joystick.getTrigger())
-        intake.setVoltage(10);
-      else if (joystick.getRawButton(2))
-        intake.setVoltage(-5); // outtake
-      else
-        intake.setVoltage(0.1);
-
-      // pneumatics
-      pneumatics.autoRunCompressor();
-
-      if (con.getR2ButtonPressed()) {
-        gearShifter.toggle();
-      }
+    Scheduler.getInstance().registerTick((double sec) -> {
+      angler.setVoltage(ArmCalculator.getAntiGravTorque(angler.getPosition()));
     });
+
+    // drive.resetEncoders();
+
+    // Scheduler.getInstance().registerTick((double dTime) -> {
+    // final double deadzone = 0.05;
+    // final double turnCurveIntensity = 7;
+    // final double pwrCurveIntensity = 5;
+    // final Pair<Double> powers = ScaleInput.scale(
+    // con.getLeftY(),
+    // con.getRightY(),
+    // deadzone,
+    // turnCurveIntensity,
+    // pwrCurveIntensity);
+    // drive.setPower(powers.left, powers.right);
+
+    // // THIS CONTROLS THE ARM EXTENSION
+    // switch (joystick.getPOV()) {
+    // case 0:
+    // System.out.println("extending");
+    // arm.incrementExtensionTarget(dTime * 20.0);
+    // break;
+    // case 180:
+    // System.out.println("retracting");
+    // arm.incrementExtensionTarget(dTime * -20.0);
+    // break;
+    // case -1:
+    // extender.setPower(0);
+    // break;
+    // }
+
+    // // angler - prototype
+    // angler.setVoltage(ScaleInput.curve(joystick.getY() * 100.0, 8) * (12.0 /
+    // 100.0));
+    // // joystick.getY()));
+
+    // // intake
+    // if (joystick.getTrigger())
+    // intake.setVoltage(10);
+    // else if (joystick.getRawButton(2))
+    // intake.setVoltage(-5); // outtake
+    // else
+    // intake.setVoltage(0.1);
+
+    // // pneumatics
+    // pneumatics.autoRunCompressor();
+
+    // if (con.getR2ButtonPressed()) {
+    // gearShifter.toggle();
+    // }
+    // });
   }
 
   /** This function is called periodically during operator control. */

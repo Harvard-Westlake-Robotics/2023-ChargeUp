@@ -1,6 +1,6 @@
 package frc.robot.Intake;
 
-import frc.robot.Motor.SparkMax;
+import frc.robot.Devices.SparkMax;
 
 public class Intake {
     private SparkMax left;

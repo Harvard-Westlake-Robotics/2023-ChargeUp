@@ -1,7 +1,7 @@
 package frc.robot.Arm.Components;
 
-import frc.robot.Motor.SparkMax;
-import edu.wpi.first.wpilibj.Encoder;
+import frc.robot.Devices.Encoder;
+import frc.robot.Devices.SparkMax;
 
 // motor group
 public class ArmAngler {
@@ -14,8 +14,8 @@ public class ArmAngler {
         this.arm2 = arm2;
         this.encoder = armEncoder;
 
-        arm1.setBrake(true);
-        arm2.setBrake(true);
+        arm1.setBrake(false);
+        arm2.setBrake(false);
     }
 
     public void setVoltage(double voltage) {
@@ -24,6 +24,10 @@ public class ArmAngler {
     }
 
     public double getPosition() {
-        return encoder.get();
+        return encoder.getRevs();
+    }
+
+    public void zero() {
+        encoder.reset();
     }
 }

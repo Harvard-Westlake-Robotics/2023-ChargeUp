@@ -20,11 +20,15 @@ public class ArmCalculator {
         return Math.min(maxLengthAccordingToHeightLim, maxLengthAccordingToLengthLim);
     }
 
-    //returns modified arm angle based on sin curves (graph it on desmos and you will see)
-    public static double armAngleCurve(double angle, double joystickPos){
-        if (angle >= 0 && angle <= 90) return (6*Math.sin(2*angle-90)+6) * joystickPos;
-        else if (angle > 90 && angle <= 150) return 12 * joystickPos;
-        else if (angle > 150 && angle >= 240) return (6*Math.sin(2*angle-90)+6)  * joystickPos;
+    // returns modified arm angle based on sin curves (graph it on desmos and you
+    // will see)
+    public static double armAngleCurve(double angle, double joystickPos) {
+        if (angle >= 0 && angle <= 90)
+            return (6 * Math.sin(2 * angle - 90) + 6) * joystickPos;
+        else if (angle > 90 && angle <= 150)
+            return 12 * joystickPos;
+        else if (angle > 150 && angle >= 240)
+            return (6 * Math.sin(2 * angle - 90) + 6) * joystickPos;
 
         return 0;
     }
@@ -39,5 +43,14 @@ public class ArmCalculator {
     public static double yDistance(double length, double angle) {
         double a = Math.toRadians(angle);
         return length * Math.cos(a);
+    }
+
+    public static double getAntiGravTorque(double angle) {
+        final double fac = 0.40;
+
+        double radians = angle * 2 * Math.PI;
+        double cos = Math.sin(radians);
+
+        return cos * fac;
     }
 }

@@ -1,4 +1,4 @@
-package frc.robot.Motor;
+package frc.robot.Devices;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
@@ -35,23 +35,15 @@ public class TalonSRX {
         setVoltage(percent * (12.0 / 100.0));
     }
 
-    private boolean noise(double percentOn, double period) {
-        double time = Timer.getFPGATimestamp();
-        double sample = (time % period) / period;
-        return sample > percentOn / 100.0;
-    }
-
     public void setVoltage(double volts) {
         if (Math.abs(volts) > 12.0)
             throw new Error("Illegal voltage");
         if (isStallable) {
             double fac = (volts > 0) ? 1 : -1;
             if (Math.abs(volts) < 0.2) {
-                System.out.println(volts + "asdf");
                 maxspark.setVoltage(0);
                 return;
             } else if (Math.abs(volts) < 2) {
-                System.out.println(volts + "qwer");
                 maxspark.setVoltage(2 * fac);
                 return;
             }
