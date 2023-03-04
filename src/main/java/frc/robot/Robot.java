@@ -131,13 +131,15 @@ public class Robot extends TimedRobot {
 
     // if you want to tweak these numbers, don't change the order of magnitude or
     // the arm might hurt somebody || have unexpected behavior
-    ArmPD arm = new ArmPD(angler, extender, new PDController(0.05, 0.03), new PDController(4, 0));
+    ArmPD arm = new ArmPD(angler, extender,
+        new PDController(0.05, 0.03),
+        new PDController(1, 0));
 
     drive.resetEncoders();
 
     arm.resetController();
 
-    // Scheduler.getInstance().registerTick(arm);
+    Scheduler.getInstance().registerTick(arm);
 
     Interface.updateDashboard(drive, gearShifter, angler, extender, intake, pneumatics, con, joystick);
 
@@ -164,11 +166,11 @@ public class Robot extends TimedRobot {
       switch (joystick.getPOV()) {
         case 0:
           System.out.println("extending");
-          arm.incrementExtensionTarget(dTime * 300.0);
+          arm.incrementExtensionTarget(dTime * 20.0);
           break;
         case 180:
           System.out.println("retracting");
-          arm.incrementExtensionTarget(-dTime * 300.0);
+          arm.incrementExtensionTarget(-dTime * 20.0);
           break;
       }
 
