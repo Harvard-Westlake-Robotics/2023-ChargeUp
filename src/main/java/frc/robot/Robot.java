@@ -24,7 +24,6 @@ import frc.robot.Arm.Components.ArmExtender;
 import frc.robot.Motor.SparkMax;
 import frc.robot.Motor.TalonSRX;
 import frc.robot.Pneumatics.PneumaticsSystem;
-import frc.robot.Arm.ArmCalculator;
 import frc.robot.Arm.ArmPD;
 
 /**
@@ -138,21 +137,19 @@ public class Robot extends TimedRobot {
 
     arm.resetController();
 
-    Scheduler.getInstance().registerTick(arm);
+    // Scheduler.getInstance().registerTick(arm);
 
-
+    Interface.updateDashboard(drive, gearShifter, angler, extender, intake, pneumatics, con, joystick);
 
     Scheduler.getInstance().setInterval(() -> {
       System.out.println("position: " + extender.getLength());
+      System.out.println("target: " + arm.extensionTarget);
+      System.out.println("correction: " + arm.extenderCorrect);
     }, 0.5);
 
     drive.resetEncoders();
 
     Scheduler.getInstance().registerTick((double dTime) -> {
-
-
-
-
       final double deadzone = 0.05;
       final double turnCurveIntensity = 7;
       final double pwrCurveIntensity = 5;
@@ -164,22 +161,20 @@ public class Robot extends TimedRobot {
           pwrCurveIntensity);
       drive.setPower(powers.left, powers.right);
 
-      // arm
-      // arm.incrementAngleTarget(dTime * (joystick.getY() * 800));
-
-      // switch (joystick.getPOV()) {
-      //   case 0:
-      //     // arm.incrementExtensionTarget(dTime * 3);
-      //     break;
-      //   case 180:
-      //     // arm.incrementExtensionTarget(-dTime * 3);
-      //     break;
-      // }
-      
-      arm.moveExtender(joystick.getPOV());
+      switch (joystick.getPOV()) {
+        case 0:
+          System.out.println("extending");
+          arm.incrementExtensionTarget(dTime * 300.0);
+          break;
+        case 180:
+          System.out.println("retracting");
+          arm.incrementExtensionTarget(-dTime * 300.0);
+          break;
+      }
 
       // angler - prototype
-      angler.setVoltage(ArmCalculator.armAngleCurve(angler.getPosition(), joystick.getY()));
+      angler.setVoltage(ScaleInput.curve(joystick.getY() * 100.0, 8) * (12.0 / 100.0));
+      // joystick.getY()));
 
       // intake
       if (joystick.getTrigger())
@@ -187,7 +182,7 @@ public class Robot extends TimedRobot {
       else if (joystick.getRawButton(2))
         intake.setVoltage(-5); // outtake
       else
-        intake.setVoltage(0);
+        intake.setVoltage(0.1);
 
       // pneumatics
       pneumatics.autoRunCompressor();

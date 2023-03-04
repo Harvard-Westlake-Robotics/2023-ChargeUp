@@ -15,13 +15,18 @@ public class ArmPD implements Tickable {
     private PDController angleController;
     private PDController extensionController;
     private double angleTarget = 0;
-    
+    public double extensionTarget = 0;
+
+    public void incrementAngleTarget(double dAngle) {
+        this.angleTarget += dAngle;
+    }
     public void setAngleTarget(double angleTarget) {
         this.angleTarget = angleTarget;
     }
 
-    private double extensionTarget = 0;
-
+    public void incrementExtensionTarget(double dAngle) {
+        this.angleTarget += dAngle;
+    }
     public void setExtensionTarget(double extensionTarget) {
         this.extensionTarget = extensionTarget;
     }
@@ -40,24 +45,20 @@ public class ArmPD implements Tickable {
         this.angleController = angleController;
         this.extensionController = extensionController;
     }
+
+    public double extenderCorrect = 0;
    
     public void tick(double dTime) {
-        double angleCorrect = angleController.tick(angleTarget - armAngler.getPosition());
-        
-        armAngler.setVoltage(angleController.tick(angleTarget - armAngler.getPosition()));
-        extender.setPower(extensionController.tick(extensionTarget - extender.getLength()));
+        armAngler.setVoltage(angleController.solve(angleTarget - armAngler.getPosition()));
+        this.extenderCorrect = extensionController.solve(extensionTarget - extender.getLength());
+        extender.setPower(extenderCorrect);
     }
-
-    //! idk where to put this
-    public void moveExtender(int pov){
-        int isRev = pov == 0 ? 1 : pov == 180 ? -1: 0;
-        extender.setPower(extensionController.tick(isRev * (extensionTarget - extender.getLength())));
-    }
-
-
 
     public void resetController() {
         angleController.reset();
         extensionController.reset();
+
+        angleTarget = armAngler.getPosition();
+        extensionTarget = extender.getLength();
     }
 }

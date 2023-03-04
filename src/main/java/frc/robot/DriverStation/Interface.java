@@ -12,7 +12,7 @@ import frc.robot.Intake.*;
 import frc.robot.Pneumatics.*;
 
 public class Interface {
-    public void updateDashboard(Drive drive, GearShifter shifter, ArmAngler angler, ArmExtender extender, Intake intake, PneumaticsSystem pneumatics, PS4Controller con, Joystick joy) {
+    public static void updateDashboard(Drive drive, GearShifter shifter, ArmAngler angler, ArmExtender extender, Intake intake, PneumaticsSystem pneumatics, PS4Controller con, Joystick joy) {
         // Drive
 
         // GearShifter
@@ -22,7 +22,7 @@ public class Interface {
         SmartDashboard.putNumber ("Angle", angler.getPosition());
         SmartDashboard.putNumber ("Extender:", extender.getLength());
 
-        SmartDashboard.putString ("Extender|Status", (extender.isOverExtended()) ? "OVER Extend" : (extender.isReverseExtended()) ? "UNDER Extend": "Normal");
+        // SmartDashboard.putString ("Extender|Status", (extender.isOverExtended()) ? "OVER Extend" : (extender.isReverseExtended()) ? "UNDER Extend": "Normal");
 
         SmartDashboard.putNumber ("Max Height:", ArmConstants.HEIGHT_LIMIT);
         SmartDashboard.putNumber ("Max Length:", ArmConstants.LENGTH_LIMIT);

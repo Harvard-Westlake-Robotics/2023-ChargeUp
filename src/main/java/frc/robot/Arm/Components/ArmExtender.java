@@ -1,6 +1,5 @@
 package frc.robot.Arm.Components;
 
-import frc.robot.Motor.LimitSwitch;
 import frc.robot.Motor.TalonSRX;
 
 // this is the subsystem
@@ -14,25 +13,18 @@ public class ArmExtender {
     // 64t output
 
     private TalonSRX extender;
-    LimitSwitch overExtending;
-    LimitSwitch reverseExtending;
-
-
-    
 
     public ArmExtender(TalonSRX extender) {
         this.extender = extender;
-        // this.overExtending = overExtending;
-        // this.reverseExtending = reverseExtending;
     }
 
-    public boolean isOverExtended() {
-        return overExtending.get();
-    }
+    // public boolean isOverExtended() {
+    //     return overExtending.get();
+    // }
 
-    public boolean isReverseExtended() {
-        return reverseExtending.get();
-    }
+    // public boolean isReverseExtended() {
+    //     return reverseExtending.get();
+    // }
 
     public void setPower(double percent) {
         // if (percent > 0) {
@@ -62,6 +54,7 @@ public class ArmExtender {
     {
         // ??:?? gear ratio ; 18/35 sprocket ratio ; 2" wheel diameter ; 2 inch of
         // height per 1 inch of string ; min arm length 35"
-        return (position * (14 / 60) * (18 / 35) * 2 * Math.PI * 2 /** + 35*/ ); // ! assumptions were made here
+        return (position * (14 / 60) * (18 / 35) * 2 * Math.PI * 2 /** + 35 */
+        ); // ! assumptions were made here
     }
 }

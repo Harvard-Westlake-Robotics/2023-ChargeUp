@@ -11,6 +11,9 @@ public class Intake {
     public Intake(SparkMax left, SparkMax right) {
         this.left = left;
         this.right = right;
+
+        left.setBrake(false);
+        right.setBrake(false);
     }
 
     public void setVoltage (double voltage)

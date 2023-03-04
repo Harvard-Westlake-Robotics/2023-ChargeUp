@@ -17,6 +17,10 @@ public class SparkMax {
         maxspark.setIdleMode(IdleMode.kCoast);
     }
 
+    public void setBrake(boolean brake) {
+        maxspark.setIdleMode((brake) ? IdleMode.kBrake : IdleMode.kCoast);
+    }
+
     public SparkMax(int canID, boolean isReversed, boolean brakeMode) {
         this.maxspark = new CANSparkMax(canID, MotorType.kBrushless);
         this.encoder = maxspark.getEncoder();

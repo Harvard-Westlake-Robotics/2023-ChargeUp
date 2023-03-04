@@ -14,7 +14,7 @@ public class PDController {
      * @param currentError the distance to the target from the current value (target value - current value)
      * @return A correctional value
      */
-    public double tick(double currentError) {
+    public double solve(double currentError) {
         double p_correct = P_CONSTANT * currentError;
         double d_correct = D_CONSTANT * (currentError - lastError);
 

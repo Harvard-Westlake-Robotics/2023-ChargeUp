@@ -69,10 +69,10 @@ public class DriveSidePD {
         double correction;
         if (isLowGear) {
             highGearController.reset();
-            correction = lowGearController.tick(error);
+            correction = lowGearController.solve(error);
         } else {
             lowGearController.reset();
-            correction = highGearController.tick(error);
+            correction = highGearController.solve(error);
         }
         return correction;
     }
