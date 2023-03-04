@@ -47,6 +47,12 @@ public class Robot extends TimedRobot {
   Intake intake;
   PneumaticsSystem pneumatics;
 
+  
+  PS4Controller con;
+  Joystick joystick;
+
+  Drive drive;
+
   // ! If you change the pd constant numbers (anywhere in this code) the related
   // ! subsystem might oscilate or harm somebody
 
@@ -90,6 +96,15 @@ public class Robot extends TimedRobot {
       var intakeRight = new SparkMax(7, true);
       intake = new Intake(intakeLeft, intakeRight);
 
+
+      this.con = new PS4Controller(0);
+      this.joystick = new Joystick(1);
+  
+      this.drive = new Drive(left, right);
+
+      Interface.updateDashboard(drive, gearShifter, angler, extender, intake, pneumatics, con, joystick);
+
+
     }
   }
 
@@ -124,11 +139,6 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     Scheduler.getInstance().clear();
-
-    PS4Controller con = new PS4Controller(0);
-    Joystick joystick = new Joystick(1);
-
-    Drive drive = new Drive(left, right);
 
     // if you want to tweak these numbers, don't change the order of magnitude or
     // the arm might hurt somebody || have unexpected behavior
