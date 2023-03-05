@@ -186,6 +186,7 @@ public class Robot extends TimedRobot {
       drive.setPower(powers.left, powers.right);
 
       // THIS CONTROLS THE ARM EXTENSION
+      // extender.setPower(100*joystick.getY());
       switch (joystick.getPOV()) {
         case 0:
           System.out.println("extending");
@@ -197,8 +198,8 @@ public class Robot extends TimedRobot {
           break;
       }
 
-      // arm.incrementAngleTarget(dTime * joystick.getY() / 10);
-      angler.setVoltage(0);
+      arm.incrementAngleTarget(dTime * joystick.getY() / 10);
+      // angler.setVoltage(0);
 
       // intake
       if (joystick.getTrigger())

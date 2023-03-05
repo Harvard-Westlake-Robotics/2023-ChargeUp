@@ -37,11 +37,6 @@ public class LimeLight {
         return tv.getDouble(0) ;
     }
     
-    public void setDriverMode ()
-    {
-        setCamMode(1);
-    }
-    
     // 1 is true, 0 is false
 
 
