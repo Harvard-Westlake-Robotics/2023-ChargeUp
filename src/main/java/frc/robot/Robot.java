@@ -8,9 +8,13 @@ import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.Joystick;
 import frc.robot.DriverStation.Interface;
 import frc.robot.DriverStation.LimeLight;
+
 import edu.wpi.first.wpilibj.TimedRobot;
-import frc.robot.Core.Scheduler;
-import frc.robot.Devices.Encoder;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+    // import frc.robot.Core.Scheduler;
+
+
+    import frc.robot.Devices.Encoder;
 import frc.robot.Devices.LimitSwitch;
 import frc.robot.Devices.SparkMax;
 import frc.robot.Devices.Falcon;
@@ -38,25 +42,6 @@ import frc.robot.Arm.ArmPD;
  * project.
  */
 public class Robot extends TimedRobot {
-  DriveSide left;
-  DriveSide right;
-
-  GearShifter gearShifter;
-
-  ArmAngler angler;
-  ArmExtender extender;
-  Intake intake;
-  PneumaticsSystem pneumatics;
-
-  PS4Controller con;
-  Joystick joystick;
-
-  Drive drive;
-
-  LimeLight limeLight = new LimeLight();
-
-  // ! If you change the pd constant numbers (anywhere in this code) the related
-  // ! subsystem might oscilate or harm somebody
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -66,179 +51,43 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     { // Drive initalization
-      var leftFront = new Falcon(5, true);
-      var leftBack = new Falcon(3, true);
-      var leftTop = new Falcon(4, false);
-      var encoderLeft = new Encoder(0, 1, false);
-
-      var rightFront = new Falcon(2, false);
-      var rightBack = new Falcon(0, false);
-      var rightTop = new Falcon(1, true);
-      var encoderRight = new Encoder(2, 3, true);
-
-      this.left = new DriveSide(leftFront, leftBack, leftTop, null, encoderLeft);
-      this.right = new DriveSide(rightFront, rightBack, rightTop, null, encoderRight);
-
-      this.pneumatics = new PneumaticsSystem(110, 120, 19);
-      this.gearShifter = new GearShifter(2, 0, 19);
-
-      var arm1 = new SparkMax(8, false, true);
-      var arm2 = new SparkMax(9, false, true);
-      var encoder = new Encoder(4, 5, true);
-      this.angler = new ArmAngler(arm1, arm2, encoder);
-
-      var armExtender = new Falcon(6, true, true);
-      var armOverExtendingSwitch = new LimitSwitch(8);
-      var armOverRetractingSwitch = new LimitSwitch(9);
-      this.extender = new ArmExtender(armExtender, armOverExtendingSwitch,
-          armOverRetractingSwitch);
-
-      var intakeLeft = new SparkMax(10, false);
-      var intakeRight = new SparkMax(7, true);
-      intake = new Intake(intakeLeft, intakeRight);
-
-      this.con = new PS4Controller(0);
-      this.joystick = new Joystick(1);
-
-      this.drive = new Drive(left, right);
-
-      Interface.updateDashboard(drive, gearShifter, angler, extender, intake, pneumatics, con, joystick);
+      
+      Interface.updateDashboard();
 
     }
   }
 
   @Override
   public void autonomousInit() {
-    Scheduler.getInstance().clear();
-    AutonomousDrive drive;
-    { // Initializes `drive`
-      final var HIGHGEARCONTROLLER = new PDController(2, 0);
-      final var LOWGEARCONTROLLER = new PDController(0.1, 0);
-
-      DriveSidePD leftPD = new DriveSidePD(left, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
-      DriveSidePD rightPD = new DriveSidePD(right, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
-
-      leftPD.reset();
-      rightPD.reset();
-
-      drive = new AutonomousDrive(leftPD, rightPD, gearShifter);
-    }
-
-    limeLight.setDriverMode();
-
-    Scheduler.getInstance().registerTick(drive);
-
-    drive.setMovement(new DriveForwardMovement(10, 1, 1, 5));
+    
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    Scheduler.getInstance().tick();
+   
   }
 
   @Override
   public void teleopInit() {
-    Scheduler.getInstance().clear();
-
-    ArmPD arm = new ArmPD(angler, extender,
-        new PDController(50, 0),
-        new PDController(5, 0, 20));
-
-    drive.resetEncoders();
-
-    angler.setBrake(true);
-    angler.zero();
-
-    arm.resetController();
-
-    Scheduler.getInstance().registerTick(arm);
-
-    Interface.updateDashboard(drive, gearShifter, angler, extender, intake, pneumatics, con, joystick);
-
-    Scheduler.getInstance().setInterval(() -> {
-      System.out.println(angler.getPosition());
-
-      // System.out.println("overextending: " + extender.overExtending.get());
-      // System.out.println("overretracting: " + extender.overRetracting.get());
-
-      // System.out.println("position: " + Round.rd(extender.getLength()));
-      // System.out.println("target: " + arm.extensionTarget);
-      // System.out.println("correction: " + arm.extenderCorrect);
-
-      System.out.println("position: " + Round.rd(angler.getPosition()));
-      System.out.println("target: " + arm.angleTarget);
-      System.out.println("correction: " + arm.angleCorrect);
-    }, 0.5);
-
-    drive.resetEncoders();
-
-    limeLight.setDriverMode();
-
-    Scheduler.getInstance().registerTick((double dTime) -> {
-      final double deadzone = 0.05;
-      final double turnCurveIntensity = 7;
-      final double pwrCurveIntensity = 5;
-      final Pair<Double> powers = ScaleInput.scale(
-          con.getLeftY(),
-          con.getRightY(),
-          deadzone,
-          turnCurveIntensity,
-          pwrCurveIntensity);
-      drive.setPower(powers.left, powers.right);
-
-      // THIS CONTROLS THE ARM EXTENSION
-      // extender.setPower(100*joystick.getY());
-      switch (joystick.getPOV()) {
-        case 0:
-          System.out.println("extending");
-          arm.incrementExtensionTarget(dTime * 20.0);
-          break;
-        case 180:
-          System.out.println("retracting");
-          arm.incrementExtensionTarget(dTime * -20.0);
-          break;
-      }
-
-      arm.incrementAngleTarget(dTime * joystick.getY() / 10);
-      // angler.setVoltage(0);
-
-      // intake
-      if (joystick.getTrigger())
-        intake.setVoltage(10);
-      else if (joystick.getRawButton(2))
-        intake.setVoltage(-5); // outtake
-      else
-        intake.setVoltage(0.1);
-
-      // pneumatics
-      pneumatics.autoRunCompressor();
-
-      if (con.getR2ButtonPressed()) {
-        gearShifter.toggle();
-      }
-    });
+    
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    Scheduler.getInstance().tick();
+    
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    Scheduler.getInstance().clear();
-
-    angler.setBrake(false);
-
-    left.stop();
-    right.stop();
+    
   }
 
   @Override
   public void disabledPeriodic() {
+    
   }
 
   /**
