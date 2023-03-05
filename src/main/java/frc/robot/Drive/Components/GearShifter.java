@@ -2,6 +2,8 @@ package frc.robot.Drive.Components;
 
 import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.*;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 
@@ -35,6 +37,7 @@ public class GearShifter extends SubsystemBase {
     @Override
     public void periodic()
     {
+        SmartDashboard.putBoolean("shifterState", this.state) ;
         // autoRunCompressor();
     }
 
@@ -48,37 +51,46 @@ public class GearShifter extends SubsystemBase {
     }
 
     public boolean getState() {
-        return state;
+        return this.state;
     }
 
     public boolean isLow()
     {
-        return (state) ;
+        return (this.state) ;
     }
 
     public void toggle() {
-        state = !state ;
+        this.state = !this.state ;
         pneumatic.toggle();
     }
 
     public void setLowGear() {
         // actuate
-        state = true;
+        this.state = true;
         pneumatic.set(kForward);
     }
 
     public void setHighGear() {
         // un-actuate
-        state = false;
+        this.state = false;
         pneumatic.set(kReverse);
     }
 
-    public Command toggleShifterCommand (boolean setLow)
+    public Command toggleShifterCommand ()
     {
-        if (setLow)
+        System.out.println (this.state) ;
+        if (this.state == false)
+        {
+            this.state = true;
+            System.out.println ("true now") ;
             return this.run(() -> pneumatic.set(kForward));
+        }
         else
+        {
+            this.state = false;
+            System.out.println ("false now") ;
             return this.run(() -> pneumatic.set(kReverse));
+        }
     }
 
 }

@@ -91,7 +91,8 @@ public class RobotContainer {
    */
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    con.R2().onTrue(gearShifter.toggleShifterCommand(!gearShifter.getState()));
+    con.R1().onTrue(gearShifter.toggleShifterCommand());
+    // con.R2().onTrue(gearShifter.toggleShifterCommand(false));
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is
     // pressed,
