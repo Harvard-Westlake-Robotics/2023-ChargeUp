@@ -10,27 +10,11 @@ import frc.robot.DriverStation.Interface;
 import frc.robot.DriverStation.LimeLight;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
     // import frc.robot.Core.Scheduler;
 
 
-    import frc.robot.Devices.Encoder;
-import frc.robot.Devices.LimitSwitch;
-import frc.robot.Devices.SparkMax;
-import frc.robot.Devices.Falcon;
-import frc.robot.Drive.*;
-import frc.robot.Drive.Auto.AutonomousDrive;
-import frc.robot.Drive.Auto.DriveSidePD;
-import frc.robot.Drive.Auto.Movements.DriveForwardMovement;
-import frc.robot.Drive.Components.DriveSide;
-import frc.robot.Drive.Components.GearShifter;
-import frc.robot.Util.*;
-import frc.robot.Intake.*;
-import frc.robot.Arm.Components.ArmAngler;
-import frc.robot.Arm.Components.ArmExtender;
-import frc.robot.Pneumatics.PneumaticsSystem;
-import frc.robot.Arm.ArmCalculator;
-import frc.robot.Arm.ArmPD;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -43,6 +27,12 @@ import frc.robot.Arm.ArmPD;
  */
 public class Robot extends TimedRobot {
 
+  private CommandScheduler m_scheduler = CommandScheduler.getInstance();
+
+  private Command m_autonomousCommand;
+
+  private RobotContainer m_robotContainer;
+
   /**
    * This function is run when the robot is first started up and should be used
    * for any
@@ -50,16 +40,34 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    { // Drive initalization
-      
-      Interface.updateDashboard();
-
+    {
+      m_robotContainer = new RobotContainer();
     }
+  }
+
+  /**
+   * This function is called every robot packet, no matter the mode. Use this for items like
+   * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
+   *
+   * <p>This runs after the mode specific periodic functions, but before LiveWindow and
+   * SmartDashboard integrated updating.
+   */
+  @Override
+  public void robotPeriodic() {
+    // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
+    // commands, running already-scheduled commands, removing finished or interrupted commands,
+    // and running subsystem periodic() methods.  This must be called from the robot's periodic
+    // block in order for anything in the Command-based framework to work.
+    m_scheduler.run();
   }
 
   @Override
   public void autonomousInit() {
-    
+
+    // schedule the autonomous command (example)
+    if (m_autonomousCommand != null) {
+      m_autonomousCommand.schedule();
+    }
   }
 
   /** This function is called periodically during autonomous. */
@@ -70,7 +78,13 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    
+    // This makes sure that the autonomous stops running when
+    // teleop starts running. If you want the autonomous to
+    // continue until interrupted by another command, remove
+    // this line or comment it out.
+    if (m_autonomousCommand != null) {
+      m_autonomousCommand.cancel();
+    }
   }
 
   /** This function is called periodically during operator control. */
@@ -88,20 +102,6 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     
-  }
-
-  /**
-   * This function is called every 20 ms, no matter the mode. Use this for items
-   * like diagnostics
-   * that you want ran during disabled, autonomous, teleoperated and test.
-   *
-   * <p>
-   * This runs after the mode specific periodic functions, but before LiveWindow
-   * and
-   * SmartDashboard integrated updating.
-   */
-  @Override
-  public void robotPeriodic() {
   }
 
   // ! we won't run any code beyond this point

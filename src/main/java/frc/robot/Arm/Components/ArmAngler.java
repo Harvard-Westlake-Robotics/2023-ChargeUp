@@ -1,7 +1,5 @@
 package frc.robot.Arm.Components;
 
-import frc.robot.Devices.Encoder;
-import frc.robot.Devices.SparkMax;
 
 // motor group
 public class ArmAngler {
