@@ -7,7 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.Joystick;
 import frc.robot.DriverStation.Interface;
-
+import frc.robot.DriverStation.LimeLight;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.Core.Scheduler;
 import frc.robot.Devices.Encoder;
@@ -52,6 +52,8 @@ public class Robot extends TimedRobot {
   Joystick joystick;
 
   Drive drive;
+
+  LimeLight limeLight = new LimeLight() ;
 
   // ! If you change the pd constant numbers (anywhere in this code) the related
   // ! subsystem might oscilate or harm somebody
@@ -168,6 +170,8 @@ public class Robot extends TimedRobot {
     }, 0.5);
 
     drive.resetEncoders();
+
+    limeLight.setDriverMode();
 
     Scheduler.getInstance().registerTick((double dTime) -> {
       final double deadzone = 0.05;
