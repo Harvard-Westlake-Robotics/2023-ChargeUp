@@ -53,7 +53,7 @@ public class Robot extends TimedRobot {
 
   Drive drive;
 
-  LimeLight limeLight = new LimeLight() ;
+  LimeLight limeLight = new LimeLight();
 
   // ! If you change the pd constant numbers (anywhere in this code) the related
   // ! subsystem might oscilate or harm somebody
@@ -124,6 +124,8 @@ public class Robot extends TimedRobot {
       drive = new AutonomousDrive(leftPD, rightPD, gearShifter);
     }
 
+    limeLight.setDriverMode();
+
     Scheduler.getInstance().registerTick(drive);
 
     drive.setMovement(new DriveForwardMovement(10, 1, 1, 5));
@@ -140,7 +142,7 @@ public class Robot extends TimedRobot {
     Scheduler.getInstance().clear();
 
     ArmPD arm = new ArmPD(angler, extender,
-        new PDController(5, 0),
+        new PDController(50, 0),
         new PDController(5, 0, 20));
 
     drive.resetEncoders();
@@ -157,8 +159,8 @@ public class Robot extends TimedRobot {
     Scheduler.getInstance().setInterval(() -> {
       System.out.println(angler.getPosition());
 
-      System.out.println("overextending: " + extender.overExtending.get());
-      System.out.println("overretracting: " + extender.overRetracting.get());
+      // System.out.println("overextending: " + extender.overExtending.get());
+      // System.out.println("overretracting: " + extender.overRetracting.get());
 
       // System.out.println("position: " + Round.rd(extender.getLength()));
       // System.out.println("target: " + arm.extensionTarget);
@@ -228,6 +230,8 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     Scheduler.getInstance().clear();
+
+    angler.setBrake(false);
 
     left.stop();
     right.stop();
