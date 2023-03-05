@@ -4,10 +4,16 @@
 
 package frc.robot;
 
+import frc.robot.Drive.Components.GearShifter;
+
+
 import edu.wpi.first.wpilibj.PS4Controller;
-import edu.wpi.first.wpilibj.Joystick;
-import frc.robot.DriverStation.Interface;
-import frc.robot.DriverStation.LimeLight;
+// import edu.wpi.first.wpilibj.Joystick;
+// import frc.robot.DriverStation.Interface;
+// import frc.robot.DriverStation.LimeLight;
+
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard; 
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -32,6 +38,7 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
+
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -82,6 +89,9 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
+
+    SmartDashboard.putNumber("E", 3432432) ;
+
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }

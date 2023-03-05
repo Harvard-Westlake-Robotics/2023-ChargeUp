@@ -1,6 +1,7 @@
 package frc.robot.Drive.Components;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
@@ -9,7 +10,20 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
-public class DriveBase {
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.sensors.PigeonIMU;
+
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.CounterBase.EncodingType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard; 
+
+
+// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+public class DriveBase extends SubsystemBase {
     
     private MotorControllerGroup leftDrive;
     private MotorControllerGroup rightDrive;
@@ -27,26 +41,37 @@ public class DriveBase {
         leftBack.setNeutralMode(NeutralMode.Coast);
         leftTop.setNeutralMode(NeutralMode.Coast);
         leftDrive = new MotorControllerGroup(leftFront, leftBack, leftTop);
-        this.leftEncoder = new Encoder(0, 1, false, Encoder.EncodingType.k1X);
+        this.leftEncoder = new Encoder(2, 3, true, Encoder.EncodingType.k1X);
         leftEncoder.setDistancePerPulse((Math.PI * 6.0) / 1024.0); // 6 in wheels, 1024 ticks per rev
 
         var rightFront = new WPI_TalonFX(2);
         var rightBack = new WPI_TalonFX(0);
         var rightTop = new WPI_TalonFX(1);
-        rightFront.setInverted(true);
-        rightBack.setInverted(true);
+        rightTop.setInverted(true);
         rightFront.setNeutralMode(NeutralMode.Coast);
         rightBack.setNeutralMode(NeutralMode.Coast);
         rightTop.setNeutralMode(NeutralMode.Coast);
         rightDrive = new MotorControllerGroup(rightFront, rightBack, rightTop);
-        this.rightEncoder = new Encoder(2, 3, true, Encoder.EncodingType.k1X);
+        this.rightEncoder = new Encoder(0, 1, true, Encoder.EncodingType.k1X);
         rightEncoder.setDistancePerPulse((Math.PI * 6.0) / 1024.0); // 6 in wheels, 1024 ticks per rev
     
         robotDrive = new DifferentialDrive(leftDrive, rightDrive);
     }
 
-    public double getPositionInches() {
+    public double getLeftDist() {
         return leftEncoder.getDistance();
+    }
+    public double getRightDist()
+    {
+        return rightEncoder.getDistance();
+    }
+    public double getLeftPos()
+    {
+        return leftEncoder.get();
+    }
+    public double getRightPos()
+    {
+        return rightEncoder.get();
     }
 
     public void resetEncoder() {
@@ -62,4 +87,25 @@ public class DriveBase {
     public void setVoltage(double leftVoltage, double rightVoltage) {
         robotDrive.tankDrive(leftVoltage/12, rightVoltage/12);
     }
+    public void driveRobot (double left, double right)
+    {
+        robotDrive.tankDrive(left, right);
+    }
+
+    @Override
+    public void periodic ()
+    {
+        // Drive
+        // System.out.println ("E") ;
+        double leftPos = getLeftPos() ;
+        SmartDashboard.putNumber("Left Pos", leftPos);
+        double rightPos = getRightPos();
+        SmartDashboard.putNumber("Right Pos", rightPos);
+        double leftDist = getLeftDist();
+        SmartDashboard.putNumber("Left Dist", leftDist);
+        double rightDist = getRightDist();
+        SmartDashboard.putNumber("Right Dist", rightDist);
+
+    }
+
 }

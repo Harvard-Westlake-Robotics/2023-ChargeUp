@@ -1,8 +1,9 @@
 package frc.robot.Pneumatics;
 
 import edu.wpi.first.wpilibj.PneumaticHub;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class PneumaticsSystem {
+public class PneumaticsSystem extends SubsystemBase {
 
     private final PneumaticHub hub;
     private final double minPressure;
@@ -24,5 +25,11 @@ public class PneumaticsSystem {
 
     public boolean isCompressorEnabled() {
         return hub.getCompressor();
+    }
+
+    @Override
+    public void periodic()
+    {
+        autoRunCompressor();
     }
 }

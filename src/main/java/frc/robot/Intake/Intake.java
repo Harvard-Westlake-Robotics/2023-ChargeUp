@@ -1,30 +1,30 @@
-package frc.robot.Intake;
+// package frc.robot.Intake;
 
-import frc.robot.Devices.SparkMax;
+// import frc.robot.Devices.SparkMax;
 
-public class Intake {
-    private SparkMax left;
-    private SparkMax right;
+// public class Intake {
+//     private SparkMax left;
+//     private SparkMax right;
 
-    double voltage = 0;
+//     double voltage = 0;
 
-    public Intake(SparkMax left, SparkMax right) {
-        this.left = left;
-        this.right = right;
+//     public Intake(SparkMax left, SparkMax right) {
+//         this.left = left;
+//         this.right = right;
 
-        left.setBrake(true);
-        right.setBrake(true);
-    }
+//         left.setBrake(true);
+//         right.setBrake(true);
+//     }
 
-    public void setVoltage (double voltage)
-    {
-        left.setVoltage(voltage);
-        right.setVoltage(voltage);
-        this.voltage = voltage;
-    }
+//     public void setVoltage (double voltage)
+//     {
+//         left.setVoltage(voltage);
+//         right.setVoltage(voltage);
+//         this.voltage = voltage;
+//     }
 
-    public double getVoltage()
-    {
-        return voltage;
-    }
-}
+//     public double getVoltage()
+//     {
+//         return voltage;
+//     }
+// }

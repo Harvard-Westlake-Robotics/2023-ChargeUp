@@ -1,5 +1,6 @@
 package frc.robot.Drive.Components;
 
+import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.*;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -10,14 +11,31 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class GearShifter extends SubsystemBase {
     private DoubleSolenoid pneumatic;
     private boolean state = false;
+    
+    private final PneumaticHub hub = new PneumaticHub(19);;
+    private final double minPressure = 100;
+    private final double maxPressure = 125;
 
     public GearShifter(int falseChannel, int trueChannel, int module) {
         pneumatic = new DoubleSolenoid(module, PneumaticsModuleType.REVPH, falseChannel, trueChannel);
     }
 
+    public double getPressure() {
+        return hub.getPressure(0);
+    }
+
+    public void autoRunCompressor() {
+        hub.enableCompressorAnalog(minPressure, maxPressure);
+    }
+
+    public boolean isCompressorEnabled() {
+        return hub.getCompressor();
+    }
+
     @Override
-    public void periodic() {
-      // This method will be called once per scheduler run
+    public void periodic()
+    {
+        // autoRunCompressor();
     }
 
 
@@ -33,7 +51,13 @@ public class GearShifter extends SubsystemBase {
         return state;
     }
 
+    public boolean isLow()
+    {
+        return (state) ;
+    }
+
     public void toggle() {
+        state = !state ;
         pneumatic.toggle();
     }
 
@@ -47,6 +71,14 @@ public class GearShifter extends SubsystemBase {
         // un-actuate
         state = false;
         pneumatic.set(kReverse);
+    }
+
+    public Command toggleShifterCommand (boolean setLow)
+    {
+        if (setLow)
+            return this.run(() -> pneumatic.set(kForward));
+        else
+            return this.run(() -> pneumatic.set(kReverse));
     }
 
 }
