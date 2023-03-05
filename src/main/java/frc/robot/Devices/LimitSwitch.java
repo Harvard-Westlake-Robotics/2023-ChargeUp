@@ -10,6 +10,6 @@ public class LimitSwitch {
     }
 
     public boolean get() {
-        return switchIn.get();
+        return !switchIn.get();
     }
 }

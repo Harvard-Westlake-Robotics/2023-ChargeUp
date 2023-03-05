@@ -4,14 +4,12 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
-import edu.wpi.first.wpilibj.Timer;
-
-public class TalonSRX {
+public class Falcon {
     private WPI_TalonFX maxspark;
     private boolean isReversed;
     boolean isStallable;
 
-    public TalonSRX(int deviceNumber, boolean isReversed, boolean isStallable) {
+    public Falcon(int deviceNumber, boolean isReversed, boolean isStallable) {
         this.maxspark = new WPI_TalonFX(deviceNumber);
         maxspark.getSensorCollection();
         this.isReversed = isReversed;
@@ -27,7 +25,7 @@ public class TalonSRX {
         maxspark.setSelectedSensorPosition(0);
     }
 
-    public TalonSRX(int deviceNumber, boolean isReversed) {
+    public Falcon(int deviceNumber, boolean isReversed) {
         this(deviceNumber, isReversed, false);
     }
 
@@ -40,11 +38,11 @@ public class TalonSRX {
             throw new Error("Illegal voltage");
         if (isStallable) {
             double fac = (volts > 0) ? 1 : -1;
-            if (Math.abs(volts) < 0.2) {
+            if (Math.abs(volts) < 1.5) {
                 maxspark.setVoltage(0);
                 return;
-            } else if (Math.abs(volts) < 2) {
-                maxspark.setVoltage(2 * fac);
+            } else if (Math.abs(volts) < 3) {
+                maxspark.setVoltage(3 * fac);
                 return;
             }
         }

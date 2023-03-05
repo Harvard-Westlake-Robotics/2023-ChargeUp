@@ -14,7 +14,7 @@ public class ArmPD implements Tickable {
     private ArmExtender extender;
     private PDController angleController;
     private PDController extensionController;
-    private double angleTarget = 0;
+    public double angleTarget = 0;
     public double extensionTarget = 0;
 
     public void incrementAngleTarget(double dAngle) {
@@ -47,9 +47,11 @@ public class ArmPD implements Tickable {
     }
 
     public double extenderCorrect = 0;
+    public double angleCorrect = 0;
    
     public void tick(double dTime) {
-        // armAngler.setVoltage(angleController.solve(angleTarget - armAngler.getPosition()));
+        this.angleCorrect = angleController.solve(angleTarget - armAngler.getPosition()) + ArmCalculator.getAntiGravTorque(armAngler.getPosition());
+        armAngler.setVoltage(angleCorrect);
         this.extenderCorrect = extensionController.solve(extensionTarget - extender.getLength());
         extender.setPower(extenderCorrect);
     }

@@ -13,7 +13,7 @@ import frc.robot.Core.Scheduler;
 import frc.robot.Devices.Encoder;
 import frc.robot.Devices.LimitSwitch;
 import frc.robot.Devices.SparkMax;
-import frc.robot.Devices.TalonSRX;
+import frc.robot.Devices.Falcon;
 import frc.robot.Drive.*;
 import frc.robot.Drive.Auto.AutonomousDrive;
 import frc.robot.Drive.Auto.DriveSidePD;
@@ -64,14 +64,14 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     { // Drive initalization
-      var leftFront = new TalonSRX(5, true);
-      var leftBack = new TalonSRX(3, true);
-      var leftTop = new TalonSRX(4, false);
+      var leftFront = new Falcon(5, true);
+      var leftBack = new Falcon(3, true);
+      var leftTop = new Falcon(4, false);
       var encoderLeft = new Encoder(0, 1, false);
 
-      var rightFront = new TalonSRX(2, false);
-      var rightBack = new TalonSRX(0, false);
-      var rightTop = new TalonSRX(1, true);
+      var rightFront = new Falcon(2, false);
+      var rightBack = new Falcon(0, false);
+      var rightTop = new Falcon(1, true);
       var encoderRight = new Encoder(2, 3, true);
 
       this.left = new DriveSide(leftFront, leftBack, leftTop, null, encoderLeft);
@@ -85,12 +85,11 @@ public class Robot extends TimedRobot {
       var encoder = new Encoder(4, 5, true);
       this.angler = new ArmAngler(arm1, arm2, encoder);
 
-      var armExtender = new TalonSRX(6, true, true);
-      var armOverExtendingSwitch = new LimitSwitch(9);
-      var armOverRetractingSwitch = new LimitSwitch(10);
-      this.extender = // new ArmExtender(armExtender);
-          new ArmExtender(armExtender, armOverExtendingSwitch,
-              armOverRetractingSwitch);
+      var armExtender = new Falcon(6, true, true);
+      var armOverExtendingSwitch = new LimitSwitch(8);
+      var armOverRetractingSwitch = new LimitSwitch(9);
+      this.extender = new ArmExtender(armExtender, armOverExtendingSwitch,
+          armOverRetractingSwitch);
 
       var intakeLeft = new SparkMax(10, false);
       var intakeRight = new SparkMax(7, true);
@@ -138,14 +137,13 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     Scheduler.getInstance().clear();
 
-    // if you want to tweak these numbers, don't change the order of magnitude or
-    // the arm might hurt somebody || have unexpected behavior
     ArmPD arm = new ArmPD(angler, extender,
-        new PDController(0.05, 0.03),
-        new PDController(5, 0));
+        new PDController(5, 0),
+        new PDController(5, 0, 20));
 
     drive.resetEncoders();
 
+    angler.setBrake(true);
     angler.zero();
 
     arm.resetController();
@@ -154,69 +152,64 @@ public class Robot extends TimedRobot {
 
     Interface.updateDashboard(drive, gearShifter, angler, extender, intake, pneumatics, con, joystick);
 
-    // angler.setVoltage(ArmCalculator.getAntiGravTorque(angler.getPosition()));
-
     Scheduler.getInstance().setInterval(() -> {
       System.out.println(angler.getPosition());
+
+      System.out.println("overextending: " + extender.overExtending.get());
+      System.out.println("overretracting: " + extender.overRetracting.get());
 
       // System.out.println("position: " + Round.rd(extender.getLength()));
       // System.out.println("target: " + arm.extensionTarget);
       // System.out.println("correction: " + arm.extenderCorrect);
+
+      System.out.println("position: " + Round.rd(angler.getPosition()));
+      System.out.println("target: " + arm.angleTarget);
+      System.out.println("correction: " + arm.angleCorrect);
     }, 0.5);
 
-    Scheduler.getInstance().registerTick((double sec) -> {
-      angler.setVoltage(ArmCalculator.getAntiGravTorque(angler.getPosition()));
+    drive.resetEncoders();
+
+    Scheduler.getInstance().registerTick((double dTime) -> {
+      final double deadzone = 0.05;
+      final double turnCurveIntensity = 7;
+      final double pwrCurveIntensity = 5;
+      final Pair<Double> powers = ScaleInput.scale(
+          con.getLeftY(),
+          con.getRightY(),
+          deadzone,
+          turnCurveIntensity,
+          pwrCurveIntensity);
+      drive.setPower(powers.left, powers.right);
+
+      // THIS CONTROLS THE ARM EXTENSION
+      switch (joystick.getPOV()) {
+        case 0:
+          System.out.println("extending");
+          arm.incrementExtensionTarget(dTime * 20.0);
+          break;
+        case 180:
+          System.out.println("retracting");
+          arm.incrementExtensionTarget(dTime * -20.0);
+          break;
+      }
+
+      arm.incrementAngleTarget(dTime * joystick.getY() / 10);
+
+      // intake
+      if (joystick.getTrigger())
+        intake.setVoltage(10);
+      else if (joystick.getRawButton(2))
+        intake.setVoltage(-5); // outtake
+      else
+        intake.setVoltage(0.1);
+
+      // pneumatics
+      pneumatics.autoRunCompressor();
+
+      if (con.getR2ButtonPressed()) {
+        gearShifter.toggle();
+      }
     });
-
-    // drive.resetEncoders();
-
-    // Scheduler.getInstance().registerTick((double dTime) -> {
-    // final double deadzone = 0.05;
-    // final double turnCurveIntensity = 7;
-    // final double pwrCurveIntensity = 5;
-    // final Pair<Double> powers = ScaleInput.scale(
-    // con.getLeftY(),
-    // con.getRightY(),
-    // deadzone,
-    // turnCurveIntensity,
-    // pwrCurveIntensity);
-    // drive.setPower(powers.left, powers.right);
-
-    // // THIS CONTROLS THE ARM EXTENSION
-    // switch (joystick.getPOV()) {
-    // case 0:
-    // System.out.println("extending");
-    // arm.incrementExtensionTarget(dTime * 20.0);
-    // break;
-    // case 180:
-    // System.out.println("retracting");
-    // arm.incrementExtensionTarget(dTime * -20.0);
-    // break;
-    // case -1:
-    // extender.setPower(0);
-    // break;
-    // }
-
-    // // angler - prototype
-    // angler.setVoltage(ScaleInput.curve(joystick.getY() * 100.0, 8) * (12.0 /
-    // 100.0));
-    // // joystick.getY()));
-
-    // // intake
-    // if (joystick.getTrigger())
-    // intake.setVoltage(10);
-    // else if (joystick.getRawButton(2))
-    // intake.setVoltage(-5); // outtake
-    // else
-    // intake.setVoltage(0.1);
-
-    // // pneumatics
-    // pneumatics.autoRunCompressor();
-
-    // if (con.getR2ButtonPressed()) {
-    // gearShifter.toggle();
-    // }
-    // });
   }
 
   /** This function is called periodically during operator control. */
@@ -229,6 +222,7 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     Scheduler.getInstance().clear();
+
     left.stop();
     right.stop();
   }

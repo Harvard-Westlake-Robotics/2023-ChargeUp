@@ -49,8 +49,8 @@ public class ArmCalculator {
         final double fac = 0.40;
 
         double radians = angle * 2 * Math.PI;
-        double cos = Math.sin(radians);
+        double centerMassXOffset = Math.sin(radians);
 
-        return cos * fac;
+        return centerMassXOffset * fac;
     }
 }

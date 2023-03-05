@@ -14,8 +14,13 @@ public class ArmAngler {
         this.arm2 = arm2;
         this.encoder = armEncoder;
 
-        arm1.setBrake(false);
-        arm2.setBrake(false);
+        arm1.setBrake(true);
+        arm2.setBrake(true);
+    }
+
+    public void setBrake(boolean brake) {
+        arm1.setBrake(brake);
+        arm2.setBrake(brake);
     }
 
     public void setVoltage(double voltage) {

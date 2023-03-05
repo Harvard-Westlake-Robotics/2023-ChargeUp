@@ -1,7 +1,8 @@
 package frc.robot.Arm.Components;
 
+import frc.robot.Core.Scheduler;
 import frc.robot.Devices.LimitSwitch;
-import frc.robot.Devices.TalonSRX;
+import frc.robot.Devices.Falcon;
 
 // this is the subsystem
 public class ArmExtender {
@@ -13,14 +14,14 @@ public class ArmExtender {
     // 8t input
     // 64t output
 
-    private TalonSRX extender;
-    LimitSwitch overExtending;
-    LimitSwitch reverseExtending;
+    private Falcon extender;
+    public LimitSwitch overExtending;
+    public LimitSwitch overRetracting;
 
-    public ArmExtender(TalonSRX extender, LimitSwitch overExtending, LimitSwitch reverseExtending) {
+    public ArmExtender(Falcon extender, LimitSwitch overExtending, LimitSwitch overRetracting) {
         this.extender = extender;
         this.overExtending = overExtending;
-        this.reverseExtending = reverseExtending;
+        this.overRetracting = overRetracting;
     }
 
     public boolean isOverExtended() {
@@ -28,7 +29,7 @@ public class ArmExtender {
     }
 
     public boolean isReverseExtended() {
-        return reverseExtending.get();
+        return overRetracting.get();
     }
 
     public void setPower(double percent) {
@@ -39,7 +40,7 @@ public class ArmExtender {
                 return;
             }
         } else {
-            if (reverseExtending.get()) {
+            if (overRetracting.get()) {
                 // We are going down and bottom limit is tripped so stop
                 extender.setVoltage(0);
                 return;
