@@ -48,11 +48,11 @@ public class ArmCalculator {
     /**
      * Gets the voltage required to hold the arm up against gravity at a specified angle, and TODO at a specified extension length.
      * @param angle The angle as the number of revolutions, with directly up being 0.
-     * @param length The length of the arm extension, presumably as a fraction?
+     * @param extension The length of the arm extension, presumably as a fraction?
      * @return The requisite voltage.
      */
-    public static double getAntiGravTorque(double angle, double length) {
-        final double fac = 0.40;
+    public static double getAntiGravTorque(double angle, double extension) {
+        final double fac = 0.40 + (extension * 0.05);
 
         double radians = angle * 2 * Math.PI;
         double centerMassXOffset = Math.sin(radians);

@@ -53,7 +53,7 @@ public class ArmPD implements Tickable {
         this.angleCorrect = angleController.solve(angleTarget - armAngler.getPosition());
         // this.angleCorrect += ArmCalculator.getAntiGravTorque(armAngler.getPositio n());
         armAngler.setVoltage(angleCorrect);
-        this.extenderCorrect = extensionController.solve(extensionTarget - extender.getLength());
+        this.extenderCorrect = extensionController.solve(extensionTarget - extender.getExtension());
         extender.setPower(extenderCorrect);
     }
 
@@ -62,6 +62,6 @@ public class ArmPD implements Tickable {
         extensionController.reset();
 
         angleTarget = armAngler.getPosition();
-        extensionTarget = extender.getLength();
+        extensionTarget = extender.getExtension();
     }
 }

@@ -40,7 +40,8 @@ public class ArmExtender {
                 return;
             }
         } else {
-            if (overRetracting.get()) {
+            // TEMP VIRTUAL LIMITER UNTIL LIMIT SWITCH IS FIXED
+            if (getExtension() < 1) {
                 // We are going down and bottom limit is tripped so stop
                 extender.setVoltage(0);
                 return;
@@ -51,17 +52,20 @@ public class ArmExtender {
         extender.setPercentVoltage(percent);
     }
 
-    public double getLength() {
+    public double getExtension() {
         return encoderToLength(extender.getPosition());
     }
 
-    // convert encoder val to length 
+    public void reset() {
+        extender.resetEncoder();
+    }
+
+    // convert encoder val to length
     // encoder val is 0 to 50
     public double encoderToLength(double encoderPosition) // 4096 ticks per rev
     {
         // ??:?? gear ratio ; 18/35 sprocket ratio ; 2" wheel diameter ; 2 inch of
         // height per 1 inch of string ; min arm length 35"
-        return (encoderPosition * (14.0 / 60.0) * (18.0 / 35.0) * 2.0 * Math.PI * 2.0 /** + 35 */
-        ); // ! assumptions were made here
+        return (encoderPosition * (14.0 / 60.0) * (18.0 / 35.0) * 2.0 * Math.PI * 2.0); // ! assumptions were made here
     }
 }
