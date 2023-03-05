@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import oi.limelightvision.limelight.frc.ControlMode.*;
+// import oi.limelightvision.limelight.frc.ControlMode.*;
 
 public class LimeLight {
     NetworkTable masterTable = NetworkTableInstance.getDefault().getTable("limelight");
@@ -36,6 +36,12 @@ public class LimeLight {
     public double foundTarget () {
         return tv.getDouble(0) ;
     } // 1 is true, 0 is false
+
+
+    public void setDriverMode ()
+    {
+        setCamMode(1);
+    }
 
     //post to smart dashboard periodically
 
