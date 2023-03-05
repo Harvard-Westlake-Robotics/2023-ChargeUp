@@ -205,17 +205,16 @@ public class Robot extends TimedRobot {
       }
 
       // arm.incrementAngleTarget(dTime * joystick.getY() / 10);
-
-      // DISABLE THIS WHEN ARMPD IS WORKING
-      angler.setVoltage(joystick.getY() * 2);
+      angler.setVoltage(joystick.getY() * 5
+          + ArmCalculator.getAntiGravTorque(angler.getPosition(), extender.getExtension()));
 
       // intake
-      // if (joystick.getTrigger())
-      //   intake.setVoltage(10);
-      // else if (joystick.getRawButton(2))
-      //   intake.setVoltage(-5); // outtake
-      // else
-      //   intake.setVoltage(0.1);
+      if (joystick.getTrigger())
+        intake.setVoltage(10);
+      else if (joystick.getRawButton(2))
+        intake.setVoltage(-5); // outtake
+      else
+        intake.setVoltage(0.1);
 
       // pneumatics
       pneumatics.autoRunCompressor();
