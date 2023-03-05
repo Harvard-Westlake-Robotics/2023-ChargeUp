@@ -193,7 +193,8 @@ public class Robot extends TimedRobot {
           break;
       }
 
-      arm.incrementAngleTarget(dTime * joystick.getY() / 10);
+      // arm.incrementAngleTarget(dTime * joystick.getY() / 10);
+      angler.setVoltage(0);
 
       // intake
       if (joystick.getTrigger())
