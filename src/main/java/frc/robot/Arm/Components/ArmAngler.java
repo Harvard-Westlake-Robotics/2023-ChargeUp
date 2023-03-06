@@ -28,8 +28,13 @@ public class ArmAngler {
         arm2.setVoltage(voltage);
     }
 
-    public double getPosition() {
+    public double getRevs() {
         return encoder.getRevs();
+    }
+
+    public double getDegrees()
+    {
+        return getRevs() * 360;
     }
 
     public void zero() {

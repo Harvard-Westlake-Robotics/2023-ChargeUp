@@ -50,7 +50,7 @@ public class ArmPD implements Tickable {
     public double angleCorrect = 0;
    
     public void tick(double dTime) {
-        this.angleCorrect = angleController.solve(angleTarget - armAngler.getPosition());
+        this.angleCorrect = angleController.solve(angleTarget - armAngler.getRevs());
         // this.angleCorrect += ArmCalculator.getAntiGravTorque(armAngler.getPositio n());
         armAngler.setVoltage(angleCorrect);
         this.extenderCorrect = extensionController.solve(extensionTarget - extender.getExtension());
@@ -61,7 +61,7 @@ public class ArmPD implements Tickable {
         angleController.reset();
         extensionController.reset();
 
-        angleTarget = armAngler.getPosition();
+        angleTarget = armAngler.getRevs();
         extensionTarget = extender.getExtension();
     }
 }

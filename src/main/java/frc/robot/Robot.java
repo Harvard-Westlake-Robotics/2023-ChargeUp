@@ -206,11 +206,9 @@ public class Robot extends TimedRobot {
       // extender.setPower(100*joystick.getY());
       switch (joystick.getPOV()) {
         case 0:
-          System.out.println("extending");
-          extender.setPower(40);
+            extender.setPower(40);
           break;
         case 180:
-          System.out.println("retracting");
           extender.setPower(-30);
           break;
         default:
@@ -220,7 +218,7 @@ public class Robot extends TimedRobot {
 
       // arm.incrementAngleTarget(dTime * joystick.getY() / 10);
       angler.setVoltage(joystick.getY() * 5
-          + ArmCalculator.getAntiGravTorque(angler.getPosition(), extender.getExtension()));
+          + ArmCalculator.getAntiGravTorque(angler.getRevs(), extender.getExtension()));
 
       // intake
       if (joystick.getTrigger())

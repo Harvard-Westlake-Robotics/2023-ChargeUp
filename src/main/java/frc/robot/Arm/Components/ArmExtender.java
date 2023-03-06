@@ -32,7 +32,7 @@ public class ArmExtender {
     }
 
     public void setPower(double percent) {
-        // VIRTUAL LIMITER LIMIT SWITCH IS SHIT
+        // VIRTUAL LIMITER; LIMIT SWITCH IS SHIT
         if (percent > 0) {
             if (getExtension() > 43) {
                 // We are going up and top limit is tripped so stop
@@ -65,6 +65,6 @@ public class ArmExtender {
     {
         // ??:?? gear ratio ; 18/35 sprocket ratio ; 2" wheel diameter ; 2 inch of
         // height per 1 inch of string ; min arm length 35"
-        return (encoderPosition * (14.0 / 60.0) * (18.0 / 35.0) * 2.0 * Math.PI * 2.0); // ! assumptions were made here
+        return (encoderPosition * (14.0 / 60.0) * (12.0 / 17.0) * 2.0 * Math.PI * 2.0); // ! assumptions were made here
     }
 }
