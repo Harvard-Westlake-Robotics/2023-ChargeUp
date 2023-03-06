@@ -7,13 +7,13 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 public class Falcon {
     private WPI_TalonFX maxspark;
     private boolean isReversed;
-    boolean isStallable;
+    double stallVolt;
 
     public Falcon(int deviceNumber, boolean isReversed, boolean isStallable) {
         this.maxspark = new WPI_TalonFX(deviceNumber);
         maxspark.getSensorCollection();
         this.isReversed = isReversed;
-        this.isStallable = isStallable;
+        this.stallVolt = isStallable ? 1 : 3;
 
         /* newer config API */
         TalonFXConfiguration configs = new TalonFXConfiguration();
@@ -36,16 +36,16 @@ public class Falcon {
     public void setVoltage(double volts) {
         if (Math.abs(volts) > 12.0)
             throw new Error("Illegal voltage");
-        if (isStallable) {
-            double fac = (volts > 0) ? 1 : -1;
-            if (Math.abs(volts) < 1.5) {
-                maxspark.setVoltage(0);
-                return;
-            } else if (Math.abs(volts) < 3) {
-                maxspark.setVoltage(3 * fac);
-                return;
-            }
+
+        double fac = (volts > 0) ? 1 : -1;
+        if (Math.abs(volts) < stallVolt / 2) {
+            maxspark.setVoltage(0);
+            return;
+        } else if (Math.abs(volts) < stallVolt) {
+            maxspark.setVoltage(stallVolt * fac);
+            return;
         }
+
         maxspark.setVoltage((isReversed) ? -volts : volts);
         /**
          * This is a ternerary

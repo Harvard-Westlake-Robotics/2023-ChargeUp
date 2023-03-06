@@ -53,28 +53,26 @@ public class DriveSidePD {
     }
 
     // ! strictly for debugging {
-    public double errorb;
+    public double error;
     public double correct;
 
     public String toString() {
-        return "error: " + Round.rd(errorb) + " correction: " + Round.rd(correct) + " (" + Round.rd(target) + "-"
+        return "error: " + Round.rd(error) + " correction: " + Round.rd(correct) + " (" + Round.rd(target) + "-"
                 + Round.rd(driveSide.getPositionInches())
                 + ")";
     }
     // ! }
 
     public double getCorrection(boolean isLowGear) {
-        double error = target - driveSide.getPositionInches();
-        this.errorb = error;
-        double correction;
+        error = target - driveSide.getPositionInches();
         if (isLowGear) {
             highGearController.reset();
-            correction = lowGearController.solve(error);
+            correct = lowGearController.solve(error);
         } else {
             lowGearController.reset();
-            correction = highGearController.solve(error);
+            correct = highGearController.solve(error);
         }
-        return correction;
+        return correct;
     }
 
     public void setPercentVoltage(double percent) {

@@ -46,7 +46,7 @@ public class ArmCalculator {
     }
 
     /**
-     * Gets the voltage required to hold the arm up against gravity at a specified angle, and TODO at a specified extension length.
+     * Gets the voltage required to hold the arm up against gravity at a specified angle, and at a specified extension length.
      * @param angle The angle as the number of revolutions, with directly up being 0.
      * @param extension The length of the arm extension, presumably as a fraction?
      * @return The requisite voltage.

@@ -69,12 +69,12 @@ public class Robot extends TimedRobot {
       var leftFront = new Falcon(5, true);
       var leftBack = new Falcon(3, true);
       var leftTop = new Falcon(4, false);
-      var encoderLeft = new Encoder(0, 1, false);
+      var encoderLeft = new Encoder(0, 1, true);
 
       var rightFront = new Falcon(2, false);
       var rightBack = new Falcon(0, false);
       var rightTop = new Falcon(1, true);
-      var encoderRight = new Encoder(2, 3, true);
+      var encoderRight = new Encoder(2, 3, false);
 
       this.left = new DriveSide(leftFront, leftBack, leftTop, null, encoderLeft);
       this.right = new DriveSide(rightFront, rightBack, rightTop, null, encoderRight);
@@ -111,24 +111,38 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     Scheduler.getInstance().clear();
     AutonomousDrive drive;
-    { // Initializes `drive`
+    // { // Initializes `drive`
       final var HIGHGEARCONTROLLER = new PDController(2, 0);
-      final var LOWGEARCONTROLLER = new PDController(0.1, 0);
+      final var LOWGEARCONTROLLER = new PDController(2, 0);
 
-      DriveSidePD leftPD = new DriveSidePD(left, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
-      DriveSidePD rightPD = new DriveSidePD(right, LOWGEARCONTROLLER, HIGHGEARCONTROLLER);
+      DriveSidePD leftPD = new DriveSidePD(left, LOWGEARCONTROLLER.clone(), HIGHGEARCONTROLLER.clone());
+      DriveSidePD rightPD = new DriveSidePD(right, LOWGEARCONTROLLER.clone(), HIGHGEARCONTROLLER.clone());
 
       leftPD.reset();
       rightPD.reset();
 
-      drive = new AutonomousDrive(leftPD, rightPD, gearShifter);
-    }
+    //   drive = new AutonomousDrive(leftPD, rightPD, gearShifter);
+
+    //   gearShifter.setLowGear();
+    // }
+
+    Scheduler.getInstance().setInterval(() -> {
+      // System.out.println(drive + "\n\n");
+    System.out.println("left: " + leftPD);
+    System.out.println("right: " + rightPD);
+    }, 0.2);
 
     limeLight.setDriverMode();
 
-    Scheduler.getInstance().registerTick(drive);
+    Scheduler.getInstance().registerTick((double dTime) -> {
+      leftPD.setPercentVoltage(leftPD.getCorrection(gearShifter.getState()));
+      rightPD.setPercentVoltage(rightPD.getCorrection(gearShifter.getState()));
 
-    drive.setMovement(new DriveForwardMovement(10, 1, 1, 5));
+      leftPD.incrementTarget(dTime);
+      rightPD.incrementTarget(dTime);
+    });
+
+    // drive.setMovement(new DriveForwardMovement(10, 1, 1, 5));
   }
 
   /** This function is called periodically during autonomous. */

@@ -61,4 +61,8 @@ public class AutonomousDrive implements Tickable {
             right.setPercentVoltage(voltages.right);
         }
     }
+
+    public String toString() {
+        return "left: " + left + "\nright: " + right;
+    }
 }
