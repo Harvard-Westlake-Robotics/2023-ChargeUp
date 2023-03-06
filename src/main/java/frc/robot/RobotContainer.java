@@ -112,6 +112,6 @@ public class RobotContainer {
 
 
     // return Autos.exampleAuto(m_exampleSubsystem);
-    return autoChooser.getSelected();
+    return driveOutCommand;
   }
 }

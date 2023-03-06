@@ -32,7 +32,7 @@ public class DriveOutCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    drivebase.driveRobot(1, drivebase.getYPR()[0]/30);
+    drivebase.driveRobot(1, 1);
     cyclesToStop--;
   }
 
