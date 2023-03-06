@@ -34,6 +34,21 @@ public class Scheduler {
     private ScheduleItem[] items = new ScheduleItem[] {};
 
     /**
+     * Runs a `Tickable` every tick
+     * 
+     * @param tickable the `Tickable` instance to run the `tick()` method on every
+     *                 tick in the event loop
+     * @return a function to remove the tickable from the event loop
+     */
+    public Lambda registerTick(Tickable tickable) {
+        double[] lastTime = new double[] { Timer.getFPGATimestamp() };
+        return setInterval(() -> {
+            tickable.tick(Timer.getFPGATimestamp() - lastTime[0]);
+            lastTime[0] = Timer.getFPGATimestamp();
+        }, 0);
+    }
+
+    /**
      * calls a callback at a given interval
      * 
      * @param callBack the function to call periodically
@@ -41,18 +56,22 @@ public class Scheduler {
      * @return a function to cancel the interval
      */
     public Lambda setInterval(Lambda callBack, double delay) {
+        var item = new ScheduleItem(null, delay + Timer.getFPGATimestamp());
         Recursive<Lambda> interval = new Recursive<>();
         interval.func = () -> {
             callBack.run();
-            System.out.println("setting timeout");
-            setTimeout(() -> {
-                System.out.println("timeout executed");
-                interval.func.run();
-            }, delay);
+            item.executeTime = Timer.getFPGATimestamp() + delay;
         };
         interval.func.run();
+
+        item.executable = interval.func;
+
+        // appends the new item to the schedule
+        items = Arrays.copyOf(items, items.length + 1);
+        items[items.length - 1] = item;
+
         return () -> {
-            interval.func = () -> {
+            item.executable = () -> {
             };
         };
     }
@@ -65,11 +84,9 @@ public class Scheduler {
      * @return a function to cancel the calling of the function
      */
     public Lambda setTimeout(Lambda callBack, double delay) {
-        System.out.println("timeout added to queue");
         items = Arrays.copyOf(items, items.length + 1);
         var item = new ScheduleItem(callBack, delay + Timer.getFPGATimestamp());
         items[items.length - 1] = item;
-        System.out.println(items);
         return () -> {
             item.executable = () -> {
             };
@@ -77,25 +94,25 @@ public class Scheduler {
     }
 
     public void tick() {
+        boolean runCleanUp = false;
         double currentTime = Timer.getFPGATimestamp();
         for (var e : items.clone()) {
             if (currentTime >= e.executeTime) {
                 e.executable.run();
+                if (currentTime >= e.executeTime)
+                    runCleanUp = true;
             }
         }
-        var newItems = Arrays.stream(items).filter((e) -> {
-            System.out.println("tick");
-            return currentTime >= e.executeTime;
-        }).toList();
-        items = new ScheduleItem[newItems.size()];
-        if (items.length != 0) {
-            System.out.print(items);
-            System.out.println(newItems);
-        }
-        int index = 0;
-        for (var item : newItems) {
-            items[index] = item;
-            index++;
+        if (runCleanUp) {
+            var newItems = Arrays.stream(items).filter((e) -> {
+                return currentTime < e.executeTime;
+            }).toList();
+            items = new ScheduleItem[newItems.size()];
+            int index = 0;
+            for (var item : newItems) {
+                items[index] = item;
+                index++;
+            }
         }
     }
 
