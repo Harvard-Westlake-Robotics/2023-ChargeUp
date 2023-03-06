@@ -6,7 +6,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.Encoder;
 
-<<<<<<< Updated upstream
+/*<<<<<<< Updated upstream
 // // motor group
 // public class ArmAngler {
 //     SparkMax arm1;
@@ -28,7 +28,7 @@ public class ArmAngler {
         this.arm1 = new SparkMax(8, false, true);
         this.arm2 = new SparkMax(9, false, true);
         this.encoder = new Encoder(4, 5, true);
->>>>>>> Stashed changes
+>>>>>>> Stashed changes*/
 
 //         arm1.setBrake(true);
 //         arm2.setBrake(true);

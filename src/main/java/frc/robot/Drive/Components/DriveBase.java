@@ -31,8 +31,15 @@ public class DriveBase extends SubsystemBase {
     private Encoder leftEncoder;
     private Encoder rightEncoder;
 
+    private double [] ypr;
+    private PigeonIMU imu;
+    private PigeonIMU.GeneralStatus generalStatus;
+    private int imuErrorCode;
 
     public DriveBase() {
+        ypr = new double [3];
+        generalStatus = new PigeonIMU.GeneralStatus();
+
         var leftFront = new WPI_TalonFX(5);
         var leftBack = new WPI_TalonFX(4);
         var leftTop = new WPI_TalonFX(3);
@@ -97,15 +104,37 @@ public class DriveBase extends SubsystemBase {
     {
         // Drive
         // System.out.println ("E") ;
-        double leftPos = getLeftPos() ;
+        /*double leftPos = getLeftPos() ;
         SmartDashboard.putNumber("Left Pos", leftPos);
         double rightPos = getRightPos();
         SmartDashboard.putNumber("Right Pos", rightPos);
         double leftDist = getLeftDist();
         SmartDashboard.putNumber("Left Dist", leftDist);
         double rightDist = getRightDist();
-        SmartDashboard.putNumber("Right Dist", rightDist);
+        SmartDashboard.putNumber("Right Dist", rightDist);*/
+        
+        imuErrorCode = imu.getGeneralStatus(generalStatus).value;
+        imu.getYawPitchRoll(ypr);
 
+        SmartDashboard.putNumber("IMU Yaw", ypr[0]);
+        SmartDashboard.putNumber("IMU Health", imuErrorCode);
+        
+        SmartDashboard.putNumber("Left Distance", leftEncoder.getDistance() );
+        SmartDashboard.putNumber("Right Distance", rightEncoder.getDistance() );
+
+
+    }
+
+    public double [] getYPR() {
+        return ypr;
+    }
+
+    public void resetYaw (double value) {
+        imu.setYaw(value);
+    }
+
+    public int getIMUHealth() {
+        return imuErrorCode;
     }
 
 }

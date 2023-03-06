@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-
+import frc.robot.Drive.DriveOutCommand;
 // import subsystems
 import frc.robot.Drive.Components.DriveBase;
 import frc.robot.Drive.Components.GearShifter;
@@ -13,7 +13,7 @@ import frc.robot.Drive.Components.GearShifter;
 // import frc.robot.Arm.Components.ArmAngler;
 // import frc.robot.Arm.Components.ArmExtender;
 // import frc.robot.Pneumatics.PneumaticsSystem;
-
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 // import controllers
@@ -52,17 +52,19 @@ public class RobotContainer {
   // private final CommandJoystick joy = new CommandJoystick(1);
 
   // Commands
-  private final SequentialCommandGroup testStuffXD = new SequentialCommandGroup(
+  //private final SequentialCommandGroup testStuffXD = new SequentialCommandGroup();
 
-  );
+  private final DriveOutCommand driveOutCommand = new DriveOutCommand(drivebase);
+
+  SendableChooser<Command> autoChooser = new SendableChooser<Command>();
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    autoChooser.setDefaultOption("Drive out of community", driveOutCommand);
 
-
-
+    SmartDashboard.putData(autoChooser);
 
     // define drivetrain
     drivebase.setDefaultCommand(Commands.run(() -> drivebase.driveRobot(con.getLeftY(), con.getRightY()), drivebase)) ;
@@ -107,7 +109,9 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
+
+
     // return Autos.exampleAuto(m_exampleSubsystem);
-    return null;
+    return autoChooser.getSelected();
   }
 }
