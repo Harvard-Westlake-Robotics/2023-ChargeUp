@@ -17,7 +17,6 @@ import frc.robot.Devices.Falcon;
 import frc.robot.Drive.*;
 import frc.robot.Drive.Auto.AutonomousDrive;
 import frc.robot.Drive.Auto.DriveSidePD;
-import frc.robot.Drive.Auto.Movements.DriveForwardMovement;
 import frc.robot.Drive.Components.DriveSide;
 import frc.robot.Drive.Components.GearShifter;
 import frc.robot.Util.*;
@@ -84,7 +83,7 @@ public class Robot extends TimedRobot {
 
       var arm1 = new SparkMax(8, false, true);
       var arm2 = new SparkMax(9, false, true);
-      var encoder = new Encoder(4, 5, true);
+      var encoder = new Encoder(4, 5, false);
       this.angler = new ArmAngler(arm1, arm2, encoder);
 
       var armExtender = new Falcon(6, true, true);
@@ -156,7 +155,7 @@ public class Robot extends TimedRobot {
     Scheduler.getInstance().clear();
 
     ArmPD arm = new ArmPD(angler, extender,
-        new PDController(50, 0),
+        new PDController(85, 50),
         new PDController(5, 0, 20));
 
     drive.resetEncoders();
@@ -172,18 +171,15 @@ public class Robot extends TimedRobot {
     Interface.updateDashboard(drive, gearShifter, angler, extender, intake, pneumatics, con, joystick);
 
     Scheduler.getInstance().setInterval(() -> {
-      System.out.println("extender pos: " + extender.getExtension());
-
-      System.out.println("overextending: " + extender.overExtending.get());
-      System.out.println("overretracting: " + extender.overRetracting.get());
+      // System.out.println("extender pos: " + extender.getExtension());
 
       // System.out.println("position: " + Round.rd(extender.getLength()));
       // System.out.println("target: " + arm.extensionTarget);
       // System.out.println("correction: " + arm.extenderCorrect);
 
-      // System.out.println("position: " + Round.rd(angler.getPosition()));
-      // System.out.println("target: " + arm.angleTarget);
-      // System.out.println("correction: " + arm.angleCorrect);
+      System.out.println("position: " + Round.rd(angler.getRevs()));
+      System.out.println("target: " + arm.angleTarget);
+      System.out.println("correction: " + arm.angleCorrect);
     }, 0.5);
 
     drive.resetEncoders();
@@ -216,7 +212,7 @@ public class Robot extends TimedRobot {
           break;
       }
 
-      // arm.incrementAngleTarget(dTime * joystick.getY() / 10);
+      // arm.incrementAngleTarget(dTime * joystick.getY() / 4);
       angler.setVoltage(joystick.getY() * 5
           + ArmCalculator.getAntiGravTorque(angler.getRevs(), extender.getExtension()));
 

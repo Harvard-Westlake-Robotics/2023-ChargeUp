@@ -63,7 +63,7 @@ public class Falcon {
          */
     }
 
-    public double getPosition() {
+    public double getRevs() {
         return ((isReversed) ? -falcon.getSelectedSensorPosition(0) : falcon.getSelectedSensorPosition(0)) / 2048.0;
     }
 

@@ -57,6 +57,6 @@ public class ArmCalculator {
         double radians = angle * 2 * Math.PI;
         double centerMassXOffset = Math.sin(radians);
 
-        return centerMassXOffset * fac;
+        return -centerMassXOffset * fac;
     }
 }
