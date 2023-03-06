@@ -39,6 +39,7 @@ public class DriveBase extends SubsystemBase {
     public DriveBase() {
         ypr = new double [3];
         generalStatus = new PigeonIMU.GeneralStatus();
+        imu = new PigeonIMU(18);
 
         var leftFront = new WPI_TalonFX(5);
         var leftBack = new WPI_TalonFX(4);
@@ -118,7 +119,7 @@ public class DriveBase extends SubsystemBase {
 
         SmartDashboard.putNumber("IMU Yaw", ypr[0]);
         SmartDashboard.putNumber("IMU Health", imuErrorCode);
-        
+
         SmartDashboard.putNumber("Left Distance", leftEncoder.getDistance() );
         SmartDashboard.putNumber("Right Distance", rightEncoder.getDistance() );
 
@@ -135,6 +136,6 @@ public class DriveBase extends SubsystemBase {
 
     public int getIMUHealth() {
         return imuErrorCode;
-    }
+    } 
 
 }
