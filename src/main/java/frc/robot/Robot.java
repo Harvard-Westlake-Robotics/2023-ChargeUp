@@ -90,7 +90,7 @@ public class Robot extends TimedRobot {
     // continue until interrupted by another command, remove
     // this line or comment it out.
 
-    SmartDashboard.putNumber("E", 3432432) ;
+    //SmartDashboard.putNumber("E", 3432432) ;
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
