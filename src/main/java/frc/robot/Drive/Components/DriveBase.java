@@ -44,7 +44,7 @@ public class DriveBase extends SubsystemBase {
         var leftFront = new WPI_TalonFX(5);
         var leftBack = new WPI_TalonFX(4);
         var leftTop = new WPI_TalonFX(3);
-        leftTop.setInverted(true) ;
+        leftTop.setInverted(true);
         leftFront.setNeutralMode(NeutralMode.Coast);
         leftBack.setNeutralMode(NeutralMode.Coast);
         leftTop.setNeutralMode(NeutralMode.Coast);

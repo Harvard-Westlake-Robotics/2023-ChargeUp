@@ -42,6 +42,8 @@ public class RobotContainer {
   // private final ArmExtender armExtender = new ArmExtender();
   private final DriveBase drivebase = new DriveBase();
   private final GearShifter gearShifter = new GearShifter(2,0,19);
+  private final Shoulder shoulder = new Shoulder();
+
   // private final Intake intake = new Intake();
   // private final PneumaticsSystem pneumatics = new PneumaticsSystem();
   // Support
@@ -94,6 +96,7 @@ public class RobotContainer {
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     con.R1().onTrue(gearShifter.toggleShifterCommand());
+    con.L1().onTrue(Commands.run(() -> shoulder.setSetpoint(90), shoulder)); //TODO maybe not 90 degrees, tune later based on where starting from and find end position
     // con.R2().onTrue(gearShifter.toggleShifterCommand(false));
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is
@@ -112,6 +115,6 @@ public class RobotContainer {
 
 
     // return Autos.exampleAuto(m_exampleSubsystem);
-    return autoChooser.getSelected();
+    return driveOutCommand;
   }
 }
