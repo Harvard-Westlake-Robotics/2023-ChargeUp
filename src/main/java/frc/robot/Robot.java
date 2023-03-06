@@ -95,6 +95,84 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    drive.resetEncoders();
+
+    angler.setBrake(true);
+    angler.zero();
+    extender.reset();
+
+    arm.resetController();
+
+    // Scheduler.getInstance().registerTick(arm);
+
+    Interface.updateDashboard(drive, gearShifter, angler, extender, intake, pneumatics, con, joystick);
+
+    Scheduler.getInstance().setInterval(() -> {
+      System.out.println("extender pos: " + extender.getExtension());
+
+      System.out.println("overextending: " + extender.overExtending.get());
+      System.out.println("overretracting: " + extender.overRetracting.get());
+
+      // System.out.println("position: " + Round.rd(extender.getLength()));
+      // System.out.println("target: " + arm.extensionTarget);
+      // System.out.println("correction: " + arm.extenderCorrect);
+
+      // System.out.println("position: " + Round.rd(angler.getPosition()));
+      // System.out.println("target: " + arm.angleTarget);
+      // System.out.println("correction: " + arm.angleCorrect);
+    }, 0.5);
+
+    drive.resetEncoders();
+
+    limeLight.setDriverMode();
+
+    Scheduler.getInstance().registerTick((double dTime) -> {
+      final double deadzone = 0.05;
+      final double turnCurveIntensity = 7;
+      final double pwrCurveIntensity = 5;
+      final Pair<Double> powers = ScaleInput.scale(
+          con.getLeftY(),
+          con.getRightY(),
+          deadzone,
+          turnCurveIntensity,
+          pwrCurveIntensity);
+      drive.setPower(powers.left, powers.right);
+
+      // THIS CONTROLS THE ARM EXTENSION
+      // extender.setPower(100*joystick.getY());
+      switch (joystick.getPOV()) {
+        case 0:
+          System.out.println("extending");
+          extender.setPower(40);
+          break;
+        case 180:
+          System.out.println("retracting");
+          extender.setPower(-30);
+          break;
+        default:
+          extender.setPower(0);
+          break;
+      }
+
+      // arm.incrementAngleTarget(dTime * joystick.getY() / 10);
+      angler.setVoltage(joystick.getY() * 5
+          + ArmCalculator.getAntiGravTorque(angler.getPosition(), extender.getExtension()));
+
+      // intake
+      if (joystick.getTrigger())
+        intake.setVoltage(10);
+      else if (joystick.getRawButton(2))
+        intake.setVoltage(-5); // outtake
+      else
+        intake.setVoltage(0.1);
+
+      // pneumatics
+      pneumatics.autoRunCompressor();
+
+      if (con.getR2ButtonPressed()) {
+        gearShifter.toggle();
+      }
+    });
   }
 
   /** This function is called periodically during operator control. */
@@ -107,6 +185,12 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     
+    Scheduler.getInstance().clear();
+
+    // angler.setBrake(false);
+
+    left.stop();
+    right.stop();
   }
 
   @Override

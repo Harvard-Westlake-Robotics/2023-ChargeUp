@@ -22,16 +22,16 @@ public class Interface {
         // GearShifter
         // SmartDashboard.putBoolean("Shifter|State", shifter.getState());
 
-        // // Arm
-        // SmartDashboard.putNumber ("Angle", angler.getPosition());
-        // SmartDashboard.putNumber ("Extender:", extender.getLength());
+        // Arm
+        SmartDashboard.putNumber ("Angle", angler.getPosition());
+        SmartDashboard.putNumber ("Extender:", extender.getExtension());
 
         // // SmartDashboard.putString ("Extender|Status", (extender.isOverExtended()) ? "OVER Extend" : (extender.isReverseExtended()) ? "UNDER Extend": "Normal");
 
-        // SmartDashboard.putNumber ("Max Height:", ArmConstants.HEIGHT_LIMIT);
-        // SmartDashboard.putNumber ("Max Length:", ArmConstants.LENGTH_LIMIT);
-        // SmartDashboard.putNumber ("Length:", ArmCalculator.xDistance(angler.getPosition(), extender.getLength()));
-        // SmartDashboard.putNumber ("Height:", ArmCalculator.yDistance(angler.getPosition(), extender.getLength()));
+        SmartDashboard.putNumber ("Max Height:", ArmConstants.HEIGHT_LIMIT);
+        SmartDashboard.putNumber ("Max Length:", ArmConstants.LENGTH_LIMIT);
+        SmartDashboard.putNumber ("Length:", ArmCalculator.xDistance(angler.getPosition(), extender.getExtension()));
+        SmartDashboard.putNumber ("Height:", ArmCalculator.yDistance(angler.getPosition(), extender.getExtension()));
 
         // // Intake
         // SmartDashboard.putNumber ("Intake Volt", intake.getVoltage());
