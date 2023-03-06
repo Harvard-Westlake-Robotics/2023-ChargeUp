@@ -78,19 +78,23 @@ public class GearShifter extends SubsystemBase {
 
     public Command toggleShifterCommand ()
     {
-        System.out.println (this.state) ;
-        if (this.state == false)
-        {
-            this.state = true;
-            System.out.println ("true now") ;
-            return this.run(() -> pneumatic.set(kForward));
-        }
-        else
-        {
-            this.state = false;
-            System.out.println ("false now") ;
-            return this.run(() -> pneumatic.set(kReverse));
-        }
+        return this.run (() -> {
+            toggle();
+        });
+        // System.out.println (this.state) ;
+        // if (this.state == false)
+        // {
+        //     this.state = true;
+        //     System.out.println ("true now") ;
+        //     return this.run(() -> pneumatic.set(kForward));
+        // }
+        // else
+        // {
+        //     this.state = false;
+        //     System.out.println ("false now") ;
+        //     return this.run(() -> pneumatic.set(kReverse));
+        // }
+
     }
 
 }
