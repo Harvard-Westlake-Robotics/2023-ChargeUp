@@ -1,6 +1,5 @@
 package frc.robot.Arm.Components;
 
-import frc.robot.Core.Scheduler;
 import frc.robot.Devices.LimitSwitch;
 import frc.robot.Devices.Falcon;
 
@@ -33,14 +32,14 @@ public class ArmExtender {
     }
 
     public void setPower(double percent) {
+        // VIRTUAL LIMITER LIMIT SWITCH IS SHIT
         if (percent > 0) {
-            if (overExtending.get()) {
+            if (getExtension() > 43) {
                 // We are going up and top limit is tripped so stop
                 extender.setVoltage(0);
                 return;
             }
         } else {
-            // TEMP VIRTUAL LIMITER UNTIL LIMIT SWITCH IS FIXED
             if (getExtension() < 1) {
                 // We are going down and bottom limit is tripped so stop
                 extender.setVoltage(0);
