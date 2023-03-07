@@ -15,6 +15,7 @@ import frc.robot.Util.*;
 class ScheduleItem {
     public Lambda executable;
     public double executeTime;
+    public boolean persistClear = false;
 
     public ScheduleItem(Lambda executable, double executeTime) {
         this.executable = executable;
@@ -46,6 +47,11 @@ public class Scheduler {
             tickable.tick(Timer.getFPGATimestamp() - lastTime[0]);
             lastTime[0] = Timer.getFPGATimestamp();
         }, 0);
+    }
+
+    public void registerGlobalTickUnclearableAlways(Tickable tickable) {
+        registerTick(tickable);
+        items[items.length - 1].persistClear = false;
     }
 
     /**
@@ -117,6 +123,14 @@ public class Scheduler {
     }
 
     public void clear() {
-        items = new ScheduleItem[] {};
+        var keepItems = Arrays.stream(items).filter((e) -> {
+            return !e.persistClear;
+        }).toList();
+        items = new ScheduleItem[keepItems.size()];
+        int index = 0;
+        for (var item : keepItems) {
+            items[index] = item;
+            index++;
+        }
     }
 }

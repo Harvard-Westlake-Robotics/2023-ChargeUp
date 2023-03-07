@@ -1,7 +1,7 @@
 package frc.robot.Drive.Components;
 
 import frc.robot.Devices.Encoder;
-import frc.robot.Devices.Falcon;
+import frc.robot.Devices.Motor.Falcon;
 
 public class DriveSide {
     private Falcon one;

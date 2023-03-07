@@ -1,19 +1,21 @@
-package frc.robot.Devices;
+package frc.robot.Devices.Motor;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-public class SparkMax {
+import frc.robot.Devices.MotorController;
+
+public class SparkMax extends MotorController {
     private CANSparkMax maxspark;
     private RelativeEncoder encoder;
-    private boolean isReversed;
 
     public SparkMax(int canID, boolean isReversed) {
+        super(isReversed);
+
         this.maxspark = new CANSparkMax(canID, MotorType.kBrushless);
         this.encoder = maxspark.getEncoder();
-        this.isReversed = isReversed;
         maxspark.setIdleMode(IdleMode.kCoast);
     }
 
@@ -22,17 +24,17 @@ public class SparkMax {
     }
 
     public SparkMax(int canID, boolean isReversed, boolean brakeMode) {
+        super(isReversed);
         this.maxspark = new CANSparkMax(canID, MotorType.kBrushless);
         this.encoder = maxspark.getEncoder();
-        this.isReversed = isReversed;
         if (brakeMode)
             maxspark.setIdleMode(IdleMode.kBrake);
         else
             maxspark.setIdleMode(IdleMode.kCoast);
     }
 
-    public void setVoltage(double volts) {
-        maxspark.setVoltage((isReversed) ? -volts : volts);
+    public void setVolt(double volts) {
+        maxspark.setVoltage(volts);
         /**
          * This is a ternerary
          * Equivalent to
@@ -47,8 +49,8 @@ public class SparkMax {
          */
     }
 
-    public double getPosition() {
-        return (isReversed) ? -encoder.getPosition() : encoder.getPosition();
+    public double getRev() {
+        return encoder.getPosition();
     }
 
     public void stop() {

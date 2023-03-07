@@ -1,10 +1,12 @@
 package frc.robot.Arm.Components;
 
 import frc.robot.Devices.LimitSwitch;
-import frc.robot.Devices.Falcon;
+import frc.robot.Devices.Motor.Falcon;
+import frc.robot.Devices.Motor.NoisyFalcon;
+import frc.robot.Util.Tickable;
 
 // this is the subsystem
-public class ArmExtender {
+public class ArmExtender implements Tickable {
     // Chain:
     // 60t - output
     // 15t - input
@@ -13,22 +15,10 @@ public class ArmExtender {
     // 8t input
     // 64t output
 
-    private Falcon extender;
-    public LimitSwitch overExtending;
-    public LimitSwitch overRetracting;
+    private NoisyFalcon extender;
 
-    public ArmExtender(Falcon extender, LimitSwitch overExtending, LimitSwitch overRetracting) {
+    public ArmExtender(NoisyFalcon extender) {
         this.extender = extender;
-        this.overExtending = overExtending;
-        this.overRetracting = overRetracting;
-    }
-
-    public boolean isOverExtended() {
-        return overExtending.get();
-    }
-
-    public boolean isReverseExtended() {
-        return overRetracting.get();
     }
 
     public void setPower(double percent) {
@@ -36,13 +26,13 @@ public class ArmExtender {
         if (percent > 0) {
             if (getExtension() > 27) {
                 // We are going up and top limit is tripped so stop
-                extender.setVoltage(0);
+                extender.setPercentVoltage(0);
                 return;
             }
         } else {
             if (getExtension() < 0.4) {
                 // We are going down and bottom limit is tripped so stop
-                extender.setVoltage(0);
+                extender.setPercentVoltage(0);
                 return;
             }
         }
@@ -60,5 +50,9 @@ public class ArmExtender {
         // 14:60 gear ratio ; 12:17 sprocket ratio ; 2" wheel diameter
         // 1" height per 1 inch of string ; min arm length 35"
         return (extender.getRevs() * (14.0 / 60.0) * (12.0 / 17.0) * 2.0 * Math.PI); // ! assumptions were made here
+    }
+
+    public void tick(double dTime) {
+        extender.tick(dTime);
     }
 }

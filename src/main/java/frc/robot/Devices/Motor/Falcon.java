@@ -1,18 +1,20 @@
-package frc.robot.Devices;
+package frc.robot.Devices.Motor;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
-public class Falcon {
+import frc.robot.Devices.MotorController;
+
+public class Falcon extends MotorController {
     private WPI_TalonFX falcon;
-    private boolean isReversed;
     double stallVolt;
 
     public Falcon(int deviceNumber, boolean isReversed, boolean isStallable) {
+        super(isReversed);
+
         this.falcon = new WPI_TalonFX(deviceNumber);
         falcon.getSensorCollection();
-        this.isReversed = isReversed;
         this.stallVolt = isStallable ? 3 : 1;
 
         /* newer config API */
@@ -29,13 +31,8 @@ public class Falcon {
         this(deviceNumber, isReversed, false);
     }
 
-    public void setPercentVoltage(double percent) {
-        setVoltage(percent * (12.0 / 100.0));
-    }
-
-    public void setVoltage(double volts) {
-        volts = (isReversed) ? -volts : volts;
-        if (Math.abs(volts) > 12.0)
+    public void setVolt(double volts) {
+        if (Math.abs(volts) > 6.0)
             throw new Error("Illegal voltage");
 
         double fac = (volts > 0) ? 1 : -1;
@@ -63,8 +60,8 @@ public class Falcon {
          */
     }
 
-    public double getRevs() {
-        return ((isReversed) ? -falcon.getSelectedSensorPosition(0) : falcon.getSelectedSensorPosition(0)) / 2048.0;
+    public double getRev() {
+        return falcon.getSelectedSensorPosition(0) / 2048.0;
     }
 
     public void stop() {
