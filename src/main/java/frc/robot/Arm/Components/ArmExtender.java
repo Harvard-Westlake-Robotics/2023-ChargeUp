@@ -1,7 +1,5 @@
 package frc.robot.Arm.Components;
 
-import frc.robot.Devices.LimitSwitch;
-import frc.robot.Devices.Motor.Falcon;
 import frc.robot.Devices.Motor.NoisyFalcon;
 import frc.robot.Util.Tickable;
 

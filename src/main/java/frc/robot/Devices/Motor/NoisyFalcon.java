@@ -1,6 +1,5 @@
 package frc.robot.Devices.Motor;
 
-import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Util.Tickable;
 
 public class NoisyFalcon implements Tickable {

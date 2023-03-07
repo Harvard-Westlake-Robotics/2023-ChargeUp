@@ -20,12 +20,20 @@ public abstract class MotorController extends TimedHardware {
         maxSlew = null;
     }
 
-    protected abstract void setVolt(double voltage);
+    protected abstract void uSetVoltage(double voltage);
 
-    protected abstract double getRev();
+    protected abstract double uGetRevs();
     
     public double getRevs() {
-        return isReversed ? -getRev() : getRev();
+        return isReversed ? -uGetRevs() : uGetRevs();
+    }
+
+    public double getDegrees() {
+        return getRevs() * 360.0;
+    }
+
+    public double getRadians() {
+        return getRevs() * 2.0 * Math.PI;
     }
 
     public abstract void resetEncoder();
@@ -33,7 +41,7 @@ public abstract class MotorController extends TimedHardware {
     public void setVoltage(double volts) {
         if (Math.abs(volts) > 12.0)
             throw new Error("Illegal voltage");
-        setVolt(isReversed ? -volts : volts);
+        uSetVoltage(isReversed ? -volts : volts);
     }
 
     public void setPercentVoltage(double percent) {

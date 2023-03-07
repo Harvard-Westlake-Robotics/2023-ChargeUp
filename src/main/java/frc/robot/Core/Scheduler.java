@@ -1,5 +1,6 @@
 package frc.robot.Core;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -33,6 +34,7 @@ public class Scheduler {
     }
 
     private ScheduleItem[] items = new ScheduleItem[] {};
+    private ArrayList<Lambda> onResetList = new ArrayList<Lambda>();
 
     /**
      * Runs a `Tickable` every tick
@@ -52,6 +54,10 @@ public class Scheduler {
     public void registerGlobalTickUnclearableAlways(Tickable tickable) {
         registerTick(tickable);
         items[items.length - 1].persistClear = false;
+    }
+
+    public void onReset(Lambda onReset) {
+        onResetList.add(onReset);
     }
 
     /**
@@ -131,6 +137,9 @@ public class Scheduler {
         for (var item : keepItems) {
             items[index] = item;
             index++;
+        }
+        for (var r : onResetList) {
+            r.run();
         }
     }
 }

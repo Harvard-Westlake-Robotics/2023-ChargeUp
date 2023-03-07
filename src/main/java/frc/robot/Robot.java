@@ -11,7 +11,6 @@ import frc.robot.DriverStation.LimeLight;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.Core.Scheduler;
 import frc.robot.Devices.Encoder;
-import frc.robot.Devices.LimitSwitch;
 import frc.robot.Devices.Motor.Falcon;
 import frc.robot.Devices.Motor.NoisyFalcon;
 import frc.robot.Devices.Motor.SparkMax;
@@ -257,6 +256,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
+    // DO NOT RUN THE SCHEDULER WHILE DISABLED
   }
 
   /**

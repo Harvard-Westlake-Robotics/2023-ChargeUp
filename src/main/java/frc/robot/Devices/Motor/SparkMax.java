@@ -33,23 +33,11 @@ public class SparkMax extends MotorController {
             maxspark.setIdleMode(IdleMode.kCoast);
     }
 
-    public void setVolt(double volts) {
+    public void uSetVoltage(double volts) {
         maxspark.setVoltage(volts);
-        /**
-         * This is a ternerary
-         * Equivalent to
-         * 
-         * if (isReversed)
-         * maxspark.setVoltage(-volts);
-         * else
-         * maxspark.setVoltage(volts);
-         * 
-         * If you don't understand and need to make a change, you can uncomment this
-         * code
-         */
     }
 
-    public double getRev() {
+    public double uGetRevs() {
         return encoder.getPosition();
     }
 

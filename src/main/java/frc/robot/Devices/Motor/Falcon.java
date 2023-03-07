@@ -31,7 +31,7 @@ public class Falcon extends MotorController {
         this(deviceNumber, isReversed, false);
     }
 
-    public void setVolt(double volts) {
+    public void uSetVoltage(double volts) {
         if (Math.abs(volts) > 6.0)
             throw new Error("Illegal voltage");
 
@@ -60,7 +60,7 @@ public class Falcon extends MotorController {
          */
     }
 
-    public double getRev() {
+    public double uGetRevs() {
         return falcon.getSelectedSensorPosition(0) / 2048.0;
     }
 
