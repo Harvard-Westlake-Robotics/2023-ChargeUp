@@ -11,8 +11,8 @@ import frc.robot.DriverStation.LimeLight;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.Core.Scheduler;
 import frc.robot.Devices.Encoder;
+import frc.robot.Devices.Imu;
 import frc.robot.Devices.Motor.Falcon;
-import frc.robot.Devices.Motor.NoisyFalcon;
 import frc.robot.Devices.Motor.SparkMax;
 import frc.robot.Drive.*;
 import frc.robot.Drive.Auto.AutonomousDrive;
@@ -54,6 +54,8 @@ public class Robot extends TimedRobot {
 
   LimeLight limeLight = new LimeLight();
 
+  Imu imu;
+
   // ! If you change the pd constant numbers (anywhere in this code) the related
   // ! subsystem might oscilate or harm somebody
 
@@ -86,7 +88,7 @@ public class Robot extends TimedRobot {
       var encoder = new Encoder(4, 5, false);
       this.angler = new ArmAngler(arm1, arm2, encoder);
 
-      var armExtender = new NoisyFalcon(new Falcon(6, true, true));
+      var armExtender = new SparkMax(6, true, true);
       this.extender = new ArmExtender(armExtender);
 
       var intakeLeft = new SparkMax(10, false);
@@ -97,6 +99,8 @@ public class Robot extends TimedRobot {
       this.joystick = new Joystick(1);
 
       this.drive = new Drive(left, right);
+
+      this.imu = new Imu(18);
 
       Interface.updateDashboard(drive, gearShifter, angler, extender, intake, pneumatics, con, joystick);
 
@@ -151,6 +155,8 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     Scheduler.getInstance().clear();
 
+    imu.reset();
+
     ArmPD arm = new ArmPD(angler, extender,
         new PDController(85, 50),
         new PDController(20, 0, 20));
@@ -170,9 +176,9 @@ public class Robot extends TimedRobot {
     Scheduler.getInstance().setInterval(() -> {
       // System.out.println("extender pos: " + extender.getExtension());
 
-      System.out.println("position: " + Round.rd(extender.getExtension()));
-      System.out.println("target: " + arm.extensionTarget);
-      System.out.println("correction: " + arm.extenderCorrect);
+      // System.out.println("position: " + Round.rd(extender.getExtension()));
+      // System.out.println("target: " + arm.extensionTarget);
+      // System.out.println("correction: " + arm.extenderCorrect);
 
       // System.out.println("position: " + Round.rd(angler.getRevs()));
       // System.out.println("target: " + arm.angleTarget);
@@ -205,20 +211,20 @@ public class Robot extends TimedRobot {
           break;
       }
       // switch (joystick.getPOV()) {
-      //   case 0:
-      //     extender.setPower(10);
-      //     break;
-      //   case 180:
-      //     extender.setPower(-30);
-      //     break;
-      //   default:
-      //     extender.setPower(0);
-      //     break;
+      // case 0:
+      // extender.setPower(100);
+      // break;
+      // case 180:
+      // extender.setPower(-30);
+      // break;
+      // default:
+      // extender.setPower(0);
+      // break;
       // }
 
       // arm.incrementAngleTarget(dTime * joystick.getY() / 4);
-      angler.setVoltage(joystick.getY() * 5
-          + ArmCalculator.getAntiGravTorque(angler.getRevs(), extender.getExtension()));
+      angler.setVoltage(joystick.getY() * 5 +
+          ArmCalculator.getAntiGravTorque(angler.getRevs(), extender.getExtension()));
 
       // intake
       if (joystick.getTrigger())
@@ -249,9 +255,6 @@ public class Robot extends TimedRobot {
     Scheduler.getInstance().clear();
 
     // angler.setBrake(false);
-
-    left.stop();
-    right.stop();
   }
 
   @Override

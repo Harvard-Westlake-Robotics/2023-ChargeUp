@@ -53,8 +53,6 @@ public class ArmPD implements Tickable {
     public double angleCorrect = 0;
 
     public void tick(double dTime) {
-        extender.tick(dTime);
-
         this.angleCorrect = angleController.solve(angleTarget - armAngler.getRevs());
         this.angleCorrect += ArmCalculator.getAntiGravTorque(armAngler.getRevs(), extender.getExtension());
         armAngler.setVoltage(angleCorrect);

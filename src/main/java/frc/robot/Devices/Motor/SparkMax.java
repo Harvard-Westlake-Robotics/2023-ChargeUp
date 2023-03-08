@@ -33,11 +33,11 @@ public class SparkMax extends MotorController {
             maxspark.setIdleMode(IdleMode.kCoast);
     }
 
-    public void uSetVoltage(double volts) {
+    protected void uSetVoltage(double volts) {
         maxspark.setVoltage(volts);
     }
 
-    public double uGetRevs() {
+    protected double uGetRevs() {
         return encoder.getPosition();
     }
 

@@ -52,7 +52,7 @@ public class ArmCalculator {
      * @return The requisite voltage.
      */
     public static double getAntiGravTorque(double angle, double extension) {
-        final double fac = 0.40 + (extension * 0.02);
+        final double fac = 0.40 + (extension * 0.03);
 
         double radians = angle * 2 * Math.PI;
         double centerMassXOffset = Math.sin(radians);

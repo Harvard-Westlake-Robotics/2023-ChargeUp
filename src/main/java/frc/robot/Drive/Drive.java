@@ -30,9 +30,4 @@ public class Drive {
         left.setPower(leftPercent);
         right.setPower(rightPercent);
     }
-
-    public void stop() {
-        left.stop();
-        right.stop();
-    }
 }

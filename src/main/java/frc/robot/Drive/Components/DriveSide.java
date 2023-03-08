@@ -1,19 +1,19 @@
 package frc.robot.Drive.Components;
 
 import frc.robot.Devices.Encoder;
-import frc.robot.Devices.Motor.Falcon;
+import frc.robot.Devices.MotorController;
 
 public class DriveSide {
-    private Falcon one;
-    private Falcon two;
-    private Falcon three;
+    private MotorController one;
+    private MotorController two;
+    private MotorController three;
 
     private Encoder encoder;
 
     double revsAtLastShift = 0;
     double inchesAtLastShift = 0;
 
-    public DriveSide(Falcon one, Falcon two, Falcon three, GearShifter shifter, Encoder encoder) {
+    public DriveSide(MotorController one, MotorController two, MotorController three, GearShifter shifter, Encoder encoder) {
         this.one = one;
         this.two = two;
         this.three = three;
@@ -30,17 +30,11 @@ public class DriveSide {
         encoder.reset();
     }
 
-    public void stop() {
-        for (Falcon motor : new Falcon[] { one, two, three }) {
-            motor.stop();
-        }
-    }
-
     public void setPower(double percentage) {
         if (Math.abs(percentage) > 100.0)
             throw new Error("power too high: " + percentage);
         double voltage = percentage * (12.0 / 100.0);
-        for (Falcon motor : new Falcon[] { one, two, three }) {
+        for (MotorController motor : new MotorController[] { one, two, three }) {
             motor.setVoltage(voltage);
         }
     }

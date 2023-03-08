@@ -36,6 +36,8 @@ public abstract class MotorController extends TimedHardware {
         return getRevs() * 2.0 * Math.PI;
     }
 
+    public abstract void stop();
+
     public abstract void resetEncoder();
 
     public void setVoltage(double volts) {

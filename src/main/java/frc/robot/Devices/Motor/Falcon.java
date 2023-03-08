@@ -15,7 +15,8 @@ public class Falcon extends MotorController {
 
         this.falcon = new WPI_TalonFX(deviceNumber);
         falcon.getSensorCollection();
-        this.stallVolt = isStallable ? 3 : 1;
+        this.stallVolt = isStallable ? 3
+                : 1;
 
         /* newer config API */
         TalonFXConfiguration configs = new TalonFXConfiguration();
@@ -31,9 +32,7 @@ public class Falcon extends MotorController {
         this(deviceNumber, isReversed, false);
     }
 
-    public void uSetVoltage(double volts) {
-        if (Math.abs(volts) > 6.0)
-            throw new Error("Illegal voltage");
+    protected void uSetVoltage(double volts) {
 
         double fac = (volts > 0) ? 1 : -1;
         if (Math.abs(volts) < stallVolt / 2) {
@@ -60,7 +59,7 @@ public class Falcon extends MotorController {
          */
     }
 
-    public double uGetRevs() {
+    protected double uGetRevs() {
         return falcon.getSelectedSensorPosition(0) / 2048.0;
     }
 
