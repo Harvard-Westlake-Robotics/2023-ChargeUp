@@ -37,6 +37,8 @@ import frc.robot.Arm.ArmPD;
  * project.
  */
 public class Robot extends TimedRobot {
+  Scheduler scheduler = new Scheduler();
+
   DriveSide left;
   DriveSide right;
 
@@ -109,7 +111,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    Scheduler.getInstance().clear();
+    scheduler.clear();
     // AutonomousDrive drive;
     // { // Initializes `drive`
     final var HIGHGEARCONTROLLER = new PDController(2, 0);
@@ -126,7 +128,7 @@ public class Robot extends TimedRobot {
     // gearShifter.setLowGear();
     // }
 
-    Scheduler.getInstance().setInterval(() -> {
+    scheduler.setInterval(() -> {
       // System.out.println(drive + "\n\n");
       System.out.println("left: " + leftPD);
       System.out.println("right: " + rightPD);
@@ -134,7 +136,7 @@ public class Robot extends TimedRobot {
 
     limeLight.setDriverMode();
 
-    Scheduler.getInstance().registerTick((double dTime) -> {
+    scheduler.registerTick((double dTime) -> {
       leftPD.setPercentVoltage(leftPD.getCorrection(true));
       rightPD.setPercentVoltage(rightPD.getCorrection(true));
 
@@ -148,12 +150,12 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    Scheduler.getInstance().tick();
+    scheduler.tick();
   }
 
   @Override
   public void teleopInit() {
-    Scheduler.getInstance().clear();
+    scheduler.clear();
 
     imu.reset();
 
@@ -169,11 +171,14 @@ public class Robot extends TimedRobot {
 
     arm.resetController();
 
-    Scheduler.getInstance().registerTick(arm);
+    // registerTick calls the tick function on an object every tick to run until the
+    // robot is disabled
+    // The Scheduler should be called only in `init()` functions
+    // scheduler.registerTick(arm);
 
     Interface.updateDashboard(drive, gearShifter, angler, extender, intake, pneumatics, con, joystick);
 
-    Scheduler.getInstance().setInterval(() -> {
+    scheduler.setInterval(() -> {
       // System.out.println("extender pos: " + extender.getExtension());
 
       // System.out.println("position: " + Round.rd(extender.getExtension()));
@@ -189,7 +194,7 @@ public class Robot extends TimedRobot {
 
     limeLight.setDriverMode();
 
-    Scheduler.getInstance().registerTick((double dTime) -> {
+    scheduler.registerTick((double dTime) -> {
       final double deadzone = 0.05;
       final double turnCurveIntensity = 7;
       final double pwrCurveIntensity = 5;
@@ -210,17 +215,17 @@ public class Robot extends TimedRobot {
           arm.incrementExtensionTarget(dTime * -3);
           break;
       }
-      // switch (joystick.getPOV()) {
-      // case 0:
-      // extender.setPower(100);
-      // break;
-      // case 180:
-      // extender.setPower(-30);
-      // break;
-      // default:
-      // extender.setPower(0);
-      // break;
-      // }
+      switch (joystick.getPOV()) {
+        case 0:
+          extender.setPower(50);
+          break;
+        case 180:
+          extender.setPower(-30);
+          break;
+        default:
+          extender.setPower(0);
+          break;
+      }
 
       // arm.incrementAngleTarget(dTime * joystick.getY() / 4);
       angler.setVoltage(joystick.getY() * 5 +
@@ -246,13 +251,13 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    Scheduler.getInstance().tick();
+    scheduler.tick();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    Scheduler.getInstance().clear();
+    scheduler.clear();
 
     // angler.setBrake(false);
   }

@@ -1,8 +1,6 @@
 package frc.robot.Devices;
 
-import frc.robot.Core.TimedHardware;
-
-public abstract class MotorController extends TimedHardware {
+public abstract class MotorController {
     Double maxSlew;
     boolean isReversed;
 

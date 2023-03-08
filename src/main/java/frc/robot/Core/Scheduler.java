@@ -1,6 +1,5 @@
 package frc.robot.Core;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -16,7 +15,6 @@ import frc.robot.Util.*;
 class ScheduleItem {
     public Lambda executable;
     public double executeTime;
-    public boolean persistClear = false;
 
     public ScheduleItem(Lambda executable, double executeTime) {
         this.executable = executable;
@@ -25,16 +23,7 @@ class ScheduleItem {
 }
 
 public class Scheduler {
-    static Scheduler scheduler;
-
-    public static Scheduler getInstance() {
-        if (scheduler == null)
-            scheduler = new Scheduler();
-        return scheduler;
-    }
-
     private ScheduleItem[] items = new ScheduleItem[] {};
-    private ArrayList<Lambda> onResetList = new ArrayList<Lambda>();
 
     /**
      * Runs a `Tickable` every tick
@@ -49,15 +38,6 @@ public class Scheduler {
             tickable.tick(Timer.getFPGATimestamp() - lastTime[0]);
             lastTime[0] = Timer.getFPGATimestamp();
         }, 0);
-    }
-
-    public void registerGlobalTickUnclearableAlways(Tickable tickable) {
-        registerTick(tickable);
-        items[items.length - 1].persistClear = false;
-    }
-
-    public void onReset(Lambda onReset) {
-        onResetList.add(onReset);
     }
 
     /**
@@ -129,17 +109,6 @@ public class Scheduler {
     }
 
     public void clear() {
-        var keepItems = Arrays.stream(items).filter((e) -> {
-            return !e.persistClear;
-        }).toList();
-        items = new ScheduleItem[keepItems.size()];
-        int index = 0;
-        for (var item : keepItems) {
-            items[index] = item;
-            index++;
-        }
-        for (var r : onResetList) {
-            r.run();
-        }
+        items = new ScheduleItem[0];
     }
 }
