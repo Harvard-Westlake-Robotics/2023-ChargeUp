@@ -90,8 +90,9 @@ public class Robot extends TimedRobot {
       var encoder = new Encoder(4, 5, false);
       this.angler = new ArmAngler(arm1, arm2, encoder);
 
-      var armExtender = new SparkMax(6, true, true);
-      this.extender = new ArmExtender(armExtender);
+      var extender1 = new SparkMax(6, true, false);
+      var extender2 = new SparkMax(11, true, false);
+      this.extender = new ArmExtender(extender1, extender2);
 
       var intakeLeft = new SparkMax(10, false);
       var intakeRight = new SparkMax(7, true);
@@ -227,7 +228,6 @@ public class Robot extends TimedRobot {
           break;
       }
 
-      // arm.incrementAngleTarget(dTime * joystick.getY() / 4);
       angler.setVoltage(joystick.getY() * 5 +
           ArmCalculator.getAntiGravTorque(angler.getRevs(), extender.getExtension()));
 
