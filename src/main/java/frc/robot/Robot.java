@@ -17,6 +17,7 @@ import frc.robot.Devices.Motor.SparkMax;
 import frc.robot.Drive.*;
 import frc.robot.Drive.Auto.AutonomousDrive;
 import frc.robot.Drive.Auto.DriveSidePD;
+import frc.robot.Drive.Auto.Shauton;
 import frc.robot.Drive.Components.DriveSide;
 import frc.robot.Drive.Components.GearShifter;
 import frc.robot.Util.*;
@@ -41,6 +42,9 @@ public class Robot extends TimedRobot {
 
   DriveSide left;
   DriveSide right;
+
+  Shauton leftShauton ;
+  Shauton rightShauton ;
 
   GearShifter gearShifter;
 
@@ -81,6 +85,9 @@ public class Robot extends TimedRobot {
 
       this.left = new DriveSide(leftFront, leftBack, leftTop, null, encoderLeft);
       this.right = new DriveSide(rightFront, rightBack, rightTop, null, encoderRight);
+
+      this.leftShauton = new Shauton(left, 1);
+      this.rightShauton = new Shauton(right, 1);
 
       this.pneumatics = new PneumaticsSystem(110, 120, 19);
       this.gearShifter = new GearShifter(2, 0, 19);
@@ -129,11 +136,16 @@ public class Robot extends TimedRobot {
     // gearShifter.setLowGear();
     // // }
 
-    // scheduler.setInterval(() -> {
-    //   // System.out.println(drive + "\n\n");
-    //   System.out.println("left: " + leftPD);
-    //   System.out.println("right: " + rightPD);
-    // }, 0.2);
+    leftShauton.addTarget(3) ;
+    rightShauton.addTarget(3) ;
+
+    scheduler.setInterval(() -> {
+      // // System.out.println(drive + "\n\n");
+      // System.out.println("left: " + leftPD);
+      // System.out.println("right: " + rightPD);
+      leftShauton.driveArray();
+      rightShauton.driveArray();
+    }, 0.2);
 
     // limeLight.setDriverMode();
 
