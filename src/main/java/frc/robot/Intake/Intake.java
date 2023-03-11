@@ -15,8 +15,8 @@ public class Intake {
         left.setBrake(true);
         right.setBrake(true);
 
-        left.setCurrentLimit(2, 100);
-        right.setCurrentLimit(2, 100);
+        left.setCurrentLimit(20, 100);
+        right.setCurrentLimit(20, 100);
     }
 
     public void setVoltage (double voltage)
