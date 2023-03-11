@@ -136,8 +136,9 @@ public class Robot extends TimedRobot {
     // gearShifter.setLowGear();
     // // }
 
-    leftShauton.addTarget(3) ;
-    rightShauton.addTarget(3) ;
+    drive.resetEncoders();
+    leftShauton.addTarget(30) ;
+    rightShauton.addTarget(30) ;
 
     scheduler.setInterval(() -> {
       // // System.out.println(drive + "\n\n");
@@ -145,6 +146,7 @@ public class Robot extends TimedRobot {
       // System.out.println("right: " + rightPD);
       leftShauton.driveArray();
       rightShauton.driveArray();
+      System.out.println("l" + left.getPositionInches() + " r" + right.getPositionInches());
     }, 0.2);
 
     // limeLight.setDriverMode();
@@ -264,7 +266,7 @@ public class Robot extends TimedRobot {
       else if (joystick.getRawButton(2))
         intake.setVoltage(-5); // outtake
       else
-        intake.setVoltage(0);
+        intake.setVoltage(0.1);
 
       // pneumatics
       pneumatics.autoRunCompressor();

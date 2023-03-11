@@ -62,7 +62,7 @@ public class Shauton {
             side.setPower(0);
             targetCounter++;
         }
-        else if (targetCounter < targetsList.length)
+        else if (targetCounter < targetsList.length && side.getPositionInches() < targetsList[targetCounter])
         {
             side.setPower(50);
         }

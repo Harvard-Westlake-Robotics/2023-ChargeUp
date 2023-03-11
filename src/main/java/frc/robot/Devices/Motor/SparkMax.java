@@ -15,11 +15,12 @@ public class SparkMax extends MotorController {
         super(isReversed);
 
         this.maxspark = new CANSparkMax(canID, MotorType.kBrushless);
+        this.maxspark.restoreFactoryDefaults();
         this.encoder = maxspark.getEncoder();
         maxspark.setIdleMode(IdleMode.kCoast);
 
         // sends a max of ten amps when stalling, 100 amps when not
-        maxspark.setSmartCurrentLimit(10, 100);
+        maxspark.setSmartCurrentLimit(40, 100);
     }
 
     public void setBrake(boolean brake) {
@@ -42,6 +43,11 @@ public class SparkMax extends MotorController {
 
     protected double uGetRevs() {
         return encoder.getPosition();
+    }
+
+    public void setCurrentLimit (int stall, int free)
+    {
+        maxspark.setSmartCurrentLimit(stall, free);
     }
 
     public void stop() {
