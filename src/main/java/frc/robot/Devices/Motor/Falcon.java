@@ -33,7 +33,7 @@ public class Falcon extends MotorController {
     }
 
     protected void uSetVoltage(double volts) {
-
+        
         double fac = (volts > 0) ? 1 : -1;
         if (Math.abs(volts) < stallVolt / 2) {
             falcon.setVoltage(0);

@@ -32,6 +32,6 @@ public class NoisyFalcon implements Tickable {
         }
 
         // falcon.setPercentVoltage(noisyVoltage);
-        System.out.println(noisyVoltage);
+        //System.out.println(noisyVoltage);
     }
 }

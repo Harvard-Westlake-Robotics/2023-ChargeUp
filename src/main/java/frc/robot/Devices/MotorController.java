@@ -45,6 +45,8 @@ public abstract class MotorController {
     }
 
     public void setPercentVoltage(double percent) {
+        if (percent != 0) 
+            System.out.println("actual volts" + percent * (12.0/100.0));
         setVoltage(percent * (12.0 / 100.0));
     }
 

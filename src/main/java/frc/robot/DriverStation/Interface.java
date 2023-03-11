@@ -33,8 +33,8 @@ public class Interface {
         SmartDashboard.putNumber ("Intake Volt", intake.getVoltage());
 
         // Pneumatics
-        SmartDashboard.putNumber ("PSI:", pneumatics.getPressure());
-        SmartDashboard.putBoolean("Compressor:", pneumatics.isCompressorEnabled());
+        // SmartDashboard.putNumber ("PSI:", pneumatics.getPressure());
+        // SmartDashboard.putBoolean("Compressor:", pneumatics.isCompressorEnabled());
 
         // Controller
         SmartDashboard.putNumber ("Con|Left Y-Axis", con.getLeftY ());

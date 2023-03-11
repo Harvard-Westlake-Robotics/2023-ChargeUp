@@ -13,7 +13,11 @@ public class Imu {
         return imu.getYaw();
     }
 
-    public void reset() {
+    public double getPitch() {
+        return imu.getPitch();
+    }
+
+    public void resetYaw() {
         imu.setYaw(0);
     }
 }

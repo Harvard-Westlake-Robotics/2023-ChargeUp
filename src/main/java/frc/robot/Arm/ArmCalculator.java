@@ -15,7 +15,7 @@ public class ArmCalculator {
     // return max length given rotation
     public static double maxLength(double angle) {
         double a = Math.toRadians(angle);
-        double maxLengthAccordingToHeightLim = Math.abs((ArmConstants.HEIGHT_LIMIT / Math.cos(a))); // in
+        double maxLengthAccordingToHeightLim = Math.abs((ArmConstants.HEIGHT_LIMIT / Math.cos(a))) + 20; // in
         double maxLengthAccordingToLengthLim = Math.abs((ArmConstants.LENGTH_LIMIT / Math.sin(a))); // in
         return Math.min(maxLengthAccordingToHeightLim, maxLengthAccordingToLengthLim);
     }

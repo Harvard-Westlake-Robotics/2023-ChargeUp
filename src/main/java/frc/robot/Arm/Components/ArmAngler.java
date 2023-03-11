@@ -1,5 +1,6 @@
 package frc.robot.Arm.Components;
 
+import frc.robot.Settings;
 import frc.robot.Devices.Encoder;
 import frc.robot.Devices.Motor.SparkMax;
 
@@ -29,6 +30,9 @@ public class ArmAngler {
     }
 
     public double getRevs() {
+        if (Settings.armBeingBadMode) {
+            return 0;
+        }
         return encoder.getRevs();
     }
 

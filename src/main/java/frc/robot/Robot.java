@@ -90,8 +90,8 @@ public class Robot extends TimedRobot {
       var encoder = new Encoder(4, 5, false);
       this.angler = new ArmAngler(arm1, arm2, encoder);
 
-      var extender1 = new SparkMax(6, true, false);
-      var extender2 = new SparkMax(11, true, false);
+      var extender1 = new SparkMax(6, true, true);
+      var extender2 = new SparkMax(11, true, true);
       this.extender = new ArmExtender(extender1, extender2);
 
       var intakeLeft = new SparkMax(10, false);
@@ -112,38 +112,39 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    scheduler.clear();
-    // AutonomousDrive drive;
-    // { // Initializes `drive`
-    final var HIGHGEARCONTROLLER = new PDController(2, 0);
-    final var LOWGEARCONTROLLER = new PDController(3, 0);
+    // scheduler.clear();
+    // // AutonomousDrive drive;
+    // // { // Initializes `drive`
+    // final var HIGHGEARCONTROLLER = new PDController(2, 0);
+    // final var LOWGEARCONTROLLER = new PDController(3, 0);
 
-    DriveSidePD leftPD = new DriveSidePD(left, LOWGEARCONTROLLER.clone(), HIGHGEARCONTROLLER.clone());
-    DriveSidePD rightPD = new DriveSidePD(right, LOWGEARCONTROLLER.clone(), HIGHGEARCONTROLLER.clone());
+    // DriveSidePD leftPD = new DriveSidePD(left, LOWGEARCONTROLLER.clone(), HIGHGEARCONTROLLER.clone());
+    // DriveSidePD rightPD = new DriveSidePD(right, LOWGEARCONTROLLER.clone(), HIGHGEARCONTROLLER.clone());
 
-    leftPD.reset();
-    rightPD.reset();
+    // leftPD.reset();
+    // rightPD.reset();
 
-    // drive = new AutonomousDrive(leftPD, rightPD, gearShifter);
+    // // drive = new AutonomousDrive(leftPD, rightPD, gearShifter);
 
     // gearShifter.setLowGear();
-    // }
+    // // }
 
-    scheduler.setInterval(() -> {
-      // System.out.println(drive + "\n\n");
-      System.out.println("left: " + leftPD);
-      System.out.println("right: " + rightPD);
-    }, 0.2);
+    // scheduler.setInterval(() -> {
+    //   // System.out.println(drive + "\n\n");
+    //   System.out.println("left: " + leftPD);
+    //   System.out.println("right: " + rightPD);
+    // }, 0.2);
 
-    limeLight.setDriverMode();
+    // limeLight.setDriverMode();
 
-    scheduler.registerTick((double dTime) -> {
-      leftPD.setPercentVoltage(leftPD.getCorrection(true));
-      rightPD.setPercentVoltage(rightPD.getCorrection(true));
+    // scheduler.registerTick((double dTime) -> {
+    //   leftPD.setPercentVoltage(leftPD.getCorrection(true));
+    //   rightPD.setPercentVoltage(rightPD.getCorrection(true));
 
-      leftPD.incrementTarget(dTime);
-      rightPD.incrementTarget(dTime);
-    });
+    //   // leftPD.incrementTarget(dTime * 5);
+    //   // rightPD.incrementTarget(dTime * 5);
+    // });
+
 
     // drive.setMovement(new DriveForwardMovement(10, 1, 1, 5));
   }
@@ -158,7 +159,9 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     scheduler.clear();
 
-    imu.reset();
+    pneumatics.autoRunCompressor();
+
+    imu.resetYaw();
 
     ArmPD arm = new ArmPD(angler, extender,
         new PDController(85, 50),
@@ -180,13 +183,13 @@ public class Robot extends TimedRobot {
     Interface.updateDashboard(drive, gearShifter, angler, extender, intake, pneumatics, con, joystick);
 
     scheduler.setInterval(() -> {
-      // System.out.println("extender pos: " + extender.getExtension());
+      System.out.println("extender pos: " + extender.getExtension());
 
       // System.out.println("position: " + Round.rd(extender.getExtension()));
       // System.out.println("target: " + arm.extensionTarget);
       // System.out.println("correction: " + arm.extenderCorrect);
 
-      // System.out.println("position: " + Round.rd(angler.getRevs()));
+      System.out.println("angler position: " + Round.rd(angler.getRevs()));
       // System.out.println("target: " + arm.angleTarget);
       // System.out.println("correction: " + arm.angleCorrect);
     }, 0.5);
@@ -207,25 +210,37 @@ public class Robot extends TimedRobot {
           pwrCurveIntensity);
       drive.setPower(powers.left, powers.right);
 
-      // THIS CONTROLS THE ARM EXTENSION
-      switch (joystick.getPOV()) {
-        case 0:
-          arm.incrementExtensionTarget(dTime * 3);
-          break;
-        case 180:
-          arm.incrementExtensionTarget(dTime * -3);
-          break;
+      // // THIS CONTROLS THE ARM EXTENSION
+      // switch (joystick.getPOV()) {
+      //   case 0:
+      //     arm.incrementExtensionTarget(dTime * 3);
+      //     break;
+      //   case 180:
+      //     arm.incrementExtensionTarget(dTime * -3);
+      //     break;
+      // }
+
+      if (ArmCalculator.maxLength(angler.getDegrees()) > extender.getExtension() + 33) {
+        switch (joystick.getPOV()) {
+          case 0:
+            extender.setPower(30);
+            System.out.println("max power");
+            break;
+          case 180:
+            extender.setPower(-20);
+            System.out.println("min power");
+            break;
+          default:
+            // System.out.println("0 power");
+            extender.setPower(0);
+            break;
+        }
+      } else {
+        extender.setPower(-30);
       }
-      switch (joystick.getPOV()) {
-        case 0:
-          extender.setPower(50);
-          break;
-        case 180:
-          extender.setPower(-30);
-          break;
-        default:
-          extender.setPower(0);
-          break;
+
+      if (joystick.getRawButtonPressed(8)) {
+        Settings.armBeingBadMode = !Settings.armBeingBadMode;
       }
 
       angler.setVoltage(joystick.getY() * 5 +
@@ -233,11 +248,11 @@ public class Robot extends TimedRobot {
 
       // intake
       if (joystick.getTrigger())
-        intake.setVoltage(10);
+        intake.setVoltage(5);
       else if (joystick.getRawButton(2))
         intake.setVoltage(-5); // outtake
       else
-        intake.setVoltage(0.1);
+        intake.setVoltage(0);
 
       // pneumatics
       pneumatics.autoRunCompressor();

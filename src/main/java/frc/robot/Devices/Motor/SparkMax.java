@@ -17,6 +17,9 @@ public class SparkMax extends MotorController {
         this.maxspark = new CANSparkMax(canID, MotorType.kBrushless);
         this.encoder = maxspark.getEncoder();
         maxspark.setIdleMode(IdleMode.kCoast);
+
+        // sends a max of ten amps when stalling, 100 amps when not
+        maxspark.setSmartCurrentLimit(10, 100);
     }
 
     public void setBrake(boolean brake) {
