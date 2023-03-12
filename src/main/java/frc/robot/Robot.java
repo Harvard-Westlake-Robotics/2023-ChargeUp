@@ -170,9 +170,10 @@ public class Robot extends TimedRobot {
 
         scheduler.setTimeout(() -> {
           intake.setVoltage(0);
+        }, 2).then(() -> {
 
           double speed = 20; // in/sec
-          double dist = 32 + 36 + 10; // in
+          double dist = 30 + 36 + 10; // in
 
           var stopDriving = scheduler.registerTick((double dTime) -> {
             drive.incrementTarget(dTime * speed);
@@ -196,7 +197,7 @@ public class Robot extends TimedRobot {
                 drive.incrementTarget(Autolevel.autolevel(levelingPD, imu, atCenter.val ? 5 : 15) * dTime);
             });
           }, dist / speed);
-        }, 2);
+        });
         break;
     }
   }

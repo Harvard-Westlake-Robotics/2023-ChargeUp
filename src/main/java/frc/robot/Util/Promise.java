@@ -24,7 +24,11 @@ public class Promise {
                 nextProm.val = then.get();
             });
 
-            this.then
+            this.then(() -> {
+                nextProm.val.then(() -> {
+                    retProm.resolve();
+                });
+            });
 
             return retProm;
         }
