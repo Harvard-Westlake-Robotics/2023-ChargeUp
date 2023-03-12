@@ -48,7 +48,7 @@ public class ArmCalculator {
     /**
      * Gets the voltage required to hold the arm up against gravity at a specified angle, and at a specified extension length.
      * @param angle The angle as the number of revolutions, with directly up being 0.
-     * @param extension The length of the arm extension, presumably as a fraction?
+     * @param extension The length of the arm extension, inches extended from min
      * @return The requisite voltage.
      */
     public static double getAntiGravTorque(double angle, double extension) {

@@ -17,6 +17,7 @@ import frc.robot.Devices.Motor.SparkMax;
 import frc.robot.Drive.*;
 import frc.robot.Drive.Auto.AutonomousDrive;
 import frc.robot.Drive.Auto.DriveSidePD;
+import frc.robot.Drive.Auto.DumbyDrive;
 import frc.robot.Drive.Auto.Shauton;
 import frc.robot.Drive.Components.DriveSide;
 import frc.robot.Drive.Components.GearShifter;
@@ -38,13 +39,12 @@ import frc.robot.Arm.ArmPD;
  * project.
  */
 public class Robot extends TimedRobot {
+  final boolean testing = false;
+
   Scheduler scheduler = new Scheduler();
 
   DriveSide left;
   DriveSide right;
-
-  Shauton leftShauton ;
-  Shauton rightShauton ;
 
   GearShifter gearShifter;
 
@@ -76,18 +76,15 @@ public class Robot extends TimedRobot {
       var leftFront = new Falcon(5, true);
       var leftBack = new Falcon(3, true);
       var leftTop = new Falcon(4, false);
-      var encoderLeft = new Encoder(0, 1, true);
+      var encoderLeft = new Encoder(0, 1, false);
 
       var rightFront = new Falcon(2, false);
       var rightBack = new Falcon(0, false);
       var rightTop = new Falcon(1, true);
-      var encoderRight = new Encoder(2, 3, false);
+      var encoderRight = new Encoder(2, 3, true);
 
-      this.left = new DriveSide(leftFront, leftBack, leftTop, null, encoderLeft);
-      this.right = new DriveSide(rightFront, rightBack, rightTop, null, encoderRight);
-
-      this.leftShauton = new Shauton(left, 1);
-      this.rightShauton = new Shauton(right, 1);
+      this.left = new DriveSide(leftFront, leftBack, leftTop, encoderLeft);
+      this.right = new DriveSide(rightFront, rightBack, rightTop, encoderRight);
 
       this.pneumatics = new PneumaticsSystem(110, 120, 19);
       this.gearShifter = new GearShifter(2, 0, 19);
@@ -113,54 +110,95 @@ public class Robot extends TimedRobot {
       this.imu = new Imu(18);
 
       Interface.updateDashboard(drive, gearShifter, angler, extender, intake, pneumatics, con, joystick);
-
     }
   }
 
   @Override
   public void autonomousInit() {
-    // scheduler.clear();
-    // // AutonomousDrive drive;
-    // // { // Initializes `drive`
-    // final var HIGHGEARCONTROLLER = new PDController(2, 0);
-    // final var LOWGEARCONTROLLER = new PDController(3, 0);
+    scheduler.clear();
 
-    // DriveSidePD leftPD = new DriveSidePD(left, LOWGEARCONTROLLER.clone(), HIGHGEARCONTROLLER.clone());
-    // DriveSidePD rightPD = new DriveSidePD(right, LOWGEARCONTROLLER.clone(), HIGHGEARCONTROLLER.clone());
+    pneumatics.autoRunCompressor();
 
-    // leftPD.reset();
-    // rightPD.reset();
+    angler.zero();
+    extender.reset();
 
-    // // drive = new AutonomousDrive(leftPD, rightPD, gearShifter);
+    gearShifter.setLowGear();
 
-    // gearShifter.setLowGear();
-    // // }
+    limeLight.setDriverMode();
 
-    drive.resetEncoders();
-    leftShauton.addTarget(30) ;
-    rightShauton.addTarget(30) ;
+    scheduler.registerTick((double dTime) -> {
+      angler.setVoltage(ArmCalculator.getAntiGravTorque(angler.getRevs(), extender.getExtension()) - 0.3);
+    });
 
-    scheduler.setInterval(() -> {
-      // // System.out.println(drive + "\n\n");
-      // System.out.println("left: " + leftPD);
-      // System.out.println("right: " + rightPD);
-      leftShauton.driveArray();
-      rightShauton.driveArray();
-      System.out.println("l" + left.getPositionInches() + " r" + right.getPositionInches());
-    }, 0.2);
+    int autoNum = 2;
 
-    // limeLight.setDriverMode();
+    switch (autoNum) {
+      case 0:
+        left.setPower(10);
+        right.setPower(10);
 
-    // scheduler.registerTick((double dTime) -> {
-    //   leftPD.setPercentVoltage(leftPD.getCorrection(true));
-    //   rightPD.setPercentVoltage(rightPD.getCorrection(true));
+        scheduler.setTimeout(() -> {
+          left.setPower(0);
+          right.setPower(0);
+        }, 0.7);
+        break;
+      case 1:
+        intake.setVoltage(-10);
 
-    //   // leftPD.incrementTarget(dTime * 5);
-    //   // rightPD.incrementTarget(dTime * 5);
-    // });
+        scheduler.setTimeout(() -> {
+          intake.setVoltage(0);
+        }, 3);
 
+        break;
+      case 2:
+        left.resetEncoder();
+        right.resetEncoder();
 
-    // drive.setMovement(new DriveForwardMovement(10, 1, 1, 5));
+        var drive = new DumbyDrive(left, right, new PDController(20, 20));
+
+        scheduler.setInterval(() -> {
+          System.out.println("left: " + left.getPositionInches());
+          System.out.println("right: " + right.getPositionInches());
+          System.out.println("imu: " + imu.getPitch());
+        }, 0.3);
+
+        // lets the drive pdcontroller run every tick
+        scheduler.registerTick(drive);
+
+        // outtakes cubes
+        intake.setVoltage(-10);
+
+        scheduler.setTimeout(() -> {
+          intake.setVoltage(0);
+
+          double speed = 20; // in/sec
+          double dist = 32 + 36 + 10; // in
+
+          var stopDriving = scheduler.registerTick((double dTime) -> {
+            drive.incrementTarget(dTime * speed);
+          });
+
+          scheduler.setTimeout(() -> {
+            stopDriving.run();
+
+            var atCenter = new Container<Boolean>(false);
+
+            var balTime = new Container<Double>(0.0);
+
+            var levelingPD = new DSAController(0.6, 7, 20).withMagnitude(0.7);
+
+            scheduler.registerTick((double dTime) -> {
+              if (Math.abs(imu.getPitch()) < 2.5) {
+                atCenter.val = true;
+                balTime.val += dTime;
+              }
+              if (balTime.val < 3 || Math.abs(imu.getPitch()) > 2)
+                drive.incrementTarget(Autolevel.autolevel(levelingPD, imu, atCenter.val ? 5 : 15) * dTime);
+            });
+          }, dist / speed);
+        }, 2);
+        break;
+    }
   }
 
   /** This function is called periodically during autonomous. */
@@ -177,17 +215,14 @@ public class Robot extends TimedRobot {
 
     imu.resetYaw();
 
-    ArmPD arm = new ArmPD(angler, extender,
-        new PDController(85, 50),
-        new PDController(20, 0, 20));
-
     drive.resetEncoders();
 
     angler.setBrake(true);
-    angler.zero();
-    extender.reset();
 
-    arm.resetController();
+    if (testing) {
+      angler.zero();
+      extender.reset();
+    }
 
     // registerTick calls the tick function on an object every tick to run until the
     // robot is disabled
@@ -226,15 +261,15 @@ public class Robot extends TimedRobot {
 
       // // THIS CONTROLS THE ARM EXTENSION
       // switch (joystick.getPOV()) {
-      //   case 0:
-      //     arm.incrementExtensionTarget(dTime * 3);
-      //     break;
-      //   case 180:
-      //     arm.incrementExtensionTarget(dTime * -3);
-      //     break;
+      // case 0:
+      // arm.incrementExtensionTarget(dTime * 3);
+      // break;
+      // case 180:
+      // arm.incrementExtensionTarget(dTime * -3);
+      // break;
       // }
 
-      if (ArmCalculator.maxLength(angler.getDegrees()) > extender.getExtension() + 33) {
+      if (ArmCalculator.maxLength(angler.getDegrees()) - 4 > extender.getExtension() + 33) {
         switch (joystick.getPOV()) {
           case 0:
             extender.setPower(30);
@@ -256,9 +291,14 @@ public class Robot extends TimedRobot {
       if (joystick.getRawButtonPressed(8)) {
         Settings.armBeingBadMode = !Settings.armBeingBadMode;
       }
-
-      angler.setVoltage(joystick.getY() * 5 +
-          ArmCalculator.getAntiGravTorque(angler.getRevs(), extender.getExtension()));
+      if (false) {
+        // if (Math.abs(angler.getDegrees()) > 100) {
+        angler.setVoltage(((angler.getDegrees() > 0) ? -3 : 3) +
+            ArmCalculator.getAntiGravTorque(angler.getRevs(), extender.getExtension()));
+      } else {
+        angler.setVoltage(joystick.getY() * 5 +
+            ArmCalculator.getAntiGravTorque(angler.getRevs(), extender.getExtension()));
+      }
 
       // intake
       if (joystick.getTrigger())
@@ -266,10 +306,7 @@ public class Robot extends TimedRobot {
       else if (joystick.getRawButton(2))
         intake.setVoltage(-5); // outtake
       else
-        intake.setVoltage(0.1);
-
-      // pneumatics
-      pneumatics.autoRunCompressor();
+        intake.setVoltage(0);
 
       if (con.getR2ButtonPressed()) {
         gearShifter.toggle();
@@ -288,7 +325,7 @@ public class Robot extends TimedRobot {
   public void disabledInit() {
     scheduler.clear();
 
-    // angler.setBrake(false);
+    angler.setBrake(true);
   }
 
   @Override

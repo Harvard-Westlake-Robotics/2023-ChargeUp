@@ -19,15 +19,13 @@ public class Intake {
         right.setCurrentLimit(20, 100);
     }
 
-    public void setVoltage (double voltage)
-    {
+    public void setVoltage(double voltage) {
         left.setVoltage(voltage);
         right.setVoltage(voltage);
         this.voltage = voltage;
     }
 
-    public double getVoltage()
-    {
+    public double getVoltage() {
         return voltage;
     }
 }

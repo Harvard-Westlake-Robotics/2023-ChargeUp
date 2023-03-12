@@ -13,7 +13,7 @@ public class DriveSide {
     double revsAtLastShift = 0;
     double inchesAtLastShift = 0;
 
-    public DriveSide(MotorController one, MotorController two, MotorController three, GearShifter shifter, Encoder encoder) {
+    public DriveSide(MotorController one, MotorController two, MotorController three, Encoder encoder) {
         this.one = one;
         this.two = two;
         this.three = three;
@@ -32,7 +32,7 @@ public class DriveSide {
 
     public void setPower(double percentage) {
         if (Math.abs(percentage) > 100.0)
-            throw new Error("power too high: " + percentage);
+            percentage = percentage > 0 ? 100 : -100;
         double voltage = percentage * (12.0 / 100.0);
         for (MotorController motor : new MotorController[] { one, two, three }) {
             motor.setVoltage(voltage);

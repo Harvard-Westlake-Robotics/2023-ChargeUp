@@ -33,12 +33,11 @@ public class ArmAngler {
         if (Settings.armBeingBadMode) {
             return 0;
         }
-        return encoder.getRevs();
+        return encoder.getRevs() - 0.025;
     }
 
-    public double getDegrees()
-    {
-        return getRevs() * 360;
+    public double getDegrees() {
+        return getRevs() * 360.0;
     }
 
     public void zero() {

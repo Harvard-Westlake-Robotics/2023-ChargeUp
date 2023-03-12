@@ -1,20 +1,23 @@
 package frc.robot.Util;
 
-public class PDController {
+public class DSAController {
     double P_CONSTANT;
     double D_CONSTANT;
+    double DD_CONSTANT;
     double deadzone;
 
     double lastError = 0;
+    double lastLastError = 0;
 
-    public PDController(double p_CONSTANT, double d_CONSTANT, double deadzone) {
+    public DSAController(double p_CONSTANT, double d_CONSTANT, double dd_CONSTANT, double deadzone) {
         P_CONSTANT = p_CONSTANT;
         D_CONSTANT = d_CONSTANT;
+        DD_CONSTANT = dd_CONSTANT;
         this.deadzone = deadzone;
     }
 
-    public PDController(double p_CONSTANT, double d_CONSTANT) {
-        this(p_CONSTANT, d_CONSTANT, 0);
+    public DSAController(double p_CONSTANT, double d_CONSTANT, double dd_CONSTANT) {
+        this(p_CONSTANT, d_CONSTANT, dd_CONSTANT, 0);
     }
 
     /**
@@ -31,10 +34,12 @@ public class PDController {
         }
 
         double d_correct = D_CONSTANT * (currentError - lastError);
+        double dd_correct = DD_CONSTANT * ((lastError - lastLastError) - (currentError - lastError));
 
+        lastLastError = lastError;
         lastError = currentError;
 
-        return p_correct + d_correct;
+        return p_correct + d_correct + dd_correct;
     }
 
     /**
@@ -43,15 +48,15 @@ public class PDController {
      * @param fac
      * @return
      */
-    public PDController withMagnitude(double fac) {
-        return new PDController(P_CONSTANT * fac, D_CONSTANT * fac, deadzone);
+    public DSAController withMagnitude(double fac) {
+        return new DSAController(P_CONSTANT * fac, D_CONSTANT * fac, DD_CONSTANT * fac, deadzone);
     }
 
     public void reset() {
         lastError = 0;
     }
 
-    public PDController clone() {
-        return new PDController(P_CONSTANT, D_CONSTANT);
+    public DSAController clone() {
+        return new DSAController(P_CONSTANT, D_CONSTANT, DD_CONSTANT, deadzone);
     }
 }
