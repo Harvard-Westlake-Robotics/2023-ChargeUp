@@ -130,7 +130,7 @@ public class Robot extends TimedRobot {
       angler.setVoltage(ArmCalculator.getAntiGravTorque(angler.getRevs(), extender.getExtension()) - 0.3);
     });
 
-    int autoNum = 2;
+    int autoNum = 1;
 
     switch (autoNum) {
       case 0:
@@ -291,9 +291,8 @@ public class Robot extends TimedRobot {
       if (joystick.getRawButtonPressed(8)) {
         Settings.armBeingBadMode = !Settings.armBeingBadMode;
       }
-      if (false) {
-        // if (Math.abs(angler.getDegrees()) > 100) {
-        angler.setVoltage(((angler.getDegrees() > 0) ? -3 : 3) +
+      if (Math.abs(angler.getDegrees()) > 115 && joystick.getRawButton(3)) {
+        angler.setVoltage(((angler.getDegrees() > 0) ? -1.5 : 1.5) +
             ArmCalculator.getAntiGravTorque(angler.getRevs(), extender.getExtension()));
       } else {
         angler.setVoltage(joystick.getY() * 5 +
@@ -301,7 +300,7 @@ public class Robot extends TimedRobot {
       }
 
       // intake
-      if (joystick.getTrigger())
+      if (joystick.getTrigger() || con.getR1Button())
         intake.setVoltage(5);
       else if (joystick.getRawButton(2))
         intake.setVoltage(-5); // outtake

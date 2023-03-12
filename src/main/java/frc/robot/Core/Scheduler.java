@@ -3,7 +3,6 @@ package frc.robot.Core;
 import java.util.Arrays;
 
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.Core.Util.Recursive;
 import frc.robot.Util.*;
 
 /**
@@ -49,14 +48,14 @@ public class Scheduler {
      */
     public Lambda setInterval(Lambda callBack, double delay) {
         var item = new ScheduleItem(null, delay + Timer.getFPGATimestamp());
-        Recursive<Lambda> interval = new Recursive<>();
-        interval.func = () -> {
+        Container<Lambda> interval = new Container<Lambda>(null);
+        interval.val = () -> {
             callBack.run();
             item.executeTime = Timer.getFPGATimestamp() + delay;
         };
-        interval.func.run();
+        interval.val.run();
 
-        item.executable = interval.func;
+        item.executable = interval.val;
 
         // appends the new item to the schedule
         items = Arrays.copyOf(items, items.length + 1);
@@ -75,14 +74,20 @@ public class Scheduler {
      * @param delay    how long the timeout will be before the function is called
      * @return a function to cancel the calling of the function
      */
-    public Lambda setTimeout(Lambda callBack, double delay) {
+    public CancelablePromise setTimeout(Lambda callBack, double delay) {
+
+        Container<CancelablePromise> prom = new Container<CancelablePromise>(null);
+
         items = Arrays.copyOf(items, items.length + 1);
-        var item = new ScheduleItem(callBack, delay + Timer.getFPGATimestamp());
-        items[items.length - 1] = item;
-        return () -> {
+        var item = new ScheduleItem(() -> {callBack.run() ; prom.val.resolve();}, delay + Timer.getFPGATimestamp());
+
+        prom.val = new CancelablePromise(() -> {
             item.executable = () -> {
             };
-        };
+        });
+
+        items[items.length - 1] = item;
+        return prom.val;
     }
 
     public void tick() {
