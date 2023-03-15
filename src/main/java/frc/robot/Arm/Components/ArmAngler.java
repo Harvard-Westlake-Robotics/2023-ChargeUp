@@ -14,9 +14,6 @@ public class ArmAngler {
         this.arm1 = arm1;
         this.arm2 = arm2;
         this.encoder = armEncoder;
-
-        arm1.setBrake(false);
-        arm2.setBrake(false);
     }
 
     public void setBrake(boolean brake) {

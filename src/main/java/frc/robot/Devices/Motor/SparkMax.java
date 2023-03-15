@@ -28,9 +28,7 @@ public class SparkMax extends MotorController {
     }
 
     public SparkMax(int canID, boolean isReversed, boolean brakeMode) {
-        super(isReversed);
-        this.maxspark = new CANSparkMax(canID, MotorType.kBrushless);
-        this.encoder = maxspark.getEncoder();
+        this(canID, isReversed);
         if (brakeMode)
             maxspark.setIdleMode(IdleMode.kBrake);
         else
