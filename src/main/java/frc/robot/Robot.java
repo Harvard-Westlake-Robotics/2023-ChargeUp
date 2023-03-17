@@ -234,16 +234,7 @@ public class Robot extends TimedRobot {
     Container<Boolean> angling = new Container<Boolean>(false);
 
     scheduler.setInterval(() -> {
-
-      // System.out.println("extender pos: " + extender.getExtension());
-
-      // System.out.println("position: " + Round.rd(extender.getExtension()));
-      // System.out.println("target: " + arm.extensionTarget);
-      // System.out.println("correction: " + arm.extenderCorrect);
-
-      // System.out.println("angler position: " + Round.rd(angler.getRevs()));
-      // System.out.println("target: " + arm.angleTarget);
-      // System.out.println("correction: " + arm.angleCorrect);
+      System.out.println("angler position: " + Round.rd(angler.getDegrees()));
     }, 0.2);
 
     scheduler.setInterval(() -> {
@@ -251,8 +242,8 @@ public class Robot extends TimedRobot {
       var ltemps = left.getTemps();
       var rtemps = right.getTemps();
 
-      System.out.println("left temps - front: " + ltemps[0] + " back - " + ltemps[1] + " top: " + ltemps[2]);
-      System.out.println("right temps - front: " + rtemps[0] + " back - " + rtemps[1] + " top: " + rtemps[2]);
+      System.out.println("left temps - front: " + ltemps[0] + " back: " + ltemps[1] + " top: " + ltemps[2]);
+      System.out.println("right temps - front: " + rtemps[0] + " back: " + rtemps[1] + " top: " + rtemps[2]);
     }, 5);
 
     drive.resetEncoders();
@@ -322,14 +313,15 @@ public class Robot extends TimedRobot {
           double absError = Math.abs(error);
 
           double antiGravTorque = ArmCalculator.getAntiGravTorque(angler.getRevs(), extender.getExtension());
-
-          if (absError > 3) {
+          if (absError > 45) {
+            angler.setVoltage((fac * 5.0) + antiGravTorque);
+          } else if (absError > 5) {
             angler.setVoltage((fac * 1.5) + antiGravTorque);
-          } else if (absError > 45) {
-            angler.setVoltage((fac * 8.0) + antiGravTorque);
           } else {
             angling.val = false;
-            stopContainer.val.run();
+            scheduler.setTimeout(() -> {
+              stopContainer.val.run();
+            }, i_dTime);
           }
         });
 
@@ -343,11 +335,25 @@ public class Robot extends TimedRobot {
 
       // arm pos presets if not already angling
       if (!angling.val) {
-        if (con.getL1ButtonPressed()) {
+
+        if (Math.abs(joystick.getPOV()) == 90.0) {
           moveToAngle.map(0.0);
         }
-        if (joystick.getRawButtonPressed(3)) {
-          moveToAngle.map(0.0);
+
+        if (joystick.getRawButtonPressed(5)) {
+          moveToAngle.map(45.0);
+        }
+        if (joystick.getRawButtonPressed(3) || con.getL1ButtonPressed()) {
+          moveToAngle.map(-45.0);
+        }
+
+        if (extender.getExtension() < 10) {
+          if (joystick.getRawButtonPressed(6)) {
+            moveToAngle.map(120.0);
+          }
+          if (joystick.getRawButtonPressed(4) || con.getL2ButtonPressed()) {
+            moveToAngle.map(-118.0);
+          }
         }
       }
     });
