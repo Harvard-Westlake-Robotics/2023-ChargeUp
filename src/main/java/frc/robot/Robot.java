@@ -73,14 +73,14 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     { // Drive initalization
-      var leftFront = new SparkMax(5, true);
-      var leftBack = new SparkMax(3, true);
-      var leftTop = new SparkMax(4, false);
+      var leftFront = new SparkMax(5, true, false);
+      var leftBack = new SparkMax(3, true, false);
+      var leftTop = new SparkMax(4, false, false);
       var encoderLeft = new Encoder(0, 1, false);
 
-      var rightFront = new SparkMax(2, false);
-      var rightBack = new SparkMax(10, false);
-      var rightTop = new SparkMax(1, true);
+      var rightFront = new SparkMax(2, false, false);
+      var rightBack = new SparkMax(12, false, false);
+      var rightTop = new SparkMax(1, true, false);
       var encoderRight = new Encoder(2, 3, true);
 
       this.left = new DriveSide(leftFront, leftBack, leftTop, encoderLeft);

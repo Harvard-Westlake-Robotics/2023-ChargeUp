@@ -23,6 +23,10 @@ public class Imu {
     public double getPitch() {
         return imu.getPitch();
     }
+    
+    public double getRoll() {
+        return imu.getRoll();
+    }
 
     public void resetYaw() {
         imu.setYaw(0);

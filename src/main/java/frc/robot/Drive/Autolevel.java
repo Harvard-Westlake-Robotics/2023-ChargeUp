@@ -6,6 +6,6 @@ import frc.robot.Util.DSAController;
 
 public class Autolevel {
     public static double autolevel(DSAController levelingController, Imu imu, double max) {
-        return MathUtil.clamp(levelingController.solve(0 - imu.getPitch()), -max, max);
+        return MathUtil.clamp(levelingController.solve(0 - imu.getRoll()), -max, max);
     }
 }
