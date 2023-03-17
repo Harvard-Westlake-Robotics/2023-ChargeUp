@@ -7,6 +7,7 @@ public class ArmCalculator {
     private static double LENGTH_LIMIT = ArmConstants.LENGTH_LIMIT;
 
     // return max rotation given length
+    @Deprecated
     public static double maxRotation(double length) {
         double a = Math.cos(LENGTH_LIMIT / length); // rad
         return Math.toDegrees(a);
@@ -22,6 +23,7 @@ public class ArmCalculator {
 
     // returns modified arm angle based on sin curves (graph it on desmos and you
     // will see)
+    @Deprecated
     public static double armAngleCurve(double angle, double joystickPos) {
         if (angle >= 0 && angle <= 90)
             return (6 * Math.sin(2 * angle - 90) + 6) * joystickPos;
@@ -34,12 +36,14 @@ public class ArmCalculator {
     }
 
     // return x-distance given length and rotation
+    @Deprecated
     public static double xDistance(double length, double angle) {
         double a = Math.toRadians(angle);
         return length * Math.sin(a);
     }
 
     // return y-distance given length and rotation
+    @Deprecated
     public static double yDistance(double length, double angle) {
         double a = Math.toRadians(angle);
         return length * Math.cos(a);
@@ -52,11 +56,18 @@ public class ArmCalculator {
      * @return The requisite voltage.
      */
     public static double getAntiGravTorque(double angle, double extension) {
-        final double fac = 0.40 + (extension * 0.03);
+        final double fac = 0.40 + (extension * 0.035);
 
         double radians = angle * 2 * Math.PI;
         double centerMassXOffset = Math.sin(radians);
 
         return -centerMassXOffset * fac;
+    }
+
+    /**
+     * Returns a factor to scale a voltage intended for 0 extension by for a given extension
+     */
+    public static final double getVoltFac(double extension) {
+        return getAntiGravTorque(0.25, extension) / getAntiGravTorque(0.25, 0);
     }
 }

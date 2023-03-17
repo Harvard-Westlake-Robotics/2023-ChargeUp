@@ -70,4 +70,8 @@ public class Falcon extends MotorController {
     public void resetEncoder() {
         falcon.setSelectedSensorPosition(0);
     }
+
+    public double getTemp() {
+        return falcon.getTemperature();
+    }
 }

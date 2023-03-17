@@ -44,13 +44,18 @@ public abstract class MotorController {
         uSetVoltage(isReversed ? -volts : volts);
     }
 
+    public void setVoltageSafe(double volts) {
+        if (Math.abs(volts) > 12.0)
+            volts = volts > 0 ? 12 : -12;
+        setVoltage(volts);
+    }
+
     public void setPercentVoltage(double percent) {
-        if (percent != 0) 
-            System.out.println("actual volts" + percent * (12.0/100.0));
         setVoltage(percent * (12.0 / 100.0));
     }
 
-    public void tick(double dTime) {
-
-    }
+    /**
+     * Gets motor temp in Celcius
+     */
+    public abstract double getTemp();
 }

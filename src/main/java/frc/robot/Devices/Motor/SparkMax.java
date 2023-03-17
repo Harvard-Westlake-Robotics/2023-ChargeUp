@@ -11,6 +11,12 @@ public class SparkMax extends MotorController {
     private CANSparkMax maxspark;
     private RelativeEncoder encoder;
 
+    boolean braking;
+
+    public boolean isBraking() {
+        return braking;
+    }
+
     public SparkMax(int canID, boolean isReversed) {
         super(isReversed);
 
@@ -19,12 +25,15 @@ public class SparkMax extends MotorController {
         this.encoder = maxspark.getEncoder();
         maxspark.setIdleMode(IdleMode.kCoast);
 
+        braking = false;
+
         // sends a max of ten amps when stalling, 100 amps when not
         maxspark.setSmartCurrentLimit(40, 100);
     }
 
     public void setBrake(boolean brake) {
         maxspark.setIdleMode((brake) ? IdleMode.kBrake : IdleMode.kCoast);
+        braking = brake;
     }
 
     public SparkMax(int canID, boolean isReversed, boolean brakeMode) {
@@ -33,6 +42,7 @@ public class SparkMax extends MotorController {
             maxspark.setIdleMode(IdleMode.kBrake);
         else
             maxspark.setIdleMode(IdleMode.kCoast);
+        braking = brakeMode;
     }
 
     protected void uSetVoltage(double volts) {
@@ -54,5 +64,9 @@ public class SparkMax extends MotorController {
 
     public void resetEncoder() {
         encoder.setPosition(0);
+    }
+
+    public double getTemp() {
+        return maxspark.getMotorTemperature();
     }
 }

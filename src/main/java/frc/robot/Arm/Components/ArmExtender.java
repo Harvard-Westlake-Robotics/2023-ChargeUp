@@ -2,6 +2,7 @@ package frc.robot.Arm.Components;
 
 import frc.robot.Settings;
 import frc.robot.Devices.MotorController;
+import frc.robot.Devices.Motor.SparkMax;
 
 // this is the subsystem
 public class ArmExtender {
@@ -16,9 +17,12 @@ public class ArmExtender {
     private MotorController extender1;
     private MotorController extender2;
 
-    public ArmExtender(MotorController extender1, MotorController extender2) {
+    public ArmExtender(SparkMax extender1, SparkMax extender2) {
         this.extender1 = extender1;
         this.extender2 = extender2;
+
+        extender1.setCurrentLimit(140, 140);
+        extender2.setCurrentLimit(140, 140);
     }
 
     private void setPV(double pv) {
@@ -27,8 +31,6 @@ public class ArmExtender {
     }
 
     public void setPower(double percent) {
-       
-        //System.out.println(percent);
         setPV(percent);
     }
 

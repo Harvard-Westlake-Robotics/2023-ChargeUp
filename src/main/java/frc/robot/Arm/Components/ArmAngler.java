@@ -22,8 +22,8 @@ public class ArmAngler {
     }
 
     public void setVoltage(double voltage) {
-        arm1.setVoltage(voltage);
-        arm2.setVoltage(voltage);
+        arm1.setVoltageSafe(voltage);
+        arm2.setVoltageSafe(voltage);
     }
 
     public double getRevs() {

@@ -39,7 +39,6 @@ import frc.robot.Arm.ArmPD;
  * project.
  */
 public class Robot extends TimedRobot {
-  final boolean testing = false;
 
   Scheduler scheduler = new Scheduler();
 
@@ -130,7 +129,7 @@ public class Robot extends TimedRobot {
       angler.setVoltage(ArmCalculator.getAntiGravTorque(angler.getRevs(), extender.getExtension()) - 0.3);
     });
 
-    int autoNum = 1;
+    int autoNum = 2;
 
     switch (autoNum) {
       case 0:
@@ -220,7 +219,7 @@ public class Robot extends TimedRobot {
 
     angler.setBrake(true);
 
-    if (testing) {
+    if (Settings.testing) {
       angler.zero();
       extender.reset();
     }
@@ -232,17 +231,29 @@ public class Robot extends TimedRobot {
 
     Interface.updateDashboard(drive, gearShifter, angler, extender, intake, pneumatics, con, joystick);
 
+    Container<Boolean> angling = new Container<Boolean>(false);
+
     scheduler.setInterval(() -> {
-      System.out.println("extender pos: " + extender.getExtension());
+
+      // System.out.println("extender pos: " + extender.getExtension());
 
       // System.out.println("position: " + Round.rd(extender.getExtension()));
       // System.out.println("target: " + arm.extensionTarget);
       // System.out.println("correction: " + arm.extenderCorrect);
 
-      System.out.println("angler position: " + Round.rd(angler.getRevs()));
+      // System.out.println("angler position: " + Round.rd(angler.getRevs()));
       // System.out.println("target: " + arm.angleTarget);
       // System.out.println("correction: " + arm.angleCorrect);
-    }, 0.5);
+    }, 0.2);
+
+    scheduler.setInterval(() -> {
+
+      var ltemps = left.getTemps();
+      var rtemps = right.getTemps();
+
+      System.out.println("left temps - front: " + ltemps[0] + " back - " + ltemps[1] + " top: " + ltemps[2]);
+      System.out.println("right temps - front: " + rtemps[0] + " back - " + rtemps[1] + " top: " + rtemps[2]);
+    }, 5);
 
     drive.resetEncoders();
 
@@ -260,28 +271,16 @@ public class Robot extends TimedRobot {
           pwrCurveIntensity);
       drive.setPower(powers.left, powers.right);
 
-      // // THIS CONTROLS THE ARM EXTENSION
-      // switch (joystick.getPOV()) {
-      // case 0:
-      // arm.incrementExtensionTarget(dTime * 3);
-      // break;
-      // case 180:
-      // arm.incrementExtensionTarget(dTime * -3);
-      // break;
-      // }
-
+      // extender if within bounds
       if (ArmCalculator.maxLength(angler.getDegrees()) - 4 > extender.getExtension() + 33) {
         switch (joystick.getPOV()) {
           case 0:
             extender.setPower(30);
-            System.out.println("max power");
             break;
           case 180:
             extender.setPower(-20);
-            System.out.println("min power");
             break;
           default:
-            // System.out.println("0 power");
             extender.setPower(0);
             break;
         }
@@ -289,17 +288,14 @@ public class Robot extends TimedRobot {
         extender.setPower(-30);
       }
 
+      // turns off any sensors that influence driving
       if (joystick.getRawButtonPressed(8)) {
         Settings.armBeingBadMode = !Settings.armBeingBadMode;
       }
-      if (Math.abs(angler.getDegrees()) > 115 && joystick.getRawButton(3)) {
-        angler.setVoltage(((angler.getDegrees() > 0) ? -1.5 : 1.5) +
-            ArmCalculator.getAntiGravTorque(angler.getRevs(), extender.getExtension()));
-      } else {
+      if (!angling.val) { // angler if within bounds
         angler.setVoltage(joystick.getY() * 5 +
             ArmCalculator.getAntiGravTorque(angler.getRevs(), extender.getExtension()));
       }
-
       // intake
       if (joystick.getTrigger() || con.getR1Button())
         intake.setVoltage(5);
@@ -308,8 +304,51 @@ public class Robot extends TimedRobot {
       else
         intake.setVoltage(0);
 
+      // gearshifting (brakes when shifted)
       if (con.getR2ButtonPressed()) {
         gearShifter.toggle();
+        left.setBrake(!left.isMotorBraking());
+        right.setBrake(!right.isMotorBraking());
+      }
+
+      // an inline function to move the angler to a certain angle
+      Mapper<Double, Void> moveToAngle = (Double targetAngle) -> {
+        angling.val = true;
+
+        Container<Lambda> stopContainer = new Container<Lambda>(null);
+        stopContainer.val = scheduler.registerTick((double i_dTime) -> {
+          double error = targetAngle - angler.getDegrees();
+          double fac = ((error > 0) ? 1 : -1) * ArmCalculator.getVoltFac(extender.getExtension());
+          double absError = Math.abs(error);
+
+          double antiGravTorque = ArmCalculator.getAntiGravTorque(angler.getRevs(), extender.getExtension());
+
+          if (absError > 3) {
+            angler.setVoltage((fac * 1.5) + antiGravTorque);
+          } else if (absError > 45) {
+            angler.setVoltage((fac * 8.0) + antiGravTorque);
+          } else {
+            angling.val = false;
+            stopContainer.val.run();
+          }
+        });
+
+        scheduler.setTimeout(() -> {
+          angling.val = false;
+          stopContainer.val.run();
+        }, 2);
+
+        return null;
+      };
+
+      // arm pos presets if not already angling
+      if (!angling.val) {
+        if (con.getL1ButtonPressed()) {
+          moveToAngle.map(0.0);
+        }
+        if (joystick.getRawButtonPressed(3)) {
+          moveToAngle.map(0.0);
+        }
       }
     });
   }
