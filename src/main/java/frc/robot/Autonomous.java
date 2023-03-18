@@ -90,8 +90,12 @@ public class Autonomous {
             intake.setVoltage(0);
         }, 3);
     }
-
+    
     public void scoreLowAndPlatform() {
+        scoreLowAndPlatform(true);
+    }
+
+    public void scoreLowAndPlatform(boolean shouldScore) {
 
         scheduler.registerTick((double dTime) -> {
             angler.setVoltage(ArmCalculator.getAntiGravTorque(angler.getRevs(), extender.getExtension()) - 0.3);
@@ -111,7 +115,7 @@ public class Autonomous {
         // outtakes cubes
         intake.setVoltage(-10);
 
-        scheduler.timeout(2).then(() -> {
+        scheduler.timeout((shouldScore) ? 2 : 0).then(() -> {
 
             intake.setVoltage(0);
 
@@ -178,6 +182,8 @@ public class Autonomous {
                     return Promise.all(
                             MoveArm.moveToAngle(0, angler, extender, scheduler),
                             MoveArm.extendToPos(2, extender, scheduler));
+                }).then(() -> {
+                    scoreLowAndPlatform(false);
                 });
     }
 }

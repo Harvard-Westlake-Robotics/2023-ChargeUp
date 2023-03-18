@@ -128,7 +128,8 @@ public class Robot extends TimedRobot {
 
     limeLight.setDriverMode();
 
-    var auto = new Autonomous(scheduler, left, right, gearShifter, angler, extender, intake, pneumatics, limeLight, imu);
+    var auto = new Autonomous(scheduler, left, right, gearShifter, angler, extender, intake, pneumatics, limeLight,
+        imu);
 
     auto.scoreHighAndPlatform();
   }
@@ -166,7 +167,7 @@ public class Robot extends TimedRobot {
     Container<Boolean> angling = new Container<Boolean>(false);
 
     scheduler.setInterval(() -> {
-      System.out.println("angler position: " + Round.rd(angler.getDegrees()));
+      // logs
     }, 0.2);
 
     scheduler.setInterval(() -> {
@@ -221,7 +222,7 @@ public class Robot extends TimedRobot {
       }
       // intake
       if (joystick.getTrigger() || con.getR1Button())
-        intake.setVoltage(5);
+        intake.setVoltage(8);
       else if (joystick.getRawButton(2))
         intake.setVoltage(-5); // outtake
       else
