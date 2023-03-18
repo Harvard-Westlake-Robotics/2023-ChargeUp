@@ -23,6 +23,12 @@ public class DriveSide {
         resetEncoder();
     }
 
+    public void setCurrentLimit(int stall, int free) {
+        for (SparkMax motor : new SparkMax[] { front, back, top }) {
+            motor.setCurrentLimit(stall, free);
+        }
+    }
+
     public double getPositionInches() {
         return encoder.getRevs() * (6 * Math.PI);
     }

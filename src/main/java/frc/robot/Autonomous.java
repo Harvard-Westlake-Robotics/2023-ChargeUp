@@ -90,7 +90,7 @@ public class Autonomous {
             intake.setVoltage(0);
         }, 3);
     }
-    
+
     public void scoreLowAndPlatform() {
         scoreLowAndPlatform(true);
     }

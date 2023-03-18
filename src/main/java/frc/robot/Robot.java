@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.PS4Controller;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Joystick;
 import frc.robot.DriverStation.Interface;
 import frc.robot.DriverStation.LimeLight;
@@ -128,6 +129,9 @@ public class Robot extends TimedRobot {
 
     limeLight.setDriverMode();
 
+    left.setCurrentLimit(70, 200);
+    right.setCurrentLimit(70, 200);
+
     var auto = new Autonomous(scheduler, left, right, gearShifter, angler, extender, intake, pneumatics, limeLight,
         imu);
 
@@ -142,6 +146,37 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    RobotController.getBrownoutVoltage();
+
+    left.setCurrentLimit(70, 100);
+    right.setCurrentLimit(70, 100);
+
+    { // prevent brownout
+      Container<Double> brownedOutTime = new Container<Double>(0.0);
+      Container<Double> notBrownedOutTime = new Container<Double>(0.0);
+
+      scheduler.registerTick((double dTime) -> {
+        if (RobotController.isBrownedOut()) {
+          brownedOutTime.val += dTime;
+        } else {
+          notBrownedOutTime.val += dTime;
+        }
+
+        notBrownedOutTime.val /= 1 + dTime;
+        brownedOutTime.val /= 1 + dTime;
+      });
+
+      scheduler.setInterval(() -> {
+        if (brownedOutTime.val * 20 > notBrownedOutTime.val) {
+          left.setCurrentLimit(60, 90);
+          right.setCurrentLimit(60, 90);
+        } else {
+          left.setCurrentLimit(70, 130);
+          right.setCurrentLimit(70, 130);
+        }
+      }, 1);
+    }
+
     scheduler.clear();
 
     pneumatics.autoRunCompressor();
@@ -196,21 +231,22 @@ public class Robot extends TimedRobot {
       drive.setPower(powers.left, powers.right);
 
       // extender if within bounds
-      if (ArmCalculator.maxLength(angler.getDegrees()) - 4 > extender.getExtension() + 33) {
-        switch (joystick.getPOV()) {
-          case 0:
-            extender.setPower(30);
-            break;
-          case 180:
-            extender.setPower(-20);
-            break;
-          default:
-            extender.setPower(0);
-            break;
-        }
-      } else {
-        extender.setPower(-30);
+      // if (ArmCalculator.maxLength(angler.getDegrees()) - 4 >
+      // extender.getExtension() + 33) {
+      switch (joystick.getPOV()) {
+        case 0:
+          extender.setPower(30);
+          break;
+        case 180:
+          extender.setPower(-20);
+          break;
+        default:
+          extender.setPower(0);
+          break;
       }
+      // } else {
+      // extender.setPower(-30);
+      // }
 
       // turns off any sensors that influence driving
       if (joystick.getRawButtonPressed(8)) {
@@ -221,10 +257,12 @@ public class Robot extends TimedRobot {
             ArmCalculator.getAntiGravTorque(angler.getRevs(), extender.getExtension()));
       }
       // intake
-      if (joystick.getTrigger() || con.getR1Button())
-        intake.setVoltage(8);
+      if (joystick.getTrigger() && joystick.getRawButton(2))
+        intake.setVoltage(1.7);
+      else if (joystick.getTrigger() || con.getR1Button())
+        intake.setVoltage(7);
       else if (joystick.getRawButton(2))
-        intake.setVoltage(-5); // outtake
+        intake.setVoltage(-4); // outtake
       else
         intake.setVoltage(0);
 
