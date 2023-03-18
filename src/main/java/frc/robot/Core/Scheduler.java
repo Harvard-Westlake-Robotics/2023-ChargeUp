@@ -90,6 +90,14 @@ public class Scheduler {
         return prom.val;
     }
 
+    public Promise timeout(double delay) {
+        Promise prom = new Promise();
+        setTimeout(() -> {
+            prom.resolve();
+        }, delay);
+        return prom;
+    }
+
     public void tick() {
         boolean runCleanUp = false;
         double currentTime = Timer.getFPGATimestamp();

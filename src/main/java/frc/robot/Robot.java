@@ -28,6 +28,7 @@ import frc.robot.Arm.Components.ArmExtender;
 import frc.robot.Pneumatics.PneumaticsSystem;
 import frc.robot.Arm.ArmCalculator;
 import frc.robot.Arm.ArmPD;
+import frc.robot.Arm.Auto.MoveArm;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -122,83 +123,14 @@ public class Robot extends TimedRobot {
     extender.reset();
 
     gearShifter.setLowGear();
+    left.resetEncoder();
+    right.resetEncoder();
 
     limeLight.setDriverMode();
 
-    scheduler.registerTick((double dTime) -> {
-      angler.setVoltage(ArmCalculator.getAntiGravTorque(angler.getRevs(), extender.getExtension()) - 0.3);
-    });
+    var auto = new Autonomous(scheduler, left, right, gearShifter, angler, extender, intake, pneumatics, limeLight, imu);
 
-    int autoNum = 2;
-
-    switch (autoNum) {
-      case 0:
-        left.setPower(10);
-        right.setPower(10);
-
-        scheduler.setTimeout(() -> {
-          left.setPower(0);
-          right.setPower(0);
-        }, 0.7);
-        break;
-      case 1:
-        intake.setVoltage(-10);
-
-        scheduler.setTimeout(() -> {
-          intake.setVoltage(0);
-        }, 3);
-
-        break;
-      case 2:
-        left.resetEncoder();
-        right.resetEncoder();
-
-        var drive = new DumbyDrive(left, right, new PDController(20, 20));
-
-        scheduler.setInterval(() -> {
-          System.out.println("left: " + left.getPositionInches());
-          System.out.println("right: " + right.getPositionInches());
-          System.out.println("imu: " + imu.getPitch());
-        }, 0.3);
-
-        // lets the drive pdcontroller run every tick
-        scheduler.registerTick(drive);
-
-        // outtakes cubes
-        intake.setVoltage(-10);
-
-        scheduler.setTimeout(() -> {
-          intake.setVoltage(0);
-        }, 2).then(() -> {
-
-          double speed = 20; // in/sec
-          double dist = 30 + 36 + 10; // in
-
-          var stopDriving = scheduler.registerTick((double dTime) -> {
-            drive.incrementTarget(dTime * speed);
-          });
-
-          scheduler.setTimeout(() -> {
-            stopDriving.run();
-
-            var atCenter = new Container<Boolean>(false);
-
-            var balTime = new Container<Double>(0.0);
-
-            var levelingPD = new DSAController(0.6, 7, 20).withMagnitude(0.7);
-
-            scheduler.registerTick((double dTime) -> {
-              if (Math.abs(imu.getPitch()) < 2.5) {
-                atCenter.val = true;
-                balTime.val += dTime;
-              }
-              if (balTime.val < 3 || Math.abs(imu.getPitch()) > 2)
-                drive.incrementTarget(Autolevel.autolevel(levelingPD, imu, atCenter.val ? 5 : 15) * dTime);
-            });
-          }, dist / speed);
-        });
-        break;
-    }
+    auto.scoreHighAndPlatform();
   }
 
   /** This function is called periodically during autonomous. */
@@ -306,29 +238,9 @@ public class Robot extends TimedRobot {
       Mapper<Double, Void> moveToAngle = (Double targetAngle) -> {
         angling.val = true;
 
-        Container<Lambda> stopContainer = new Container<Lambda>(null);
-        stopContainer.val = scheduler.registerTick((double i_dTime) -> {
-          double error = targetAngle - angler.getDegrees();
-          double fac = ((error > 0) ? 1 : -1) * ArmCalculator.getVoltFac(extender.getExtension());
-          double absError = Math.abs(error);
-
-          double antiGravTorque = ArmCalculator.getAntiGravTorque(angler.getRevs(), extender.getExtension());
-          if (absError > 45) {
-            angler.setVoltage((fac * 5.0) + antiGravTorque);
-          } else if (absError > 5) {
-            angler.setVoltage((fac * 1.5) + antiGravTorque);
-          } else {
-            angling.val = false;
-            scheduler.setTimeout(() -> {
-              stopContainer.val.run();
-            }, i_dTime);
-          }
-        });
-
-        scheduler.setTimeout(() -> {
+        MoveArm.moveToAngle(targetAngle, angler, extender, scheduler).then(() -> {
           angling.val = false;
-          stopContainer.val.run();
-        }, 2);
+        });
 
         return null;
       };

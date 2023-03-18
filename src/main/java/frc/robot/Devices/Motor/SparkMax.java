@@ -28,7 +28,7 @@ public class SparkMax extends MotorController {
         braking = false;
 
         // sends a max of ten amps when stalling, 100 amps when not
-        maxspark.setSmartCurrentLimit(40, 100);
+        maxspark.setSmartCurrentLimit(70, 200);
     }
 
     public void setBrake(boolean brake) {

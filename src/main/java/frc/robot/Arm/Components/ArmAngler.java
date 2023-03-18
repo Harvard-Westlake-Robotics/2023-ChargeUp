@@ -3,6 +3,7 @@ package frc.robot.Arm.Components;
 import frc.robot.Settings;
 import frc.robot.Devices.Encoder;
 import frc.robot.Devices.Motor.SparkMax;
+import frc.robot.Util.Pair;
 
 // motor group
 public class ArmAngler {
@@ -14,6 +15,9 @@ public class ArmAngler {
         this.arm1 = arm1;
         this.arm2 = arm2;
         this.encoder = armEncoder;
+
+        arm1.setCurrentLimit(65, 120);
+        arm2.setCurrentLimit(65, 120);
     }
 
     public void setBrake(boolean brake) {

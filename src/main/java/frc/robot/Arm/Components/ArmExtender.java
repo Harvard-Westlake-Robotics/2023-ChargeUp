@@ -46,7 +46,7 @@ public class ArmExtender {
             return 5;
         }
         // 14:60 gear ratio ; 12:17 sprocket ratio ; 2" wheel diameter
-        // 1" height per 1 inch of string ; min arm length 35"
-        return (extender1.getRevs() * (14.0 / 60.0) * (12.0 / 17.0) * 2.0 * Math.PI); // ! assumptions were made here
+        // 2" height per 1 inch of string
+        return (extender1.getRevs() * (14.0 / 60.0) * (12.0 / 17.0) * (2.16 * Math.PI)) * 2;
     }
 }

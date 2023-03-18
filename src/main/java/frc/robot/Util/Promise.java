@@ -6,11 +6,18 @@ public class Promise {
     boolean resolved = false;
     ArrayList<Lambda> thens = new ArrayList<Lambda>();
 
-    public void then(Lambda then) {
-        if (resolved)
+    public Promise then(Lambda then) {
+        Promise prom = new Promise();
+        if (resolved) {
             then.run();
-        else
-            thens.add(then);
+            prom.resolve();
+        } else {
+            thens.add(() -> {
+                then.run();
+                prom.resolve();
+            });
+        }
+        return prom;
     }
 
     public Promise then(Getter<Promise> then) {
@@ -32,6 +39,28 @@ public class Promise {
 
             return retProm;
         }
+    }
+
+    public Promise then(Promise prom) {
+        return then(() -> {
+            return prom;
+        });
+    }
+
+    public static Promise all(Promise ...proms) {
+        var retProm = new Promise();
+
+        final int total = proms.length;
+        Container<Integer> resolved = new Container<Integer>(0);
+
+        for (var promise : proms) {
+            promise.then(() -> {
+                resolved.val++;
+                if (resolved.val >= total)
+                    retProm.resolve();
+            });
+        }
+        return retProm;
     }
 
     public void resolve() {
