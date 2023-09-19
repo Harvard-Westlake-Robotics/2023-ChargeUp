@@ -66,14 +66,14 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     { // Drive initalization
-      var leftFront = new Falcon(5, true);
-      var leftBack = new Falcon(3, true);
-      var leftTop = new Falcon(4, false);
+      var leftFront = new Falcon(5, true); // done
+      var leftBack = new Falcon(3, true); // done
+      var leftTop = new Falcon(4, false); // done
       var encoderLeft = new Encoder(0, 1, true);
 
-      var rightFront = new Falcon(2, false);
-      var rightBack = new Falcon(0, false);
-      var rightTop = new Falcon(1, true);
+      var rightFront = new Falcon(2, false); // done
+      var rightBack = new Falcon(11, false); // done
+      var rightTop = new Falcon(1, true); // done
       var encoderRight = new Encoder(2, 3, false);
 
       this.left = new DriveSide(leftFront, leftBack, leftTop, null, encoderLeft);
