@@ -5,11 +5,15 @@ import frc.robot.Drive.Components.GearShifter;
 import frc.robot.Util.Pair;
 import frc.robot.Util.ScaleInput;
 import frc.robot.Util.Tickable;
+import frc.robot.Devices.Encoder;
+import frc.robot.Core.Scheduler;
 
 public class AutonomousDrive implements Tickable {
     DriveSidePD left;
     DriveSidePD right;
     GearShifter shifter;
+    edu.wpi.first.wpilibj.Encoder encoderRight = new edu.wpi.first.wpilibj.Encoder(8, 9, false);
+    edu.wpi.first.wpilibj.Encoder encoderLeft = new edu.wpi.first.wpilibj.Encoder(6, 7, true);
 
     public AutonomousDrive(DriveSidePD left, DriveSidePD right, GearShifter shifter) {
         this.left = left;
@@ -35,7 +39,8 @@ public class AutonomousDrive implements Tickable {
 
     public void tick(double dTime) {
         if (movement != null) { // runs the active `Movement`
-            var currentCorrections = new Pair<Double>(left.getCorrection(shifter.getState()), right.getCorrection(shifter.getState()));
+            var currentCorrections = new Pair<Double>(left.getCorrection(shifter.getState()),
+                    right.getCorrection(shifter.getState()));
             if (secondsIntoMovement + dTime > movement.getDuration()) {
                 var netMovement = movement.getTotalDistance();
                 left.setTarget(initialTargets.left + netMovement.left);
@@ -56,9 +61,29 @@ public class AutonomousDrive implements Tickable {
         }
         { // Ticks DriveSides
           // scales the corrections to ([100, -100], [100, -100])
-            Pair<Double> voltages = ScaleInput.normalize(new Pair<Double>(left.getCorrection(shifter.getState()), right.getCorrection(shifter.getState())));
+            Pair<Double> voltages = ScaleInput.normalize(
+                    new Pair<Double>(left.getCorrection(shifter.getState()), right.getCorrection(shifter.getState())));
             left.setPercentVoltage(voltages.left);
             right.setPercentVoltage(voltages.right);
+        }
+    }
+
+    public void setVoltage(double leftVoltage, double rightVoltage) {
+
+        left.setTarget(leftVoltage * 0.2);
+        right.setPercentVoltage(rightVoltage * 0.2);
+
+    }
+
+    public void goFor(double inches, double velocity) {
+        encoderLeft.setDistancePerPulse(1.0 / 64.0);
+        encoderRight.setDistancePerPulse(1.0 / 64.0);
+        setVoltage(velocity, velocity);
+
+        if ((encoderLeft.getDistance() + encoderRight.getDistance()) == (2 * inches)) {
+            setVoltage(0.0, 0.0);
+        } else {
+            setVoltage((1 / encoderLeft.getDistance()), (1 / encoderRight.getDistance()));
         }
     }
 
