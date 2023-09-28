@@ -5,8 +5,6 @@ import frc.robot.Drive.Components.GearShifter;
 import frc.robot.Util.Pair;
 import frc.robot.Util.ScaleInput;
 import frc.robot.Util.Tickable;
-import frc.robot.Devices.Encoder;
-import frc.robot.Core.Scheduler;
 
 public class AutonomousDrive implements Tickable {
     DriveSidePD left;
@@ -71,7 +69,7 @@ public class AutonomousDrive implements Tickable {
     public void setVoltage(double leftVoltage, double rightVoltage) {
 
         left.setTarget(leftVoltage * 0.2);
-        right.setPercentVoltage(rightVoltage * 0.2);
+        right.setTarget(rightVoltage * 0.2);
 
     }
 

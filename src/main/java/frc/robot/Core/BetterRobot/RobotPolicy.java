@@ -12,6 +12,11 @@ public class RobotPolicy {
         this.teleop = teleop;
     }
 
+    public RobotPolicy(Phase teleop, Phase auton) {
+        this.teleop = teleop;
+        this.auto = auton;
+    }
+
     public void teleop(Scheduler scheduler) {
         if (teleop != null)
             teleop.exec(scheduler);

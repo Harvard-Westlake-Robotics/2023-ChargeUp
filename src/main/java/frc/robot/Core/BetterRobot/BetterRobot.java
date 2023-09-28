@@ -1,9 +1,9 @@
 package frc.robot.Core.BetterRobot;
 
-import frc.robot.Robot;
+import frc.robot.RobotOld;
 import frc.robot.Core.Scheduler;
 
-public abstract class BetterRobot extends Robot {
+public abstract class BetterRobot extends RobotOld {
     private final Scheduler scheduler = new Scheduler();
     RobotPolicy policy;
 
