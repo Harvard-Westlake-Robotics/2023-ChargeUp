@@ -13,13 +13,8 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.Core.Scheduler;
 import frc.robot.Devices.Encoder;
 import frc.robot.Devices.Imu;
-import frc.robot.Devices.Motor.Falcon;
 import frc.robot.Devices.Motor.SparkMax;
 import frc.robot.Drive.*;
-import frc.robot.Drive.Auto.AutonomousDrive;
-import frc.robot.Drive.Auto.DriveSidePD;
-import frc.robot.Drive.Auto.DumbyDrive;
-import frc.robot.Drive.Auto.Shauton;
 import frc.robot.Drive.Components.DriveSide;
 import frc.robot.Drive.Components.GearShifter;
 import frc.robot.Util.*;
@@ -28,8 +23,8 @@ import frc.robot.Arm.Components.ArmAngler;
 import frc.robot.Arm.Components.ArmExtender;
 import frc.robot.Pneumatics.PneumaticsSystem;
 import frc.robot.Arm.ArmCalculator;
-import frc.robot.Arm.ArmPD;
 import frc.robot.Arm.Auto.MoveArm;
+import frc.robot.Drive.Auto.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -43,12 +38,14 @@ import frc.robot.Arm.Auto.MoveArm;
 public class Robot extends TimedRobot {
 
   Scheduler scheduler = new Scheduler();
-
+  AutonomousDrive autodrive;
   DriveSide left;
   DriveSide right;
-
+  DriveSidePD leftPD;
+  DriveSidePD rightPD;
   GearShifter gearShifter;
-
+  PDController lowGearController;
+  PDController highGearController;
   ArmAngler angler;
   ArmExtender extender;
   Intake intake;
@@ -56,7 +53,6 @@ public class Robot extends TimedRobot {
 
   PS4Controller con;
   Joystick joystick;
-
   Drive drive;
 
   LimeLight limeLight = new LimeLight();
@@ -74,42 +70,43 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     { // Drive initalization
-      var leftFront = new SparkMax(5, true, false);
-      var leftBack = new SparkMax(3, true, false);
-      var leftTop = new SparkMax(4, false, false);
-      var encoderLeft = new Encoder(0, 1, false);
+      var leftFront = new SparkMax(11, true, false);
+      var leftBack = new SparkMax(2, true, false);
+      var leftTop = new SparkMax(1, false, false);
+      var encoderLeft = new Encoder(9, 8, false);
 
-      var rightFront = new SparkMax(2, false, false);
-      var rightBack = new SparkMax(12, false, false);
-      var rightTop = new SparkMax(1, true, false);
-      var encoderRight = new Encoder(2, 3, true);
+      var rightFront = new SparkMax(15, false, false);
+      var rightBack = new SparkMax(5, false, false);
+      var rightTop = new SparkMax(4, true, false);
+      var encoderRight = new Encoder(6, 7, true);
 
       this.left = new DriveSide(leftFront, leftBack, leftTop, encoderLeft);
       this.right = new DriveSide(rightFront, rightBack, rightTop, encoderRight);
 
+      this.leftPD = new DriveSidePD(this.left, lowGearController, highGearController);
+      this.rightPD = new DriveSidePD(this.right, lowGearController, highGearController);
       this.pneumatics = new PneumaticsSystem(110, 120, 19);
       this.gearShifter = new GearShifter(2, 0, 19);
 
-      var arm1 = new SparkMax(8, false, true);
-      var arm2 = new SparkMax(9, false, true);
-      var encoder = new Encoder(4, 5, false);
+      var arm1 = new SparkMax(25, false, true);
+      var arm2 = new SparkMax(12, false, true);
+      var encoder = new Encoder(1, 2, true);
       this.angler = new ArmAngler(arm1, arm2, encoder);
 
-      var extender1 = new SparkMax(6, true, true);
-      var extender2 = new SparkMax(11, true, true);
+      var extender1 = new SparkMax(10, true, true);
+      var extender2 = new SparkMax(16, true, true);
       this.extender = new ArmExtender(extender1, extender2);
 
-      var intakeLeft = new SparkMax(10, false);
-      var intakeRight = new SparkMax(7, true);
+      var intakeLeft = new SparkMax(7, false);
+      var intakeRight = new SparkMax(6, true);
       intake = new Intake(intakeLeft, intakeRight);
 
       this.con = new PS4Controller(0);
       this.joystick = new Joystick(1);
-
       this.drive = new Drive(left, right);
 
       this.imu = new Imu(18);
-
+      this.autodrive = new AutonomousDrive(leftPD, rightPD, gearShifter);
       Interface.updateDashboard(drive, gearShifter, angler, extender, intake, pneumatics, con, joystick);
     }
   }
@@ -131,11 +128,10 @@ public class Robot extends TimedRobot {
 
     left.setCurrentLimit(70, 200);
     right.setCurrentLimit(70, 200);
-
     var auto = new Autonomous(scheduler, left, right, gearShifter, angler, extender, intake, pneumatics, limeLight,
-        imu);
-
-    auto.scoreHighAndPlatform();
+        imu, autodrive);
+    //auto.scoreHighAndPlatform();
+    auto.driveForwardDoNothing();
   }
 
   /** This function is called periodically during autonomous. */
@@ -146,38 +142,41 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    scheduler.clear();
+
     RobotController.getBrownoutVoltage();
 
     left.setCurrentLimit(70, 100);
     right.setCurrentLimit(70, 100);
 
-    { // prevent brownout
-      Container<Double> brownedOutTime = new Container<Double>(0.0);
-      Container<Double> notBrownedOutTime = new Container<Double>(0.0);
+    // { // prevent brownout
+    // Container<Double> brownedOutTime = new Container<Double>(0.0);
 
-      scheduler.registerTick((double dTime) -> {
-        if (RobotController.isBrownedOut()) {
-          brownedOutTime.val += dTime;
-        } else {
-          notBrownedOutTime.val += dTime;
-        }
+    // scheduler.registerTick((double dTime) -> {
+    // if (RobotController.isBrownedOut()) {
+    // brownedOutTime.val += dTime;
+    // }
+    // });
 
-        notBrownedOutTime.val /= 1 + dTime;
-        brownedOutTime.val /= 1 + dTime;
-      });
+    // Container<Boolean> resisting = new Container<Boolean>(false);
 
-      scheduler.setInterval(() -> {
-        if (brownedOutTime.val * 20 > notBrownedOutTime.val) {
-          left.setCurrentLimit(60, 90);
-          right.setCurrentLimit(60, 90);
-        } else {
-          left.setCurrentLimit(70, 130);
-          right.setCurrentLimit(70, 130);
-        }
-      }, 1);
-    }
-
-    scheduler.clear();
+    // scheduler.setInterval(() -> {
+    // System.out.println(brownedOutTime.val);
+    // if (brownedOutTime.val > 0.9) {
+    // if (!resisting.val) {
+    // resisting.val = true;
+    // left.setCurrentLimit(80, 90);
+    // right.setCurrentLimit(80, 90);
+    // }
+    // } else {
+    // if (resisting.val) {
+    // resisting.val = false;
+    // left.setCurrentLimit(80, 130);
+    // right.setCurrentLimit(80, 130);
+    // }
+    // }
+    // }, 1);
+    // }
 
     pneumatics.autoRunCompressor();
 
@@ -262,7 +261,7 @@ public class Robot extends TimedRobot {
       else if (joystick.getTrigger() || con.getR1Button())
         intake.setVoltage(7);
       else if (joystick.getRawButton(2))
-        intake.setVoltage(-4); // outtake
+        intake.setVoltage(-3); // outtake
       else
         intake.setVoltage(0);
 

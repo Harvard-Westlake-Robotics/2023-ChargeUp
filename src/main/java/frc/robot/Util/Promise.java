@@ -41,12 +41,6 @@ public class Promise {
         }
     }
 
-    public Promise then(Promise prom) {
-        return then(() -> {
-            return prom;
-        });
-    }
-
     public static Promise all(Promise ...proms) {
         var retProm = new Promise();
 

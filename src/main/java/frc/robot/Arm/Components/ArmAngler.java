@@ -3,7 +3,7 @@ package frc.robot.Arm.Components;
 import frc.robot.Settings;
 import frc.robot.Devices.Encoder;
 import frc.robot.Devices.Motor.SparkMax;
-import frc.robot.Util.Pair;
+import frc.robot.Util.DeSpam;
 
 // motor group
 public class ArmAngler {
@@ -30,10 +30,16 @@ public class ArmAngler {
         arm2.setVoltageSafe(voltage);
     }
 
+    DeSpam dSpam = new DeSpam(0.2);
+
     public double getRevs() {
         if (Settings.armBeingBadMode) {
             return 0;
         }
+        dSpam.exec(() -> {
+            System.out.println(encoder.getRevs());
+
+        });
         return encoder.getRevs() - 0.025;
     }
 

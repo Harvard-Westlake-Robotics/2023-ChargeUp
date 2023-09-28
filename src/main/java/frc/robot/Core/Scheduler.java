@@ -79,7 +79,10 @@ public class Scheduler {
         Container<CancelablePromise> prom = new Container<CancelablePromise>(null);
 
         items = Arrays.copyOf(items, items.length + 1);
-        var item = new ScheduleItem(() -> {callBack.run() ; prom.val.resolve();}, delay + Timer.getFPGATimestamp());
+        var item = new ScheduleItem(() -> {
+            callBack.run();
+            prom.val.resolve();
+        }, delay + Timer.getFPGATimestamp());
 
         prom.val = new CancelablePromise(() -> {
             item.executable = () -> {
@@ -90,12 +93,18 @@ public class Scheduler {
         return prom.val;
     }
 
-    public Promise timeout(double delay) {
-        Promise prom = new Promise();
-        setTimeout(() -> {
-            prom.resolve();
-        }, delay);
-        return prom;
+    public CancelablePromise setTimeout(double delay) {
+        return setTimeout(() -> {}, delay);
+    }
+
+    public Getter<Promise> timeout(double delay) {
+        return () -> {
+            Promise prom = new Promise();
+            setTimeout(() -> {
+                prom.resolve();
+            }, delay);
+            return prom;
+        };
     }
 
     public void tick() {

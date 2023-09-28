@@ -9,6 +9,7 @@ import frc.robot.Arm.Components.ArmExtender;
 import frc.robot.Core.Scheduler;
 import frc.robot.Devices.Imu;
 import frc.robot.Drive.Autolevel;
+import frc.robot.Drive.Auto.DriveSidePD;
 import frc.robot.Drive.Auto.DumbyDrive;
 import frc.robot.Drive.Components.DriveSide;
 import frc.robot.Drive.Components.GearShifter;
@@ -20,6 +21,7 @@ import frc.robot.Util.DSAController;
 import frc.robot.Util.Lambda;
 import frc.robot.Util.PDController;
 import frc.robot.Util.Promise;
+import frc.robot.Drive.Auto.AutonomousDrive;
 
 public class Autonomous {
 
@@ -38,9 +40,10 @@ public class Autonomous {
     private LimeLight limeLight;
 
     private Imu imu;
+    private AutonomousDrive autodrive;
 
     public Autonomous(Scheduler scheduler, DriveSide left, DriveSide right, GearShifter gearShifter, ArmAngler angler,
-            ArmExtender extender, Intake intake, PneumaticsSystem pneumatics, LimeLight limeLight, Imu imu) {
+            ArmExtender extender, Intake intake, PneumaticsSystem pneumatics, LimeLight limeLight, Imu imu, AutonomousDrive autodrive) {
         this.scheduler = scheduler;
         this.left = left;
         this.right = right;
@@ -51,6 +54,7 @@ public class Autonomous {
         this.pneumatics = pneumatics;
         this.limeLight = limeLight;
         this.imu = imu;
+        this.autodrive = autodrive;
     }
 
     Lambda stopAntiGrav = null;
@@ -68,17 +72,11 @@ public class Autonomous {
     }
 
     public void driveForwardDoNothing() {
-        runAntiGrav();
-
-        left.setPower(10);
-        right.setPower(10);
-
-        scheduler.setTimeout(() ->
-
-        {
-            left.setPower(0);
-            right.setPower(0);
-        }, 0.7);
+        //runAntiGrav();
+        scheduler.registerTick((double dTime) -> {
+            autodrive.goFor(1, 2);
+            dTime++;
+        });
     }
 
     public void scoreAndDoNothing() {
@@ -115,7 +113,7 @@ public class Autonomous {
         // outtakes cubes
         intake.setVoltage(-10);
 
-        scheduler.timeout((shouldScore) ? 2 : 0).then(() -> {
+        scheduler.setTimeout((shouldScore) ? 2 : 0).then(() -> {
 
             intake.setVoltage(0);
 
@@ -165,8 +163,8 @@ public class Autonomous {
         });
     }
 
-    public void scoreHighAndPlatform() {
-        Promise.all(
+    public Promise scoreHigh() {
+        return Promise.all(
                 MoveArm.moveToAngle(-45, angler, extender, scheduler),
                 MoveArm.extendToPos(22, extender, scheduler))
                 .then(() -> {
@@ -182,8 +180,144 @@ public class Autonomous {
                     return Promise.all(
                             MoveArm.moveToAngle(0, angler, extender, scheduler),
                             MoveArm.extendToPos(2, extender, scheduler));
-                }).then(() -> {
+                });
+    }
+
+    public void scoreHighAndPlatform() {
+        scoreHigh()
+                .then(() -> {
                     scoreLowAndPlatform(false);
                 });
+    }
+
+    public void scoreHighAndMobility(boolean isRightSide) {
+        var side = isRightSide ? left : right; // push the left side forward to turn right on right side
+        var antiside = isRightSide ? right : left; // push the right side backward to turn right on right side
+        scoreHigh()
+                .then(() -> {
+                    runAntiGrav();
+                    side.setPower(-50);
+                    antiside.setPower(30);
+                })
+                .then(scheduler.timeout(0.3))
+                .then(() -> {
+                    stopAntiGrav();
+                    side.setPower(0);
+                    antiside.setPower(00);
+                })
+                .then(() -> {
+
+                    var drive = new DumbyDrive(left, right, new PDController(20, 20));
+
+                    scheduler.registerTick(drive);
+
+                    double speed = 30; // in/sec
+                    double dist = 76 + 80; // in
+
+                    var stopDriving = scheduler.registerTick((double dTime) -> {
+                        drive.incrementTarget(dTime * speed);
+                    });
+
+                    return scheduler.setTimeout(() -> {
+                        stopDriving.run();
+                    }, dist / speed);
+
+                });
+
+    }
+
+    private Promise turn(DriveSide turnSide, DriveSide holdSide, double speed, double inches) {
+        PDController con = new PDController(20, 20);
+
+        var turnSidePD = new DriveSidePD(turnSide, con, con);
+        turnSidePD.reset();
+
+        var unsubTurn = scheduler.registerTick((double dTime) -> {
+            var correct = turnSidePD.getCorrection(true);
+            turnSidePD.setPercentVoltage(correct);
+        });
+
+        holdSide.setBrake(true);
+
+        turnSide.setBrake(true);
+
+        var stop = scheduler.registerTick((double dTime) -> {
+            turnSidePD.incrementTarget(speed * dTime);
+        });
+
+        scheduler.setInterval(() -> {
+            System.out.println(turnSidePD);
+        }, 0.05);
+
+        return scheduler.setTimeout(() -> {
+            unsubTurn.run();
+            stop.run();
+        }, inches / speed);
+    }
+
+    public void scoreHighAndGetGamePiece(boolean isRightSide) {
+        // the robot starts facing backwards
+        var inSide = isRightSide ? right : left;
+        var outSide = isRightSide ? left : right;
+        scoreHigh()
+                .then(() -> {
+                    runAntiGrav();
+                })
+                .then(() -> {
+                    return turn(inSide, outSide, 7, 3);
+                })
+                .then(() -> {
+
+                    var drive = new DumbyDrive(left, right, new PDController(20, 20));
+
+                    var stopDrive = scheduler.registerTick(drive);
+
+                    double speed = 30; // in/sec
+                    double dist = 76 + 80; // in
+
+                    var stopDriving = scheduler.registerTick((double dTime) -> {
+                        drive.incrementTarget(dTime * speed);
+                    });
+
+                    return scheduler.setTimeout(() -> {
+                        stopDriving.run();
+                        stopDrive.run();
+                    }, dist / speed);
+
+                })
+                .then(() -> {
+                    stopAntiGrav();
+                })
+                .then(() -> {
+                    return Promise.all(
+                            turn(outSide, inSide, 7, 6),
+                            MoveArm.moveToAngle(115, angler, extender, scheduler));
+                })
+                .then(() -> {
+
+                    intake.setVoltage(5);
+
+                    var drive = new DumbyDrive(left, right, new PDController(20, 20));
+
+                    var stopDrive = scheduler.registerTick(drive);
+
+                    double speed = 30; // in/sec
+                    double dist = 20; // in
+
+                    var stopDriving = scheduler.registerTick((double dTime) -> {
+                        drive.incrementTarget(dTime * speed);
+                    });
+
+                    return scheduler.setTimeout(() -> {
+                        stopDriving.run();
+                        stopDrive.run();
+                    }, dist / speed);
+
+                })
+                .then(scheduler.timeout(1))
+                .then(() -> {
+
+                });
+
     }
 }
