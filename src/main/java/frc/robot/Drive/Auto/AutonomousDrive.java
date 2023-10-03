@@ -2,27 +2,36 @@ package frc.robot.Drive.Auto;
 
 import frc.robot.Drive.Auto.Movements.Movement;
 import frc.robot.Drive.Components.GearShifter;
+import frc.robot.Util.AngleMath;
+import frc.robot.Util.Container;
+import frc.robot.Util.DeSpam;
 import frc.robot.Util.Pair;
+import frc.robot.Util.Promise;
 import frc.robot.Util.ScaleInput;
 import frc.robot.Util.Tickable;
+import frc.robot.Core.Scheduler;
+import frc.robot.Devices.Imu;
 
 public class AutonomousDrive implements Tickable {
     DriveSidePD left;
     DriveSidePD right;
     GearShifter shifter;
-    edu.wpi.first.wpilibj.Encoder encoderRight = new edu.wpi.first.wpilibj.Encoder(8, 9, false);
-    edu.wpi.first.wpilibj.Encoder encoderLeft = new edu.wpi.first.wpilibj.Encoder(6, 7, true);
+    Scheduler scheduler;
+    Imu imu;
 
-    public AutonomousDrive(DriveSidePD left, DriveSidePD right, GearShifter shifter) {
+    public AutonomousDrive(Scheduler scheduler, DriveSidePD left, DriveSidePD right, GearShifter shifter, Imu imu) {
         this.left = left;
         this.right = right;
         this.shifter = shifter;
+        this.imu = imu;
+        this.scheduler = scheduler;
     }
 
     Movement movement;
     double secondsIntoMovement;
     double debt; // seconds
     Pair<Double> initialTargets;
+    Tickable tickable;
 
     public void setMovement(Movement movement) {
         this.secondsIntoMovement = 0;
@@ -66,23 +75,67 @@ public class AutonomousDrive implements Tickable {
         }
     }
 
-    public void setVoltage(double leftVoltage, double rightVoltage) {
+    DeSpam dSpam = new DeSpam(0.8);
 
-        left.setTarget(leftVoltage * 0.2);
-        right.setTarget(rightVoltage * 0.2);
+    public Promise goFor(double inches, double velocity, double max_acc) {
+        var distSoFar = new Container<Double>(0.0);
+        var prom = new Promise();
+        var currVelocity = new Container<Double>(0.0);
+        var cancel = scheduler.registerTick((dTime) -> {
+            if (Math.abs(distSoFar.val) < (Math.pow(velocity, 2) / (2 * max_acc)))
+                currVelocity.val += dTime * max_acc;
 
+            double decelStart = Math.abs(inches) - (Math.pow(velocity, 2) / (2 * max_acc));
+            if (Math.abs(distSoFar.val) > decelStart + 0.1)
+                currVelocity.val -= max_acc * dTime;
+
+            if (currVelocity.val < 0)
+                currVelocity.val = 0.0;
+
+            if (Math.abs(inches) <= Math.abs(distSoFar.val)) {
+                prom.resolve();
+            }
+            double distTick = dTime * currVelocity.val * Math.signum(inches);
+
+            dSpam.exec(() -> {
+                System.out.println(
+                        "currvel: " + currVelocity.val + " decelstart: " + decelStart + " distSoFar: " + distSoFar.val);
+            });
+
+            left.incrementTarget(distTick);
+            right.incrementTarget(distTick);
+            distSoFar.val += distTick;
+        });
+        prom.then(() -> {
+            cancel.run();
+        });
+        return prom;
     }
 
-    public void goFor(double inches, double velocity) {
-        encoderLeft.setDistancePerPulse(1.0 / 64.0);
-        encoderRight.setDistancePerPulse(1.0 / 64.0);
-        setVoltage(velocity, velocity);
+    public Promise turnFor(double degrees, double velocity, double max_acc) {
+        var distSoFar = new Container<Double>(0.0);
+        double startDeg = imu.getRotation() + (left.error);
+        var prom = new Promise();
+        var cancel = scheduler.registerTick((dTime) -> { 
+            if (Math.abs(AngleMath.getDelta(startDeg, imu.getRotation() + ((Math.abs(left.error) + Math.abs(right.error)) / (24.0 * Math.PI / 360.0)) * Math.signum(degrees))) > Math.abs(degrees)) {
+                prom.resolve();
+            }
+            double distTick = dTime * velocity * Math.signum(degrees);
 
-        if ((encoderLeft.getDistance() + encoderRight.getDistance()) == (2 * inches)) {
-            setVoltage(0.0, 0.0);
-        } else {
-            setVoltage((1 / encoderLeft.getDistance()), (1 / encoderRight.getDistance()));
-        }
+            // dSpam.exec(() -> {
+            // System.out.println(
+            // "currvel: " + currVelocity.val + " decelstart: " + decelStart + " distSoFar:
+            // " + distSoFar.val);
+            // });
+
+            left.incrementTarget(distTick);
+            right.incrementTarget(-distTick);
+            distSoFar.val += distTick;
+        });
+        prom.then(() -> {
+            cancel.run();
+        });
+        return prom;
     }
 
     public String toString() {

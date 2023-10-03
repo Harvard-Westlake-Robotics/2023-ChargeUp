@@ -28,6 +28,6 @@ public final class Main {
     if (testing)
       RobotBase.startRobot(TestRobot::new);
     else
-      RobotBase.startRobot(RobotOld::new);
+      RobotBase.startRobot(Robot::new);
   }
 }

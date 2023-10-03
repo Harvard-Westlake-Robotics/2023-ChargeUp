@@ -2,7 +2,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PS4Controller;
-import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Arm.ArmCalculator;
 import frc.robot.Arm.Components.ArmAngler;
 import frc.robot.Arm.Components.ArmExtender;
@@ -12,15 +11,16 @@ import frc.robot.Core.BetterRobot.RobotPolicy;
 import frc.robot.Devices.Imu;
 import frc.robot.Devices.Motor.SparkMax;
 import frc.robot.Drive.Drive;
+import frc.robot.Drive.Auto.AutonomousDrive;
 import frc.robot.Drive.Auto.DriveSidePD;
 import frc.robot.Drive.Components.DriveSide;
 import frc.robot.Drive.Components.GearShifter;
 import frc.robot.DriverStation.LimeLight;
 import frc.robot.Intake.Intake;
 import frc.robot.Pneumatics.PneumaticsSystem;
-import frc.robot.Util.Container;
-import frc.robot.Util.Mapper;
+import frc.robot.Util.PDController;
 import frc.robot.Util.Pair;
+import frc.robot.Util.Promise;
 import frc.robot.Util.ScaleInput;
 import frc.robot.Devices.Encoder;
 
@@ -65,7 +65,7 @@ public class Robot extends BetterRobot {
             // Arm
             var arm1 = new SparkMax(25, false, true);
             var arm2 = new SparkMax(12, false, true);
-            var encoder = new Encoder(1, 2, true);
+            var encoder = new Encoder(0, 1, true);
             angler = new ArmAngler(arm1, arm2, encoder);
             angler.setBrake(true);
 
@@ -75,8 +75,8 @@ public class Robot extends BetterRobot {
             extender = new ArmExtender(extender1, extender2);
 
             // Intake
-            var intakeLeft = new SparkMax(7, false);
-            var intakeRight = new SparkMax(6, true);
+            var intakeRight = new SparkMax(7, true);
+            var intakeLeft = new SparkMax(6, false);
             intake = new Intake(intakeLeft, intakeRight);
 
             // Pneumatics
@@ -85,6 +85,7 @@ public class Robot extends BetterRobot {
 
             // Shifter
             shifter = new GearShifter(2, 0, 19);
+
         }
 
         return new RobotPolicy(
@@ -101,7 +102,7 @@ public class Robot extends BetterRobot {
                     left.setCurrentLimit(70, 100);
                     right.setCurrentLimit(70, 100);
 
-                    logTemps(left, right, scheduler);
+                    logTemps(left, right, scheduler); // logs drive motor temps every few seconds
 
                     // Logs
                     scheduler.setInterval(() -> {
@@ -114,7 +115,7 @@ public class Robot extends BetterRobot {
                     scheduler.registerTick((double dTime) -> {
                         // Drive Control
                         final double deadzone = 0.05;
-                        final double turnCurveIntensity = 7;
+                        final double turnCurveIntensity = 4.5;
                         final double pwrCurveIntensity = 5;
                         final Pair<Double> powers = ScaleInput.scale(
                                 con.getLeftY(),
@@ -155,12 +156,56 @@ public class Robot extends BetterRobot {
                         }
 
                         // Angler Control (with a quirky special function that makes the arm not sag)
-                        angler.setVoltage(joystick.getY() * 5 +
-                                ArmCalculator.getAntiGravTorque(angler.getRevs(), extender.getExtension()));
+                        angler.setVoltage(
+                                joystick.getY() * 5// the input from the joystick
+                                        + ArmCalculator.getAntiGravTorque(angler.getRevs(), extender.getExtension())
+                        // how
+                        // much
+                        // voltage
+                        // it
+                        // takes
+                        // to
+                        // hold
+                        // the
+                        // arm
+                        // up
+                        // --------------------------------------------------------------------- the
+                        // formatter did that ^
+                        );
                     });
                 },
                 // ! AUTON
                 (Scheduler scheduler) -> {
+                    shifter.setLowGear();
+
+                    // positive is backward
+                    // scheduler.setInterval(() -> {
+
+                    var controller = new PDController(2, 10).withMagnitude(3);
+                    // var controller = new PDController((con.getLeftY() + 1) * 10, (con.getRightX()
+                    // + 1) * 10);
+                    System.out.println("P: " + (con.getLeftY() + 1) * 10 + " D: " + (con.getRightX() + 1) * 10);
+
+                    var leftPD = new DriveSidePD(left, controller, controller);
+                    var rightPD = new DriveSidePD(right, controller, controller);
+                    var autodrive = new AutonomousDrive(scheduler, leftPD, rightPD, shifter, imu);
+
+                    var cancel = scheduler.registerTick((dTime) -> {
+                        leftPD.setPercentVoltage(leftPD.getCorrection(true));
+                        rightPD.setPercentVoltage(rightPD.getCorrection(true));
+                    });
+                    Promise.instant().then(() -> {
+                    //     return autodrive.goFor(-30, 4, 2);
+                    // }).then(() -> {
+                        return autodrive.turnFor(90, 10, 20);
+                    }).then(() -> {
+                        System.out.println("done");
+                        scheduler.setTimeout(() -> {
+                            cancel.run();
+
+                        }, 1);
+                    });
+                    // }, 20);
 
                 });
     }

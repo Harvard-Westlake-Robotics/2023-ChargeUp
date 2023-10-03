@@ -41,6 +41,12 @@ public class Promise {
         }
     }
 
+    public static Promise instant() {
+        var prom = new Promise();
+        prom.resolve();
+        return prom;
+    }
+
     public static Promise all(Promise ...proms) {
         var retProm = new Promise();
 

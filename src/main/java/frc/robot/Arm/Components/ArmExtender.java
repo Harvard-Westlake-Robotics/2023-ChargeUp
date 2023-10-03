@@ -1,6 +1,5 @@
 package frc.robot.Arm.Components;
 
-import frc.robot.Settings;
 import frc.robot.Devices.MotorController;
 import frc.robot.Devices.Motor.SparkMax;
 
@@ -41,10 +40,6 @@ public class ArmExtender {
 
     // convert encoder val to length
     public double getExtension() { // 4096 ticks per rev
-
-        if (Settings.armBeingBadMode) {
-            return 5;
-        }
         // 14:60 gear ratio ; 12:17 sprocket ratio ; 2" wheel diameter
         // 2" height per 1 inch of string
         return (extender1.getRevs() * (14.0 / 60.0) * (12.0 / 17.0) * (2.16 * Math.PI)) * 2;

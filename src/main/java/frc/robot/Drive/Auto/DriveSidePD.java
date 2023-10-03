@@ -3,6 +3,7 @@ package frc.robot.Drive.Auto;
 import frc.robot.Drive.Components.DriveSide;
 import frc.robot.Util.PDController;
 import frc.robot.Util.Round;
+import frc.robot.Util.Tickable;
 
 public class DriveSidePD {
     private DriveSide driveSide;
