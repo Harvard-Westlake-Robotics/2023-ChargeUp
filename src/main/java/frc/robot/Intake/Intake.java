@@ -1,6 +1,6 @@
 package frc.robot.Intake;
 
-import frc.robot.Devices.SparkMax;
+import frc.robot.Devices.Motor.SparkMax;
 
 public class Intake {
     private SparkMax left;
@@ -14,17 +14,18 @@ public class Intake {
 
         left.setBrake(true);
         right.setBrake(true);
+
+        left.setCurrentLimit(26, 100);
+        right.setCurrentLimit(26, 100);
     }
 
-    public void setVoltage (double voltage)
-    {
+    public void setVoltage(double voltage) {
         left.setVoltage(voltage);
         right.setVoltage(voltage);
         this.voltage = voltage;
     }
 
-    public double getVoltage()
-    {
+    public double getVoltage() {
         return voltage;
     }
 }

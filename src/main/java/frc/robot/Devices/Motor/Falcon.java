@@ -1,19 +1,22 @@
-package frc.robot.Devices;
+package frc.robot.Devices.Motor;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
-public class Falcon {
+import frc.robot.Devices.MotorController;
+
+public class Falcon extends MotorController {
     private WPI_TalonFX falcon;
-    private boolean isReversed;
     double stallVolt;
 
     public Falcon(int deviceNumber, boolean isReversed, boolean isStallable) {
+        super(isReversed);
+
         this.falcon = new WPI_TalonFX(deviceNumber);
         falcon.getSensorCollection();
-        this.isReversed = isReversed;
-        this.stallVolt = isStallable ? 3 : 1;
+        this.stallVolt = isStallable ? 3
+                : 1;
 
         /* newer config API */
         TalonFXConfiguration configs = new TalonFXConfiguration();
@@ -29,15 +32,8 @@ public class Falcon {
         this(deviceNumber, isReversed, false);
     }
 
-    public void setPercentVoltage(double percent) {
-        setVoltage(percent * (12.0 / 100.0));
-    }
-
-    public void setVoltage(double volts) {
-        volts = (isReversed) ? -volts : volts;
-        if (Math.abs(volts) > 12.0)
-            throw new Error("Illegal voltage");
-
+    protected void uSetVoltage(double volts) {
+        
         double fac = (volts > 0) ? 1 : -1;
         if (Math.abs(volts) < stallVolt / 2) {
             falcon.setVoltage(0);
@@ -63,8 +59,8 @@ public class Falcon {
          */
     }
 
-    public double getPosition() {
-        return ((isReversed) ? -falcon.getSelectedSensorPosition(0) : falcon.getSelectedSensorPosition(0)) / 2048.0;
+    protected double uGetRevs() {
+        return falcon.getSelectedSensorPosition(0) / 2048.0;
     }
 
     public void stop() {
@@ -73,5 +69,9 @@ public class Falcon {
 
     public void resetEncoder() {
         falcon.setSelectedSensorPosition(0);
+    }
+
+    public double getTemp() {
+        return falcon.getTemperature();
     }
 }

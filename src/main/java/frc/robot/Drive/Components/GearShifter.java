@@ -33,13 +33,13 @@ public class GearShifter {
     public void setLowGear() {
         // actuate
         state = true;
-        pneumatic.set(kForward);
+        pneumatic.set(kReverse);
     }
 
     public void setHighGear() {
         // un-actuate
         state = false;
-        pneumatic.set(kReverse);
+        pneumatic.set(kForward);
     }
 
 }

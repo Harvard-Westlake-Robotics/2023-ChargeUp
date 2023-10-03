@@ -1,15 +1,34 @@
 package frc.robot.Devices;
 
-import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenix.sensors.WPI_Pigeon2;
 
 public class Imu {
-    private Pigeon2 imu;
+    private WPI_Pigeon2 imu;
 
-    public Imu(Pigeon2 imu) {
-        this.imu = imu;
+    public Imu(int port) {
+        this.imu = new WPI_Pigeon2(port);
+        
+        imu.configFactoryDefault();
+        imu.configMountPoseYaw(90);
+        imu.configMountPosePitch(0);
+        imu.configMountPoseRoll(0);
+        imu.setYaw(0);
+        imu.configEnableCompass(false);
     }
 
     public double getRotation() {
         return imu.getYaw();
+    }
+
+    public double getPitch() {
+        return imu.getPitch();
+    }
+    
+    public double getRoll() {
+        return imu.getRoll();
+    }
+
+    public void resetYaw() {
+        imu.setYaw(0);
     }
 }

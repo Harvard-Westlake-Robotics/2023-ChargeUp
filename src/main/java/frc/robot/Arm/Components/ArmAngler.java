@@ -1,7 +1,8 @@
 package frc.robot.Arm.Components;
 
 import frc.robot.Devices.Encoder;
-import frc.robot.Devices.SparkMax;
+import frc.robot.Devices.Motor.SparkMax;
+import frc.robot.Util.DeSpam;
 
 // motor group
 public class ArmAngler {
@@ -14,8 +15,8 @@ public class ArmAngler {
         this.arm2 = arm2;
         this.encoder = armEncoder;
 
-        arm1.setBrake(true);
-        arm2.setBrake(true);
+        arm1.setCurrentLimit(65, 120);
+        arm2.setCurrentLimit(65, 120);
     }
 
     public void setBrake(boolean brake) {
@@ -24,17 +25,22 @@ public class ArmAngler {
     }
 
     public void setVoltage(double voltage) {
-        arm1.setVoltage(voltage);
-        arm2.setVoltage(voltage);
+        arm1.setVoltageSafe(voltage);
+        arm2.setVoltageSafe(voltage);
     }
+
+    DeSpam dSpam = new DeSpam(0.2);
 
     public double getRevs() {
-        return encoder.getRevs();
+        dSpam.exec(() -> {
+            System.out.println(encoder.getRevs());
+
+        });
+        return encoder.getRevs() - 0.025;
     }
 
-    public double getDegrees()
-    {
-        return getRevs() * 360;
+    public double getDegrees() {
+        return getRevs() * 360.0;
     }
 
     public void zero() {

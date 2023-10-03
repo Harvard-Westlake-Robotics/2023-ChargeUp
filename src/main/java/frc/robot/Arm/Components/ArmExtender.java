@@ -1,7 +1,7 @@
 package frc.robot.Arm.Components;
 
-import frc.robot.Devices.LimitSwitch;
-import frc.robot.Devices.Falcon;
+import frc.robot.Devices.MotorController;
+import frc.robot.Devices.Motor.SparkMax;
 
 // this is the subsystem
 public class ArmExtender {
@@ -13,58 +13,35 @@ public class ArmExtender {
     // 8t input
     // 64t output
 
-    private Falcon extender;
-    public LimitSwitch overExtending;
-    public LimitSwitch overRetracting;
+    private MotorController extender1;
+    private MotorController extender2;
 
-    public ArmExtender(Falcon extender, LimitSwitch overExtending, LimitSwitch overRetracting) {
-        this.extender = extender;
-        this.overExtending = overExtending;
-        this.overRetracting = overRetracting;
+    public ArmExtender(SparkMax extender1, SparkMax extender2) {
+        this.extender1 = extender1;
+        this.extender2 = extender2;
+
+        extender1.setCurrentLimit(140, 140);
+        extender2.setCurrentLimit(140, 140);
     }
 
-    public boolean isOverExtended() {
-        return overExtending.get();
-    }
-
-    public boolean isReverseExtended() {
-        return overRetracting.get();
+    private void setPV(double pv) {
+        extender1.setPercentVoltage(pv);
+        extender2.setPercentVoltage(pv);
     }
 
     public void setPower(double percent) {
-        // VIRTUAL LIMITER; LIMIT SWITCH IS SHIT
-        if (percent > 0) {
-            if (getExtension() > 43) {
-                // We are going up and top limit is tripped so stop
-                extender.setVoltage(0);
-                return;
-            }
-        } else {
-            if (getExtension() < 1) {
-                // We are going down and bottom limit is tripped so stop
-                extender.setVoltage(0);
-                return;
-            }
-        }
-        if (Math.abs(percent) > 100.0)
-            throw new Error("The fuck how do you expect me to send over 100% voltage to the motor you dumbass");
-        extender.setPercentVoltage(percent);
-    }
-
-    public double getExtension() {
-        return encoderToLength(extender.getPosition());
+        setPV(percent);
     }
 
     public void reset() {
-        extender.resetEncoder();
+        extender1.resetEncoder();
+        extender2.resetEncoder();
     }
 
     // convert encoder val to length
-    // encoder val is 0 to 50
-    public double encoderToLength(double encoderPosition) // 4096 ticks per rev
-    {
-        // ??:?? gear ratio ; 18/35 sprocket ratio ; 2" wheel diameter ; 2 inch of
-        // height per 1 inch of string ; min arm length 35"
-        return (encoderPosition * (14.0 / 60.0) * (12.0 / 17.0) * 2.0 * Math.PI * 2.0); // ! assumptions were made here
+    public double getExtension() { // 4096 ticks per rev
+        // 14:60 gear ratio ; 12:17 sprocket ratio ; 2" wheel diameter
+        // 2" height per 1 inch of string
+        return (extender1.getRevs() * (14.0 / 60.0) * (12.0 / 17.0) * (2.16 * Math.PI)) * 2;
     }
 }

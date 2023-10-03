@@ -18,6 +18,11 @@ public class PneumaticsSystem {
         return hub.getPressure(0);
     }
 
+    public void enableDigital()
+    {
+        hub.enableCompressorDigital();
+    }
+
     public void autoRunCompressor() {
         hub.enableCompressorAnalog(minPressure, maxPressure);
     }
