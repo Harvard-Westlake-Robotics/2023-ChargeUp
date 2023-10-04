@@ -181,10 +181,7 @@ public class Robot extends BetterRobot {
                     // positive is backward
                     // scheduler.setInterval(() -> {
 
-                    var controller = new PDController(2, 10).withMagnitude(3);
-                    // var controller = new PDController((con.getLeftY() + 1) * 10, (con.getRightX()
-                    // + 1) * 10);
-                    System.out.println("P: " + (con.getLeftY() + 1) * 10 + " D: " + (con.getRightX() + 1) * 10);
+                    var controller = new PDController(2, 10).withMagnitude(5);
 
                     var leftPD = new DriveSidePD(left, controller, controller);
                     var rightPD = new DriveSidePD(right, controller, controller);
@@ -194,17 +191,17 @@ public class Robot extends BetterRobot {
                         leftPD.setPercentVoltage(leftPD.getCorrection(true));
                         rightPD.setPercentVoltage(rightPD.getCorrection(true));
                     });
-                    Promise.instant().then(() -> {
-                    //     return autodrive.goFor(-30, 4, 2);
-                    // }).then(() -> {
-                        return autodrive.turnFor(90, 10, 20);
-                    }).then(() -> {
-                        System.out.println("done");
-                        scheduler.setTimeout(() -> {
-                            cancel.run();
 
-                        }, 1);
-                    });
+                    Promise.instant().then(() -> {
+                        return autodrive.goFor(30, 10, 20);
+                    })
+                            .then(() -> {
+                                System.out.println("done");
+                                // scheduler.setTimeout(() -> {
+                                // cancel.run();
+
+                                // }, 1);
+                            });
                     // }, 20);
 
                 });

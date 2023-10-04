@@ -2,9 +2,19 @@ package frc.robot.Util;
 
 import java.util.ArrayList;
 
+import frc.robot.Core.Scheduler;
+
 public class Promise {
     boolean resolved = false;
     ArrayList<Lambda> thens = new ArrayList<Lambda>();
+
+    public static Promise sleep(Scheduler scheduler, double sec) {
+        var prom = new Promise();
+        scheduler.setTimeout(() -> {
+            prom.resolve();
+        }, sec);
+        return prom;
+    }
 
     public Promise then(Lambda then) {
         Promise prom = new Promise();

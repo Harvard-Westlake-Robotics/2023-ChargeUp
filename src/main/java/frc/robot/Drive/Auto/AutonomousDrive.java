@@ -1,23 +1,23 @@
 package frc.robot.Drive.Auto;
 
-import frc.robot.Drive.Auto.Movements.Movement;
 import frc.robot.Drive.Components.GearShifter;
 import frc.robot.Util.AngleMath;
 import frc.robot.Util.Container;
-import frc.robot.Util.DeSpam;
-import frc.robot.Util.Pair;
 import frc.robot.Util.Promise;
-import frc.robot.Util.ScaleInput;
-import frc.robot.Util.Tickable;
 import frc.robot.Core.Scheduler;
 import frc.robot.Devices.Imu;
 
-public class AutonomousDrive implements Tickable {
+public class AutonomousDrive {
     DriveSidePD left;
     DriveSidePD right;
     GearShifter shifter;
     Scheduler scheduler;
     Imu imu;
+
+    private void ensureInitTurnTarget() {
+        if (turn_target == null)
+            turn_target = imu.getRotation();
+    }
 
     public AutonomousDrive(Scheduler scheduler, DriveSidePD left, DriveSidePD right, GearShifter shifter, Imu imu) {
         this.left = left;
@@ -27,57 +27,8 @@ public class AutonomousDrive implements Tickable {
         this.scheduler = scheduler;
     }
 
-    Movement movement;
-    double secondsIntoMovement;
-    double debt; // seconds
-    Pair<Double> initialTargets;
-    Tickable tickable;
-
-    public void setMovement(Movement movement) {
-        this.secondsIntoMovement = 0;
-        this.debt = 0;
-        initialTargets = new Pair<Double>(left.getTarget(), right.getTarget());
-        if (movement == null) {
-            this.movement = null;
-        } else {
-            this.movement = movement;
-        }
-    }
-
-    public void tick(double dTime) {
-        if (movement != null) { // runs the active `Movement`
-            var currentCorrections = new Pair<Double>(left.getCorrection(shifter.getState()),
-                    right.getCorrection(shifter.getState()));
-            if (secondsIntoMovement + dTime > movement.getDuration()) {
-                var netMovement = movement.getTotalDistance();
-                left.setTarget(initialTargets.left + netMovement.left);
-                right.setTarget(initialTargets.right + netMovement.right);
-                movement = null;
-            }
-            // only skips to next tick if the robot can debt and the robot is currently
-            // applying the maximum correction
-            else if (!(movement.canDebt(dTime)
-                    && Math.max(
-                            Math.abs(currentCorrections.left),
-                            Math.abs(currentCorrections.right)) > 100)) {
-                secondsIntoMovement += dTime;
-                var dTarget = movement.sample(secondsIntoMovement).map((Double e) -> e * dTime);
-                left.incrementTarget(dTarget.left);
-                right.incrementTarget(dTarget.right);
-            }
-        }
-        { // Ticks DriveSides
-          // scales the corrections to ([100, -100], [100, -100])
-            Pair<Double> voltages = ScaleInput.normalize(
-                    new Pair<Double>(left.getCorrection(shifter.getState()), right.getCorrection(shifter.getState())));
-            left.setPercentVoltage(voltages.left);
-            right.setPercentVoltage(voltages.right);
-        }
-    }
-
-    DeSpam dSpam = new DeSpam(0.8);
-
     public Promise goFor(double inches, double velocity, double max_acc) {
+        ensureInitTurnTarget();
         var distSoFar = new Container<Double>(0.0);
         var prom = new Promise();
         var currVelocity = new Container<Double>(0.0);
@@ -97,11 +48,6 @@ public class AutonomousDrive implements Tickable {
             }
             double distTick = dTime * currVelocity.val * Math.signum(inches);
 
-            dSpam.exec(() -> {
-                System.out.println(
-                        "currvel: " + currVelocity.val + " decelstart: " + decelStart + " distSoFar: " + distSoFar.val);
-            });
-
             left.incrementTarget(distTick);
             right.incrementTarget(distTick);
             distSoFar.val += distTick;
@@ -112,27 +58,30 @@ public class AutonomousDrive implements Tickable {
         return prom;
     }
 
+    Double turn_target = null;
+
     public Promise turnFor(double degrees, double velocity, double max_acc) {
+        ensureInitTurnTarget();
         var distSoFar = new Container<Double>(0.0);
-        double startDeg = imu.getRotation() + (left.error);
+        double startDeg = turn_target;
         var prom = new Promise();
-        var cancel = scheduler.registerTick((dTime) -> { 
-            if (Math.abs(AngleMath.getDelta(startDeg, imu.getRotation() + ((Math.abs(left.error) + Math.abs(right.error)) / (24.0 * Math.PI / 360.0)) * Math.signum(degrees))) > Math.abs(degrees)) {
+        var cancel = scheduler.registerTick((dTime) -> {
+            var unrealizedCorrect = (left.error - right.error) / (26.0 * Math.PI / 360.0);
+            var prospective_rotation = unrealizedCorrect + imu.getRotation();
+            System.out.println("imu: " + imu.getRotation());
+            System.out.println("u correct: " + unrealizedCorrect);
+            System.out.println("rot: " + prospective_rotation);
+            if (Math.abs(AngleMath.getDelta(startDeg, prospective_rotation)) > Math.abs(degrees)) {
                 prom.resolve();
             }
             double distTick = dTime * velocity * Math.signum(degrees);
-
-            // dSpam.exec(() -> {
-            // System.out.println(
-            // "currvel: " + currVelocity.val + " decelstart: " + decelStart + " distSoFar:
-            // " + distSoFar.val);
-            // });
 
             left.incrementTarget(distTick);
             right.incrementTarget(-distTick);
             distSoFar.val += distTick;
         });
         prom.then(() -> {
+            turn_target += degrees;
             cancel.run();
         });
         return prom;
