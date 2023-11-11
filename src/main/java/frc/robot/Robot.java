@@ -119,11 +119,15 @@ public class Robot extends BetterRobot {
                         final double pwrCurveIntensity = 5;
                         final Pair<Double> powers = ScaleInput.scale(
                                 con.getLeftY(),
-                                con.getRightY(),
+                                con.getRightX(),
                                 deadzone,
                                 turnCurveIntensity,
                                 pwrCurveIntensity);
-                        drive.setPower(powers.left, powers.right);
+                        if (Math.abs(powers.left) >= Math.abs(powers.right))
+                            drive.setPower(powers.left, powers.left);
+                        else {
+                            drive.setPower(-powers.right + powers.left, powers.right + powers.left)
+                        }
 
                         // Extender Control
                         switch (joystick.getPOV()) {
