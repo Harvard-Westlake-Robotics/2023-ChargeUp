@@ -126,7 +126,7 @@ public class Robot extends BetterRobot {
                         if (Math.abs(powers.left) >= Math.abs(powers.right))
                             drive.setPower(powers.left, powers.left);
                         else {
-                            drive.setPower(-powers.right + powers.left, powers.right + powers.left)
+                            drive.setPower(-powers.right + powers.left, powers.right + powers.left);
                         }
 
                         // Extender Control
